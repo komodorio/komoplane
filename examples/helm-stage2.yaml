@@ -1,0 +1,21 @@
+
+---
+apiVersion: helm.crossplane.io/v1beta1
+kind: Release
+metadata:
+  name: apache-example
+spec:
+  forProvider:
+    chart:
+      repository: https://charts.bitnami.com/bitnami
+      name: apache
+      version: 9.5.3
+    namespace: apache
+    set:
+      - name: param1
+        value: value2
+    values:
+      service:
+        type: ClusterIP
+  providerConfigRef:
+    name: helm-provider

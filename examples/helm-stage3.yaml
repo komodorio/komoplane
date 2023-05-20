@@ -1,0 +1,122 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xkomodorchartsets.xrd.komodor.com
+spec:
+  group: xrd.komodor.com
+  names:
+    kind: XKomodorChartSet
+    plural: xkomodorchartsets
+  claimNames:
+    kind: KomodorChartSet
+    plural: komodorchartsets
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                watcherVer:
+                  type: string
+                watcherKey:
+                  type: string
+                hdashboardVer:
+                  type: string
+              required:
+                - watcherVer
+                - watcherKey
+                - hdashboardVer
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: example-komodorset-composition
+#  labels:
+#    crossplane.io/xrd: xkomodorchartset.xrd.komodor.com
+#    provider: helm-provider
+spec:
+  #writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: xrd.komodor.com/v1alpha1
+    kind: XKomodorChartSet
+  resources:
+    - name: watcher-instance
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          forProvider:
+            chart:
+              repository: https://helm-charts.komodor.io
+              name: k8s-watcher
+              version: 1.14.0
+            namespace: komodor
+            values:
+              createNamespace: false
+              apiKey: please specify
+              watcher:
+                clusterName: CPManagedCluster
+          providerConfigRef:
+            name: helm-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.watcherVer
+          toFieldPath: spec.forProvider.chart.version
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.parameters.watcherKey
+          toFieldPath: spec.forProvider.values.apiKey
+    - name: khd-instance
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          forProvider:
+            chart:
+              repository: https://helm-charts.komodor.io
+              name: helm-dashboard
+              version: 0.1.7
+            namespace: komodor
+          providerConfigRef:
+            name: helm-provider
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.hdashboardVer
+          toFieldPath: spec.forProvider.chart.version
+
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: XKomodorChartSet # Direct XR-style
+metadata:
+  name: my-test-set1
+spec:
+  watcherVer: 1.14.3
+  hdashboardVer: 0.1.8
+  watcherKey: abc
+
+  compositionRef:
+    name: example-komodorset-composition
+#  writeConnectionSecretToRef:
+#    namespace: crossplane-system
+#    name: my-db-connection-details
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: KomodorChartSet # Claim-style
+metadata:
+  namespace: default
+  name: my-test-set2
+spec:
+  watcherVer: 1.14.3
+  hdashboardVer: 0.1.8
+  watcherKey: abc2
+
+  compositionRef:
+    name: example-komodorset-composition
+#  writeConnectionSecretToRef:
+#    namespace: crossplane-system
+#    name: my-db-connection-details
