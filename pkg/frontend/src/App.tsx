@@ -11,7 +11,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import InboxIcon from '@mui/icons-material/HubTwoTone';
+import PanTool from '@mui/icons-material/PanToolTwoTone';
+import Polyline from '@mui/icons-material/PolylineTwoTone';
+import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
+import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
+import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 
 const drawerWidth = 260;
 
@@ -65,12 +70,10 @@ const DrawerHeader = styled('div')(({theme}) => ({
 }));
 
 export default function PersistentDrawerLeft() {
-    const [open, _] = React.useState(true);
-
     return (
         <Box sx={{display: 'flex'}}>
             <CssBaseline/>
-            <AppBar position="fixed" open={open}>
+            <AppBar position="fixed" open={true}>
 
             </AppBar>
             <Drawer
@@ -84,7 +87,7 @@ export default function PersistentDrawerLeft() {
                 }}
                 variant="persistent"
                 anchor="left"
-                open={open}
+                open={true}
             >
                 <DrawerHeader>
                     <Typography variant="h4" noWrap component="div">
@@ -96,7 +99,7 @@ export default function PersistentDrawerLeft() {
                     <ListItem key="Claims" disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <PanTool/>
                             </ListItemIcon>
                             <ListItemText primary="Claims"/>
                         </ListItemButton>
@@ -104,7 +107,7 @@ export default function PersistentDrawerLeft() {
                     <ListItem key="Composite Resources" disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <Polyline/>
                             </ListItemIcon>
                             <ListItemText primary="Composite Resources"/>
                         </ListItemButton>
@@ -120,18 +123,10 @@ export default function PersistentDrawerLeft() {
                 </List>
                 <Divider/>
                 <List>
-                    <ListItem key="Providers" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <InboxIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Providers"/>
-                        </ListItemButton>
-                    </ListItem>
                     <ListItem key="Compositions" disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <CompositionsIcon/>
                             </ListItemIcon>
                             <ListItemText primary="Compositions"/>
                         </ListItemButton>
@@ -139,14 +134,22 @@ export default function PersistentDrawerLeft() {
                     <ListItem key="XRDs" disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <InboxIcon/>
+                                <XRDsIcon/>
                             </ListItemIcon>
                             <ListItemText primary="XRDs"/>
                         </ListItemButton>
                     </ListItem>
+                    <ListItem key="Providers" disablePadding>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <ProvidersIcon/>
+                            </ListItemIcon>
+                            <ListItemText primary="Providers"/>
+                        </ListItemButton>
+                    </ListItem>
                 </List>
             </Drawer>
-            <Main open={open} className={"bg-black"}>
+            <Main open={true} className={"bg-black"}>
                 <Typography paragraph>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                     tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
