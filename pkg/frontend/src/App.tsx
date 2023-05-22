@@ -130,7 +130,7 @@ export default function PersistentDrawerLeft() {
                         </ListItem>
                     </List>
                 </Drawer>
-                <Main open={true} className={"bg-black"}>
+                <Main open={true} >
                     <Routes>
                         <Route path="/" element={<Home/>}/>
                         <Route
