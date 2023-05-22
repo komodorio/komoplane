@@ -2,5 +2,5 @@ package pkg
 
 import "embed"
 
-//go:embed frontend/*
+//go:embed dist/*
 var StaticFS embed.FS
