@@ -2,7 +2,6 @@ import {styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar, {AppBarProps as MuiAppBarProps} from '@mui/material/AppBar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -43,26 +42,6 @@ const Main = styled('main', {shouldForwardProp: (prop) => prop !== 'open'})<{
     }),
 }));
 
-interface AppBarProps extends MuiAppBarProps {
-    open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({theme, open}) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
 
 const DrawerHeader = styled('div')(({theme}) => ({
     display: 'flex',
@@ -76,91 +55,91 @@ const DrawerHeader = styled('div')(({theme}) => ({
 export default function PersistentDrawerLeft() {
     return (
         <BrowserRouter>
-        <Box sx={{display: 'flex'}}>
-            <CssBaseline/>
-            <Drawer
-                sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
+            <Box sx={{display: 'flex'}}>
+                <CssBaseline/>
+                <Drawer
+                    sx={{
                         width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="persistent"
-                anchor="left"
-                open={true}
-            >
-                <DrawerHeader>
-                    <Typography variant="h4" noWrap component="div">
-                        <Link component={RouterLink} to="/">komoplane</Link>
-                    </Typography>
-                </DrawerHeader>
-                <Divider/>
-                <List>
-                    <ListItem key="Claims" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <PanTool/>
-                            </ListItemIcon>
-                            <ListItemText primary="Claims"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="Composite Resources" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <Polyline/>
-                            </ListItemIcon>
-                            <ListItemText primary="Composite Resources"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="Managed Resources" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <InboxIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Managed Resources"/>
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-                <Divider/>
-                <List>
-                    <ListItem key="Compositions" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <CompositionsIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Compositions"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="XRDs" disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <XRDsIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="XRDs"/>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="Providers" disablePadding>
-                        <ListItemButton component={RouterLink} to="/providers">
-                            <ListItemIcon>
-                                <ProvidersIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Providers"/>
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-            </Drawer>
-            <Main open={true} className={"bg-black"}>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route
-                        path="/providers"
-                        element={<Providers />}
-                    />
-                </Routes>
-            </Main>
-        </Box>
+                        flexShrink: 0,
+                        '& .MuiDrawer-paper': {
+                            width: drawerWidth,
+                            boxSizing: 'border-box',
+                        },
+                    }}
+                    variant="persistent"
+                    anchor="left"
+                    open={true}
+                >
+                    <DrawerHeader>
+                        <Typography variant="h4" noWrap component="div">
+                            <Link component={RouterLink} to="/">komoplane</Link>
+                        </Typography>
+                    </DrawerHeader>
+                    <Divider/>
+                    <List>
+                        <ListItem key="Claims" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <PanTool/>
+                                </ListItemIcon>
+                                <ListItemText primary="Claims"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="Composite Resources" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <Polyline/>
+                                </ListItemIcon>
+                                <ListItemText primary="Composite Resources"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="Managed Resources" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <InboxIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="Managed Resources"/>
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                    <Divider/>
+                    <List>
+                        <ListItem key="Compositions" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <CompositionsIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="Compositions"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="XRDs" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <XRDsIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="XRDs"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="Providers" disablePadding>
+                            <ListItemButton component={RouterLink} to="/providers">
+                                <ListItemIcon>
+                                    <ProvidersIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="Providers"/>
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                </Drawer>
+                <Main open={true} className={"bg-black"}>
+                    <Routes>
+                        <Route path="/" element={<Home/>}/>
+                        <Route
+                            path="/providers"
+                            element={<Providers/>}
+                        />
+                    </Routes>
+                </Main>
+            </Box>
         </BrowserRouter>
     );
 }
