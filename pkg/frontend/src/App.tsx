@@ -16,9 +16,10 @@ import Polyline from '@mui/icons-material/PolylineTwoTone';
 import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
 import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import Providers from "./pages/Providers.tsx";
+import {Link} from "@mui/material";
 
 
 const drawerWidth = 260;
@@ -92,7 +93,7 @@ export default function PersistentDrawerLeft() {
             >
                 <DrawerHeader>
                     <Typography variant="h4" noWrap component="div">
-                        komoplane
+                        <Link component={RouterLink} to="/">komoplane</Link>
                     </Typography>
                 </DrawerHeader>
                 <Divider/>
@@ -141,7 +142,7 @@ export default function PersistentDrawerLeft() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem key="Providers" disablePadding>
-                        <ListItemButton>
+                        <ListItemButton component={RouterLink} to="/providers">
                             <ListItemIcon>
                                 <ProvidersIcon/>
                             </ListItemIcon>
