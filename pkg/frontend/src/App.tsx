@@ -51,7 +51,6 @@ const DrawerHeader = styled('div')(({theme}) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'center',
 }));
-
 export default function PersistentDrawerLeft() {
     return (
         <BrowserRouter>

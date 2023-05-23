@@ -18,6 +18,6 @@ export type Provider = {
     }
 }
 
-export type ProviderList = {
+export type ProviderItems = {
     "items": Provider[]
 }

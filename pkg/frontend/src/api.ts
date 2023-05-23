@@ -1,4 +1,4 @@
-import {ProviderList} from "./types.ts";
+import {ProviderItems} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -7,8 +7,8 @@ class APIClient {
     }
 
     getProviderList = async () => {
-        const response = await fetch(`${this.baseUrl}/status`);
-        const data: ProviderList = await response.json();
+        const response = await fetch(`${this.baseUrl}/api/providers`);
+        const data: ProviderItems = await response.json();
         return data;
     };
 }
@@ -16,7 +16,7 @@ class APIClient {
 let baseURL = ""
 
 // @ts-ignore
-if (window["$RefreshSet$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm dev` - help out!
+if (window["$RefreshReg$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm dev` - help out!
     baseURL = "http://localhost:8090"
 }
 

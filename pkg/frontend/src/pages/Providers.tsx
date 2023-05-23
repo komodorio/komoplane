@@ -1,12 +1,32 @@
 import Typography from "@mui/material/Typography";
 import {Grid, Toolbar} from "@mui/material";
+import apiClient from "../api.ts";
+import ProviderList from "../components/ProviderList.tsx";
+import {useEffect, useState} from "react";
 
 const Providers = () => {
+    const [providers , setProviders] = useState(undefined);
+
+    useEffect(() => {
+        apiClient.getProviderList()
+            .then((data) => setProviders(data))
+            .catch((error) => console.error(error));
+    }, []);
+
     return (
         <>
             <Toolbar>
                 <Typography variant="h5">Providers</Typography>
             </Toolbar>
+
+            <ProviderList providers={providers}></ProviderList>
+        </>
+    );
+};
+
+export default Providers;
+
+/*
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                     <div className="p-4 bg-white rounded shadow">
@@ -33,8 +53,5 @@ const Providers = () => {
                     </div>
                 </Grid>
             </Grid>
-        </>
-    );
-};
 
-export default Providers;
+ */

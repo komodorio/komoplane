@@ -10,29 +10,6 @@ import (
 	"os"
 )
 
-/*
-	func noCache(c *echo.Context) {
-		if c.GetHeader("Cache-Control") == "" { // default policy is not to cache
-			c.Header("Cache-Control", "no-cache")
-		}
-		c.Next()
-	}
-
-	func errorHandler(c *echo.Context) {
-		c.Next()
-
-		errs := ""
-		for _, err := range c.Errors {
-			log.Debugf("Error: %+v", err)
-			errs += err.Error() + "\n"
-		}
-
-		if errs != "" {
-			c.String(http.StatusInternalServerError, html.EscapeString(errs))
-		}
-	}
-*/
-
 func NewRouter(data *Controller, debug bool) *echo.Echo {
 	api := echo.New()
 	api.Debug = debug
