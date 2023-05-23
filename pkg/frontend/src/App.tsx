@@ -55,7 +55,7 @@ const DrawerHeader = styled('div')(({theme}) => ({
 export default function PersistentDrawerLeft() {
     return (
         <BrowserRouter>
-            <Box sx={{display: 'flex'}}>
+            <Box className={"flex grow"}>
                 <CssBaseline/>
                 <Drawer
                     sx={{

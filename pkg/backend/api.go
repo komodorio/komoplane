@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"github.com/komodorio/komoplane/pkg"
+	"github.com/komodorio/komoplane/pkg/frontend"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
@@ -99,7 +99,7 @@ func configureStatic(api *echo.Echo) {
 		log.Warnf("Using local development path to serve static files")
 		fsys = os.DirFS("pkg")
 	} else {
-		fsys = pkg.StaticFS
+		fsys = frontend.StaticFS
 	}
 
 	api.StaticFS("/", echo.MustSubFS(fsys, "frontend"))
