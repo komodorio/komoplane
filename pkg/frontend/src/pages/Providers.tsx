@@ -1,23 +1,40 @@
-import {useLocation} from "react-router-dom";
+import Typography from "@mui/material/Typography";
+import {Grid, Toolbar} from "@mui/material";
 
-function Providers() {
-    const {state: release} = useLocation();
-
-
+const Providers = () => {
     return (
-        <div className="flex">
-            <div className="flex flex-col gap-2 w-1/6 h-screen bg-[#E8EDF2]">
-                <label className="mt-5 mx-5 text-sm text-[#3D4048] font-semibold">
-                    Providers
-                </label>
-                list
-            </div>
-
-            <div className="w-full h-screen bg-[#F4F7FA]">
-                details {release}
-            </div>
-        </div>
+        <>
+            <Toolbar>
+                <Typography variant="h5">Providers</Typography>
+            </Toolbar>
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                    <div className="p-4 bg-white rounded shadow">
+                        <Typography variant="h6">Table Widget</Typography>
+                        <Typography variant="body1">Table content goes here</Typography>
+                    </div>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <div className="p-4 bg-white rounded shadow">
+                        <Typography variant="h6">Graph Widget</Typography>
+                        <Typography variant="body1">Graph content goes here</Typography>
+                    </div>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <div className="p-4 bg-white rounded shadow">
+                        <Typography variant="h6">Widget 3</Typography>
+                        <Typography variant="body1">Content for widget 3</Typography>
+                    </div>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <div className="p-4 bg-white rounded shadow">
+                        <Typography variant="h6">Widget 4</Typography>
+                        <Typography variant="body1">Content for widget 4</Typography>
+                    </div>
+                </Grid>
+            </Grid>
+        </>
     );
-}
+};
 
 export default Providers;

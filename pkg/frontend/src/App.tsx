@@ -71,8 +71,9 @@ export default function PersistentDrawerLeft() {
                     open={true}
                 >
                     <DrawerHeader>
-                        <Typography variant="h4" noWrap component="div">
-                            <Link component={RouterLink} to="/">komoplane</Link>
+                        <Typography variant="h4" noWrap component="div" className="text-center">
+                            <Link component={RouterLink} to="/" style={{letterSpacing: "0.3rem"}}>komoplane</Link>
+                            <Typography variant="body2" className={"text-slate-500"}>crossplane tool by Komodor.com</Typography>
                         </Typography>
                     </DrawerHeader>
                     <Divider/>
@@ -130,7 +131,7 @@ export default function PersistentDrawerLeft() {
                         </ListItem>
                     </List>
                 </Drawer>
-                <Main open={true} >
+                <Main open={true} className={"bg-slate-50"}>
                     <Routes>
                         <Route path="/" element={<Home/>}/>
                         <Route
