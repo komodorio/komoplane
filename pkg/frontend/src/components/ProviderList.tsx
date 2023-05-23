@@ -24,9 +24,9 @@ type ProviderListProps = {
 
 export default function ProviderList({providers}: ProviderListProps) {
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} >
             {providers?.items?.map((provider: Provider) => (
-                <ProviderListItem provider={provider}/>
+                <ProviderListItem provider={provider} key={provider.metadata.name}/>
             ))}
         </Grid>
     );
