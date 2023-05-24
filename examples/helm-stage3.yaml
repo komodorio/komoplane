@@ -99,8 +99,9 @@ spec:
   hdashboardVer: 0.1.8
   watcherKey: abc
 
-  compositionRef:
-    name: example-komodorset-composition
+  #compositionRef:
+  #  name: example-komodorset-composition
+
 #  writeConnectionSecretToRef:
 #    namespace: crossplane-system
 #    name: my-db-connection-details
@@ -115,8 +116,9 @@ spec:
   hdashboardVer: 0.1.8
   watcherKey: abc2
 
-  compositionRef:
-    name: example-komodorset-composition
+  #compositionRef:
+  #  name: example-komodorset-composition
+
 #  writeConnectionSecretToRef:
 #    namespace: crossplane-system
 #    name: my-db-connection-details

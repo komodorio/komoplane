@@ -1,15 +1,17 @@
+export type Status = {
+    conditions: {
+        "type": string,
+        "status": string,
+        "lastTransitionTime": string,
+        "reason": string
+    }[]
+}
+
 export type Provider = {
     metadata: {
         name: string
     },
-    status: {
-        conditions: {
-            "type": string,
-            "status": string,
-            "lastTransitionTime": string,
-            "reason": string
-        }[]
-    }
+    status: Status
     spec: {
         package: string
         controllerConfigRef: {

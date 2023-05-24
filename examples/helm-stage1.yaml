@@ -48,12 +48,3 @@ spec:
   package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.15.0
   controllerConfigRef:
     name: provider-helm-cc
-
----
-apiVersion: helm.crossplane.io/v1beta1
-kind: ProviderConfig
-metadata:
-  name: helm-provider
-spec:
-  credentials:
-    source: InjectedIdentity

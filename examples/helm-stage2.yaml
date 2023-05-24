@@ -1,4 +1,11 @@
-
+---
+apiVersion: helm.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: helm-provider-pc
+spec:
+  credentials:
+    source: InjectedIdentity
 ---
 apiVersion: helm.crossplane.io/v1beta1
 kind: Release
@@ -18,4 +25,4 @@ spec:
       service:
         type: ClusterIP
   providerConfigRef:
-    name: helm-provider
+    name: helm-provider-pc
