@@ -2,6 +2,7 @@ import {Provider, ProviderItems} from "../types.ts";
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import HealthStatus from "./HealthStatus.tsx";
+import {useNavigate} from "react-router-dom";
 
 
 type ProviderListItemProps = {
@@ -9,8 +10,17 @@ type ProviderListItemProps = {
 };
 
 function ProviderListItem({provider}: ProviderListItemProps) {
+    const navigate = useNavigate();
+    const handleOnClick = () => {
+        navigate(
+            provider.metadata.name,
+            { state: provider }
+        );
+    };
+
+
     return (
-        <Grid item xs={12} md={12} key={provider.metadata.name}>
+        <Grid item xs={12} md={12} key={provider.metadata.name} onClick={handleOnClick}>
             <div className="p-4 bg-white rounded shadow">
                 <div>
                     <Typography variant="h6">{provider.metadata.name}</Typography>
