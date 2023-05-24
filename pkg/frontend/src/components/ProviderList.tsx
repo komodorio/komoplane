@@ -18,10 +18,9 @@ function ProviderListItem({provider}: ProviderListItemProps) {
         );
     };
 
-
     return (
         <Grid item xs={12} md={12} key={provider.metadata.name} onClick={handleOnClick}>
-            <div className="p-4 bg-white rounded shadow">
+            <div className="p-4 bg-white rounded shadow cursor-pointer">
                 <div>
                     <Typography variant="h6">{provider.metadata.name}</Typography>
                     <Typography variant="body1">{provider.spec.package}</Typography>

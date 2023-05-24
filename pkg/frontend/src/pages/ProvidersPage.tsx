@@ -3,9 +3,10 @@ import {Toolbar} from "@mui/material";
 import apiClient from "../api.ts";
 import ProviderList from "../components/ProviderList.tsx";
 import {useEffect, useState} from "react";
+import {ProviderItems} from "../types.ts";
 
 const ProvidersPage = () => {
-    const [providers , setProviders] = useState(undefined);
+    const [providers , setProviders] = useState<ProviderItems | undefined>(undefined);
 
     useEffect(() => {
         apiClient.getProviderList()

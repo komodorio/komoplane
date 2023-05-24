@@ -1,10 +1,12 @@
+export type Condition = {
+    "type": string,
+    "status": string,
+    "lastTransitionTime": string,
+    "reason": string
+}
+
 export type Status = {
-    conditions: {
-        "type": string,
-        "status": string,
-        "lastTransitionTime": string,
-        "reason": string
-    }[]
+    conditions: Condition[]
 }
 
 export type Provider = {

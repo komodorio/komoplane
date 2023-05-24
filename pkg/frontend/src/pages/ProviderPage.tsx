@@ -4,6 +4,8 @@ import {useParams} from "react-router-dom";
 import {Provider} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
+import HealthStatus from "../components/HealthStatus.tsx";
+import ConditionList from "../components/ConditionList.tsx";
 
 
 const ProviderPage = () => {
@@ -28,21 +30,26 @@ const ProviderPage = () => {
     return (
         <>
             <Typography variant="subtitle2">PROVIDER</Typography>
-            <Typography variant="h3">{provider.metadata.name}</Typography>
+            <Typography variant="h3">{provider.metadata.name} <HealthStatus
+                status={provider.status}></HealthStatus></Typography>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                     <div className="p-4 bg-white rounded shadow">
-                        <Typography variant="h6">Info</Typography>
+                        <Typography variant="h6">Configuration</Typography>
                         <Typography variant="body1">
-                            {provider.spec.package}
-                            {provider.spec.controllerConfigRef.name}
+                            Package: {provider.spec.package}
                         </Typography>
+                        {provider.spec.controllerConfigRef ? (
+                            <Typography variant="body1">
+                                Controller Config: {provider.spec.controllerConfigRef.name}
+                            </Typography>
+                        ) : (<></>)}
                     </div>
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <div className="p-4 bg-white rounded shadow">
                         <Typography variant="h6">Status</Typography>
-                        <Typography variant="body1">Graph content goes here</Typography>
+                        <ConditionList conditions={provider.status.conditions}></ConditionList>
                     </div>
                 </Grid>
                 <Grid item xs={12} md={6}>
