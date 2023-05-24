@@ -1,4 +1,4 @@
-import {ProviderItems} from "./types.ts";
+import {Provider, ProviderItems} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -6,9 +6,23 @@ class APIClient {
     ) {
     }
 
+    innterFetch = async (path: string) =>{
+        const response = await fetch(`${this.baseUrl}${path}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data from API. Status code: ${response.status}`);
+        }
+        return response
+    };
+
     getProviderList = async () => {
-        const response = await fetch(`${this.baseUrl}/api/providers`);
+        const response = await this.innterFetch(`/api/providers`);
         const data: ProviderItems = await response.json();
+        return data;
+    };
+
+    getProvider = async (name: string) => {
+        const response = await this.innterFetch(`/api/providers/${name}`);
+        const data: Provider = await response.json();
         return data;
     };
 }

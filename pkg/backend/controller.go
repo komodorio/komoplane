@@ -30,13 +30,22 @@ func (c *Controller) GetStatus() StatusInfo {
 	return c.StatusInfo
 }
 
-func (c *Controller) GetProviders(c2 echo.Context) error {
+func (c *Controller) GetProviders(ec echo.Context) error {
 	providers, err := c.APIv1.Providers().List(c.ctx)
 	if err != nil {
 		return err
 	}
 
-	return c2.JSONPretty(http.StatusOK, providers, "  ")
+	return ec.JSONPretty(http.StatusOK, providers, "  ")
+}
+
+func (c *Controller) GetProvider(ec echo.Context) error {
+	res, err := c.APIv1.Providers().Get(c.ctx, ec.Param("name"))
+	if err != nil {
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {

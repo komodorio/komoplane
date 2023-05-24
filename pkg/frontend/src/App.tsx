@@ -17,8 +17,9 @@ import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
-import Providers from "./pages/Providers.tsx";
+import ProvidersPage from "./pages/ProvidersPage.tsx";
 import {Link} from "@mui/material";
+import ProviderPage from "./pages/ProviderPage.tsx";
 
 
 const drawerWidth = 260;
@@ -72,7 +73,8 @@ export default function PersistentDrawerLeft() {
                     <DrawerHeader>
                         <Typography variant="h4" noWrap component="div" className="text-center">
                             <Link component={RouterLink} to="/" style={{letterSpacing: "0.3rem"}}>komoplane</Link>
-                            <Typography variant="body2" className={"text-slate-500"}>crossplane tool by Komodor.com</Typography>
+                            <Typography variant="body2" className={"text-slate-500"}>crossplane tool by
+                                Komodor.com</Typography>
                         </Typography>
                     </DrawerHeader>
                     <Divider/>
@@ -133,10 +135,9 @@ export default function PersistentDrawerLeft() {
                 <Main open={true} className={"bg-slate-50"}>
                     <Routes>
                         <Route path="/" element={<Home/>}/>
-                        <Route
-                            path="/providers"
-                            element={<Providers/>}
-                        />
+                        <Route path="/providers" element={<ProvidersPage/>}/>
+                        <Route path="/providers/:provider" element={<ProviderPage/>}/>
+                        <Route element={<Typography>Page not found</Typography>} />
                     </Routes>
                 </Main>
             </Box>
