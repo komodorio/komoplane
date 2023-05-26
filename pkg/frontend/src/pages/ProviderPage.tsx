@@ -6,6 +6,7 @@ import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
 import HealthStatus from "../components/HealthStatus.tsx";
 import ConditionList from "../components/ConditionList.tsx";
+import Events from "../components/Events.tsx";
 
 
 const ProviderPage = () => {
@@ -62,6 +63,12 @@ const ProviderPage = () => {
                     <div className="p-4 bg-white rounded shadow">
                         <Typography variant="h6">Relations</Typography>
                         <Typography variant="body1">Content for widget 4</Typography>
+                    </div>
+                </Grid>
+                <Grid item xs={12} md={12}>
+                    <div className="p-4 bg-white rounded shadow">
+                        <Typography variant="h6">Events</Typography>
+                        <Events src={"providers/"+provider.metadata.name}></Events>
                     </div>
                 </Grid>
             </Grid>

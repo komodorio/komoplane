@@ -1,3 +1,9 @@
+
+export type Metadata = {
+    name: string
+    namespace: string
+}
+
 export type Condition = {
     "type": string,
     "status": string,
@@ -10,9 +16,7 @@ export type Status = {
 }
 
 export type Provider = {
-    metadata: {
-        name: string
-    },
+    metadata: Metadata,
     status: Status
     spec: {
         package: string
@@ -24,4 +28,19 @@ export type Provider = {
 
 export type ProviderItems = {
     "items": Provider[]
+}
+
+export type K8sEvent ={
+    // type, age, reason, object, message
+    metadata: Metadata,
+    reason: string
+    count: number
+    message: string
+    type: string
+    firstTimestamp: string
+    lastTimestamp: string
+}
+
+export type EventsItems = {
+    "items": K8sEvent[]
 }

@@ -1,4 +1,4 @@
-import {Provider, ProviderItems} from "./types.ts";
+import {EventsItems, Provider, ProviderItems} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -23,6 +23,12 @@ class APIClient {
     getProvider = async (name: string) => {
         const response = await this.innterFetch(`/api/providers/${name}`);
         const data: Provider = await response.json();
+        return data;
+    };
+
+    getProviderEvents = async (name: string) => {
+        const response = await this.innterFetch(`/api/${name}/events`); // TODO: unversal API or not
+        const data: EventsItems = await response.json(); // FIXME: better type than any
         return data;
     };
 }

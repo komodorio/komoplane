@@ -15,7 +15,7 @@ function ConditionListItem({condition}: ConditionListItemProps) {
                     <Typography>{condition.type}</Typography>
                     <Typography>{condition.status}</Typography>
                     <Typography>{condition.reason}</Typography>
-                    <Typography>{condition.lastTransitionTime}</Typography>
+                    <Typography>{condition.lastTransitionTime.toLocaleString()}</Typography>
                 </div>
             </div>
         </Grid>
@@ -27,14 +27,10 @@ type ConditionListProps = {
 };
 
 export default function ConditionList({conditions}: ConditionListProps) {
-    conditions?.forEach((condition: Condition) => (
-        console.log(condition)
-    ))
-
     return (
         <Grid container spacing={2}>
             {conditions?.map((condition: Condition) => (
-                <ConditionListItem condition={condition}/>
+                <ConditionListItem condition={condition} key={condition.type}/>
             ))}
         </Grid>
     );

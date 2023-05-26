@@ -16,6 +16,7 @@
     "@mui/material": "^5.13.1",
     "@tanstack/react-query": "^4.29.7",
     "autoprefixer": "^10.4.14",
+    "luxon": "^3.3.0",
     "postcss": "^8.4.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

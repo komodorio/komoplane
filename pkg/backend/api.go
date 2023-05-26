@@ -80,6 +80,7 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	rels := api.Group("/providers")
 	rels.GET("", data.GetProviders)
 	rels.GET("/:name", data.GetProvider)
+	rels.GET("/:name/events", data.GetProviderEvents)
 }
 
 func configureStatic(api *echo.Echo) {
