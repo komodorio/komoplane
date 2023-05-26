@@ -1,26 +1,29 @@
-import {K8sEvent} from "../types.ts";
+import {EventsItems, K8sEvent} from "../types.ts";
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
+import getAge from "../utils.ts";
 import {useEffect, useState} from "react";
 import { DateTime } from "luxon";
-
 
 type EventListItemProps = {
     event: K8sEvent;
 };
 
 function EventListItem({event}: EventListItemProps) {
-    const last=new DateTime(event.lastTimestamp)
-    console.log(event.lastTimestamp)
+    const last=DateTime.fromISO(event.lastTimestamp)
+    const first=DateTime.fromISO(event.firstTimestamp)
+    const age=getAge(DateTime.now(), last)
+    const interval=getAge(last, first)
     return (
         <Grid item xs={12} md={12} key={event.metadata.name}>
             <div className="p-4 bg-white rounded shadow">
                 <div>
-                    <Typography variant="body1">{last.toString()}</Typography>
+                    <Typography variant="body1">{age} (x{event.count} over {interval})</Typography>
                     <Typography variant="body1">{event.type}</Typography>
                     <Typography variant="body1">{event.reason}</Typography>
                     <Typography variant="body1">{event.message}</Typography>
+                    <Typography variant="body1"></Typography>
                 </div>
             </div>
         </Grid>
@@ -32,7 +35,7 @@ type EventsListProps = {
 };
 
 export default function Events({src}: EventsListProps) {
-    const [events, setEvents] = useState<any | undefined>(undefined);
+    const [events, setEvents] = useState<EventsItems>({items:[]});
     const [error, setError] = useState<object | undefined>(undefined);
 
     useEffect(() => {

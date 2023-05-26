@@ -11,8 +11,8 @@ import Events from "../components/Events.tsx";
 
 const ProviderPage = () => {
     const {provider: providerName} = useParams();
-    const [provider, setProvider] = useState<Provider | undefined>(undefined);
-    const [error, setError] = useState<object | undefined>(undefined);
+    const [provider, setProvider] = useState<Provider | null>(null);
+    const [error, setError] = useState<object | null>(null);
 
     useEffect(() => {
         apiClient.getProvider(providerName as string)
@@ -68,7 +68,7 @@ const ProviderPage = () => {
                 <Grid item xs={12} md={12}>
                     <div className="p-4 bg-white rounded shadow">
                         <Typography variant="h6">Events</Typography>
-                        <Events src={"providers/"+provider.metadata.name}></Events>
+                        <Events src={"providers/" + provider.metadata.name}></Events>
                     </div>
                 </Grid>
             </Grid>
