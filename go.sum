@@ -66,10 +66,12 @@ github.com/cncf/xds/go v0.0.0-20210312221358-fbca930ec8ed/go.mod h1:eXthEFrGJvWH
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crossplane-contrib/provider-helm v0.15.0 h1:m7RI4CvM5bX9deR9JfRR0l1eGQjInqhEbUfnf7kpMVM=
 github.com/crossplane-contrib/provider-helm v0.15.0/go.mod h1:SzgJDgZfU9s2mXkC+WMrWkxj+KBRwkRZnZNca3ELLl0=
+github.com/crossplane-contrib/provider-kubernetes v0.9.0 h1:UtoTJdhYnR9GKJeWBlqcJUzKpr63LsicE9P98shQfy8=
+github.com/crossplane-contrib/provider-kubernetes v0.9.0/go.mod h1:M7CIGLTufSGM0+vElSFcoZE2QdfVn51WBbTqvHPidpI=
 github.com/crossplane/crossplane v1.12.1 h1:J4vduhEKA00SZuqU+1oNafwgnvkRCe4fWBW5zoFtohI=
 github.com/crossplane/crossplane v1.12.1/go.mod h1:o4kbOWBLTq492cArzV97XxodhigL41YgBS8h3jWD4l8=
-github.com/crossplane/crossplane-runtime v0.20.0-rc.0.0.20230330081344-bc8be4cd89f3 h1:5kElSMhDDhZvLepeRg121ZckgoWK0HZ5zJ1LzdBM3AY=
-github.com/crossplane/crossplane-runtime v0.20.0-rc.0.0.20230330081344-bc8be4cd89f3/go.mod h1:0s26RbYNrNN5kVSrPf/Hod9xCRqGfmC/Kuy1F+XmyuA=
+github.com/crossplane/crossplane-runtime v0.20.0-rc.0.0.20230508152119-1316ae6695ee h1:q3oEbKeuBaJyRVKuLJ0JXVlf6BskbXMqzPycJIjk7BY=
+github.com/crossplane/crossplane-runtime v0.20.0-rc.0.0.20230508152119-1316ae6695ee/go.mod h1:ebtUpmconMy8RKUEhrCXTUFSOpfGQqbKM2E+rjCCYJo=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -436,8 +438,8 @@ golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5/go.mod h1:KelEdhl1UZF7XfJ
 golang.org/x/oauth2 v0.0.0-20210218202405-ba52d332ba99/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b/go.mod h1:DAh4E804XQdzx2j+YRIaUnCqCV2RuMz24cGBJ5QYIrc=
-golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 h1:nt+Q6cXKz4MosCSpnbMtqiQ8Oz0pxTef2B4Vca2lvfk=
-golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783/go.mod h1:h4gKUeWbJ4rQPri7E0u6Gs4e9Ri2zaLxzw5DI5XGrYg=
+golang.org/x/oauth2 v0.1.0 h1:isLCZuhj4v+tYv7eskaN4v/TM+A1begWWgyVJDdl1+Y=
+golang.org/x/oauth2 v0.1.0/go.mod h1:G9FE4dLTsbXUu90h/Pf85g4w1D+SSAgR+q46nJZ8M4A=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

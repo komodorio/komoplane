@@ -4,17 +4,17 @@ import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
 import getAge from "../utils.ts";
 import {useEffect, useState} from "react";
-import { DateTime } from "luxon";
+import {DateTime} from "luxon";
 
 type EventListItemProps = {
     event: K8sEvent;
 };
 
 function EventListItem({event}: EventListItemProps) {
-    const last=DateTime.fromISO(event.lastTimestamp)
-    const first=DateTime.fromISO(event.firstTimestamp)
-    const age=getAge(DateTime.now(), last)
-    const interval=getAge(last, first)
+    const last = DateTime.fromISO(event.lastTimestamp)
+    const first = DateTime.fromISO(event.firstTimestamp)
+    const age = getAge(DateTime.now(), last)
+    const interval = getAge(last, first)
     return (
         <Grid item xs={12} md={12} key={event.metadata.name}>
             <div className="p-4 bg-white rounded shadow">
@@ -35,7 +35,7 @@ type EventsListProps = {
 };
 
 export default function Events({src}: EventsListProps) {
-    const [events, setEvents] = useState<EventsItems>({items:[]});
+    const [events, setEvents] = useState<EventsItems>({items: []});
     const [error, setError] = useState<object | undefined>(undefined);
 
     useEffect(() => {

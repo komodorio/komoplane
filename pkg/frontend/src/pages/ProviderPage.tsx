@@ -33,8 +33,8 @@ const ProviderPage = () => {
             <Typography variant="subtitle2">PROVIDER</Typography>
             <Typography variant="h3">{provider.metadata.name} <HealthStatus
                 status={provider.status}></HealthStatus></Typography>
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+            <Grid container spacing={2} alignItems="stretch">
+                <Grid item xs={12} md={6} >
                     <div className="p-4 bg-white rounded shadow">
                         <Typography variant="h6">Configuration</Typography>
                         <Typography variant="body1">
