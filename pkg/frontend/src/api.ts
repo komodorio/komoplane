@@ -1,4 +1,4 @@
-import {EventsItems, Provider, ProviderItems} from "./types.ts";
+import {ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -16,7 +16,7 @@ class APIClient {
 
     getProviderList = async () => {
         const response = await this.innterFetch(`/api/providers`);
-        const data: ProviderItems = await response.json();
+        const data: ItemList<Provider> = await response.json();
         return data;
     };
 
@@ -28,7 +28,13 @@ class APIClient {
 
     getProviderEvents = async (name: string) => {
         const response = await this.innterFetch(`/api/${name}/events`); // TODO: unversal API or not
-        const data: EventsItems = await response.json(); // FIXME: better type than any
+        const data: ItemList<K8sEvent> = await response.json();
+        return data;
+    };
+
+    getProviderConfigs = async (name: string) => {
+        const response = await this.innterFetch(`/api/providers/${name}/configs`);
+        const data: ItemList<ProviderConfig> = await response.json();
         return data;
     };
 }
@@ -36,7 +42,7 @@ class APIClient {
 let baseURL = ""
 
 // @ts-ignore
-if (window["$RefreshReg$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm dev` - help out!
+if (window["$RefreshReg$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm run dev` - help out!
     baseURL = "http://localhost:8090"
 }
 

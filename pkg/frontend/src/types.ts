@@ -1,3 +1,6 @@
+export type ItemList<S> = {
+    items: S[]
+}
 
 export type Metadata = {
     name: string
@@ -26,11 +29,7 @@ export type Provider = {
     }
 }
 
-export type ProviderItems = {
-    "items": Provider[]
-}
-
-export type K8sEvent ={
+export type K8sEvent = {
     // type, age, reason, object, message
     metadata: Metadata,
     reason: string
@@ -41,6 +40,6 @@ export type K8sEvent ={
     lastTimestamp: string
 }
 
-export type EventsItems = {
-    "items": K8sEvent[]
+export type ProviderConfig = {
+    metadata: Metadata,
 }

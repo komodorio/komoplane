@@ -70,6 +70,7 @@ func (c *Controller) GetProviderConfigs(ec echo.Context) error {
 	provCRDs, ok := c.provCRDs[ec.Param("name")]
 	if ok {
 		for _, crd := range provCRDs {
+			// we're relying here on the naming standard for CRDs in all providers, which is not guaranteed
 			if crd.Spec.Names.Kind == cpk8s.ProviderConfigKind {
 				gvk := metav1.GroupVersionKind{
 					Group:   crd.Spec.Group,

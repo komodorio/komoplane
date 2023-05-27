@@ -7,6 +7,7 @@ import apiClient from "../api.ts";
 import HealthStatus from "../components/HealthStatus.tsx";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
+import ProviderConfigs from "../components/ProviderConfigs.tsx";
 
 
 const ProviderPage = () => {
@@ -56,7 +57,7 @@ const ProviderPage = () => {
                 <Grid item xs={12} md={6}>
                     <div className="p-4 bg-white rounded shadow">
                         <Typography variant="h6">Provider Configs</Typography>
-                        <Typography variant="body1">Content for widget 3</Typography>
+                        <ProviderConfigs name={provider.metadata.name}></ProviderConfigs>
                     </div>
                 </Grid>
                 <Grid item xs={12} md={6}>
