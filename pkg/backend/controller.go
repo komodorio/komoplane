@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	cpv1 "github.com/crossplane/crossplane/apis/pkg/v1"
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/labstack/echo/v4"
@@ -24,7 +25,10 @@ type Controller struct {
 	StatusInfo StatusInfo
 	APIv1      crossplane.APIv1
 	Events     crossplane.EventsInterface
+	CRDs       crossplane.CRDInterface
 	ctx        context.Context
+
+	provCRDs map[string][]*v1.CustomResourceDefinition
 }
 
 func (c *Controller) PeriodicTasks(ctx context.Context) {
@@ -62,7 +66,31 @@ func (c *Controller) GetProviderEvents(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
+func (c *Controller) GetProviderConfigs(ec echo.Context) error {
+	provCRDs, ok := c.provCRDs[ec.Param("name")]
+	if ok {
+		for _, crd := range provCRDs {
+			if crd.Spec.Names.Kind == cpk8s.ProviderConfigKind {
+				gvk := metav1.GroupVersionKind{
+					Group:   crd.Spec.Group,
+					Version: crd.Spec.Versions[0].Name,
+					Kind:    crd.Spec.Names.Plural,
+				}
+				res, err := c.CRDs.List(c.ctx, gvk)
+				if err != nil {
+					return err
+				}
+				return ec.JSONPretty(http.StatusOK, res, "  ")
+			}
+		}
+	}
+
+	return ec.NoContent(http.StatusNotFound)
+}
+
 func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
+	// FIXME: a misplaced method!
+
 	// Create the API Extensions clientset
 	apiExtensionsClientset, err := apiextensionsv1.NewForConfig(config)
 	if err != nil {
@@ -74,17 +102,13 @@ func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
 		return err
 	}
 
-	pmap := map[string][]*v1.CustomResourceDefinition{}
-
-	log.Infof("Begin")
-
-	// List the CRDs
 	crdList, err := apiExtensionsClientset.CustomResourceDefinitions().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	// Print the CRD names
+	c.provCRDs = map[string][]*v1.CustomResourceDefinition{}
+
 	for _, crd := range crdList.Items {
 		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
 	refLoop:
@@ -92,18 +116,17 @@ func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
 			if ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version {
 				for _, prov := range providers.Items {
 					if prov.Name == ref.Name {
-						if _, ok := pmap[prov.Name]; !ok {
-							pmap[prov.Name] = []*v1.CustomResourceDefinition{}
+						if _, ok := c.provCRDs[prov.Name]; !ok {
+							c.provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
 						}
 
-						pmap[prov.Name] = append(pmap[prov.Name], &crdCopy)
+						c.provCRDs[prov.Name] = append(c.provCRDs[prov.Name], &crdCopy)
 						break refLoop
 					}
 				}
 			}
 		}
 	}
-	log.Infof("End")
 	return nil
 }
 
@@ -118,14 +141,22 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		return nil, err
 	}
 
-	return &Controller{
+	controller := Controller{
 		ctx:    ctx,
 		APIv1:  apiV1,
 		Events: evt,
+		CRDs:   crossplane.NewCRDsClient(cfg),
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},
-	}, nil
+	}
+
+	err = controller.LoadCRDs(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &controller, nil
 }
 
 func getK8sConfig() (*rest.Config, error) {
