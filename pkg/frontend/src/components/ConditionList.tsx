@@ -3,6 +3,7 @@ import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import getAge from "../utils.ts";
 import {DateTime} from "luxon";
+import Card from '@mui/material/Card';
 
 type ConditionListItemProps = {
     condition: Condition;
@@ -13,14 +14,12 @@ function ConditionListItem({condition}: ConditionListItemProps) {
     const age = getAge(DateTime.now(), last)
     return (
         <Grid item xs={12} md={12} key={condition.type}>
-            <div className="p-4 bg-white rounded shadow cursor-pointer">
-                <div>
+            <Card variant="outlined" className="p-2">
                     <Typography>{condition.type}</Typography>
                     <Typography>{condition.status}</Typography>
                     <Typography>{condition.reason}</Typography>
                     <Typography title={condition.lastTransitionTime}>{age}</Typography>
-                </div>
-            </div>
+            </Card>
         </Grid>
     );
 }

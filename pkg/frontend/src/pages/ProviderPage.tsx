@@ -8,7 +8,7 @@ import HealthStatus from "../components/HealthStatus.tsx";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
 import ProviderConfigs from "../components/ProviderConfigs.tsx";
-
+import Paper from '@mui/material/Paper';
 
 const ProviderPage = () => {
     const {provider: providerName} = useParams();
@@ -31,12 +31,14 @@ const ProviderPage = () => {
 
     return (
         <>
-            <Typography variant="subtitle2">PROVIDER</Typography>
-            <Typography variant="h3">{provider.metadata.name} <HealthStatus
-                status={provider.status}></HealthStatus></Typography>
+            <div className="mb-4">
+                <Typography variant="subtitle2">PROVIDER</Typography>
+                <Typography variant="h3">{provider.metadata.name} <HealthStatus
+                    status={provider.status}></HealthStatus></Typography>
+            </div>
             <Grid container spacing={2} alignItems="stretch">
-                <Grid item xs={12} md={6} >
-                    <div className="p-4 bg-white rounded shadow">
+                <Grid item xs={12} md={6}>
+                    <Paper className="p-4">
                         <Typography variant="h6">Configuration</Typography>
                         <Typography variant="body1">
                             Package: {provider.spec.package}
@@ -46,31 +48,31 @@ const ProviderPage = () => {
                                 Controller Config: {provider.spec.controllerConfigRef.name}
                             </Typography>
                         ) : (<></>)}
-                    </div>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    <div className="p-4 bg-white rounded shadow">
+                    <Paper className="p-4">
                         <Typography variant="h6">Status</Typography>
                         <ConditionList conditions={provider.status.conditions}></ConditionList>
-                    </div>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    <div className="p-4 bg-white rounded shadow">
+                    <Paper className="p-4">
                         <Typography variant="h6">Provider Configs</Typography>
                         <ProviderConfigs name={provider.metadata.name}></ProviderConfigs>
-                    </div>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                    <div className="p-4 bg-white rounded shadow">
+                    <Paper className="p-4">
                         <Typography variant="h6">Relations</Typography>
                         <Typography variant="body1">Content for widget 4</Typography>
-                    </div>
+                    </Paper>
                 </Grid>
                 <Grid item xs={12} md={12}>
-                    <div className="p-4 bg-white rounded shadow">
+                    <Paper className="p-4">
                         <Typography variant="h6">Events</Typography>
                         <Events src={"providers/" + provider.metadata.name}></Events>
-                    </div>
+                    </Paper>
                 </Grid>
             </Grid>
         </>

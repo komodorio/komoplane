@@ -1,4 +1,5 @@
-import {Provider, ProviderItems} from "../types.ts";
+import {Card, CardContent, CardActionArea} from '@mui/material';
+import {ItemList, Provider} from "../types.ts";
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import HealthStatus from "./HealthStatus.tsx";
@@ -14,25 +15,27 @@ function ProviderListItem({provider}: ProviderListItemProps) {
     const handleOnClick = () => {
         navigate(
             provider.metadata.name,
-            { state: provider }
+            {state: provider}
         );
     };
 
     return (
         <Grid item xs={12} md={12} key={provider.metadata.name} onClick={handleOnClick}>
-            <div className="p-4 bg-white rounded shadow cursor-pointer">
-                <div>
-                    <Typography variant="h6">{provider.metadata.name}</Typography>
-                    <Typography variant="body1">{provider.spec.package}</Typography>
-                </div>
-                <HealthStatus status={provider.status}></HealthStatus>
-            </div>
+            <Card variant="outlined">
+                <CardActionArea>
+                    <CardContent>
+                        <Typography variant="h6">{provider.metadata.name}</Typography>
+                        <Typography variant="body1">{provider.spec.package}</Typography>
+                        <HealthStatus status={provider.status}></HealthStatus>
+                    </CardContent>
+                </CardActionArea>
+            </Card>
         </Grid>
     );
 }
 
 type ProviderListProps = {
-    providers: ProviderItems | undefined;
+    providers: ItemList<Provider> | undefined;
 };
 
 export default function ProviderList({providers}: ProviderListProps) {

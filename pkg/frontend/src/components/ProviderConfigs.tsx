@@ -3,6 +3,7 @@ import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
+import Card from '@mui/material/Card';
 
 type ListItemProps = {
     item: ProviderConfig;
@@ -11,11 +12,9 @@ type ListItemProps = {
 function EventListItem({item}: ListItemProps) {
     return (
         <Grid item xs={12} md={12} key={item.metadata.name}>
-            <div className="p-4 bg-white rounded shadow">
-                <div>
-                    <Typography variant="body1">{item.metadata.name}</Typography>
-                </div>
-            </div>
+            <Card variant="outlined" className="p-2">
+                <Typography variant="body1">{item.metadata.name}</Typography>
+            </Card>
         </Grid>
     );
 }

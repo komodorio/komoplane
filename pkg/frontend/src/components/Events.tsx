@@ -1,4 +1,5 @@
-import {EventsItems, K8sEvent} from "../types.ts";
+import {ItemList, K8sEvent} from "../types.ts";
+import Card from '@mui/material/Card';
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
@@ -17,15 +18,13 @@ function EventListItem({event}: EventListItemProps) {
     const interval = getAge(last, first)
     return (
         <Grid item xs={12} md={12} key={event.metadata.name}>
-            <div className="p-4 bg-white rounded shadow">
-                <div>
+            <Card variant="outlined" className="p-2">
                     <Typography variant="body1">{age} (x{event.count} over {interval})</Typography>
                     <Typography variant="body1">{event.type}</Typography>
                     <Typography variant="body1">{event.reason}</Typography>
                     <Typography variant="body1">{event.message}</Typography>
                     <Typography variant="body1"></Typography>
-                </div>
-            </div>
+            </Card>
         </Grid>
     );
 }
@@ -35,7 +34,7 @@ type EventsListProps = {
 };
 
 export default function Events({src}: EventsListProps) {
-    const [events, setEvents] = useState<EventsItems>({items: []});
+    const [events, setEvents] = useState<ItemList<K8sEvent>>({items: []});
     const [error, setError] = useState<object | undefined>(undefined);
 
     useEffect(() => {

@@ -1,6 +1,7 @@
+---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
   name: provider-kubernetes
 spec:
-  package: "crossplane/provider-kubernetes:main"
+  package: "crossplane/provider-kubernetes:v0.9.0"

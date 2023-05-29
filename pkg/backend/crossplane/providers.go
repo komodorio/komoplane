@@ -4,7 +4,6 @@ import (
 	"context"
 	v1 "github.com/crossplane/crossplane/apis/pkg/v1"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
-	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/rest"
 )
 
@@ -25,10 +24,6 @@ func (c *providerClient) List(ctx context.Context) (*v1.ProviderList, error) {
 		Do(ctx).
 		Into(&result)
 
-	for _, p := range result.Items {
-		addProviderConfigType(&p)
-	}
-
 	return &result, err
 }
 
@@ -41,13 +36,5 @@ func (c *providerClient) Get(ctx context.Context, name string) (*v1.Provider, er
 		Do(ctx).
 		Into(&result)
 
-	addProviderConfigType(&result)
 	return &result, err
-}
-
-func addProviderConfigType(p *v1.Provider) {
-	switch p.Kind {
-	default:
-		log.Warnf("Did not recognize provider type: %s", p.Kind)
-	}
 }

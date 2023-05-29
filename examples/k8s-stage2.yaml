@@ -1,0 +1,24 @@
+---
+apiVersion: kubernetes.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: k8s-provider-pc
+spec:
+  credentials:
+    source: InjectedIdentity
+  credentialsSecretRef:
+---
+apiVersion: kubernetes.crossplane.io/v1alpha1
+kind: Object
+metadata:
+  name: cp-ns
+spec:
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: crossplane-system
+  managementPolicy: Observe
+  providerConfigRef:
+    name: k8s-provider-pc
