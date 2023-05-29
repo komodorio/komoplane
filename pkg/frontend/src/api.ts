@@ -1,4 +1,4 @@
-import {ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
+import {Claim, ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -20,6 +20,7 @@ class APIClient {
         return data;
     };
 
+
     getProvider = async (name: string) => {
         const response = await this.innterFetch(`/api/providers/${name}`);
         const data: Provider = await response.json();
@@ -37,6 +38,13 @@ class APIClient {
         const data: ItemList<ProviderConfig> = await response.json();
         return data;
     };
+
+    getClaimList = async () => {
+        const response = await this.innterFetch(`/api/claims`);
+        const data: ItemList<Claim> = await response.json();
+        return data;
+    };
+
 }
 
 let baseURL = ""

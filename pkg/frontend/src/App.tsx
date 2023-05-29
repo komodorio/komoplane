@@ -20,6 +20,7 @@ import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
 import {Link} from "@mui/material";
 import ProviderPage from "./pages/ProviderPage.tsx";
+import ClaimsPage from "./pages/ClaimsPage.tsx";
 
 
 const drawerWidth = 260;
@@ -80,7 +81,7 @@ export default function PersistentDrawerLeft() {
                     <Divider/>
                     <List>
                         <ListItem key="Claims" disablePadding>
-                            <ListItemButton>
+                            <ListItemButton component={RouterLink} to="/claims">
                                 <ListItemIcon>
                                     <PanTool/>
                                 </ListItemIcon>
@@ -137,6 +138,7 @@ export default function PersistentDrawerLeft() {
                         <Route path="/" element={<Home/>}/>
                         <Route path="/providers" element={<ProvidersPage/>}/>
                         <Route path="/providers/:provider" element={<ProviderPage/>}/>
+                        <Route path="/claims" element={<ClaimsPage/>}/>
                         <Route element={<Typography>Page not found</Typography>} />
                     </Routes>
                 </Main>

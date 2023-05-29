@@ -10,6 +10,7 @@ import (
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
@@ -24,6 +25,7 @@ type StatusInfo struct {
 type Controller struct {
 	StatusInfo StatusInfo
 	APIv1      crossplane.APIv1
+	ExtV1      crossplane.ExtensionsV1
 	Events     crossplane.EventsInterface
 	CRDs       crossplane.CRDInterface
 	ctx        context.Context
@@ -131,8 +133,41 @@ func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
 	return nil
 }
 
+func (c *Controller) GetClaims(ec echo.Context) error {
+	list := unstructured.UnstructuredList{
+		Object: nil,
+		Items:  []unstructured.Unstructured{},
+	}
+
+	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, xrd := range xrds.Items {
+		gvk := metav1.GroupVersionKind{
+			Group:   xrd.Spec.Group,
+			Version: xrd.Spec.Versions[0].Name,
+			Kind:    xrd.Spec.ClaimNames.Plural,
+		}
+		res, err := c.CRDs.List(c.ctx, gvk)
+		if err != nil {
+			return err
+		}
+
+		list.Items = append(list.Items, res.Items...)
+	}
+
+	return ec.JSONPretty(http.StatusOK, list, "  ")
+}
+
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
 	apiV1, err := crossplane.NewAPIv1Client(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	ext, err := crossplane.NewEXTv1Client(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +180,7 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 	controller := Controller{
 		ctx:    ctx,
 		APIv1:  apiV1,
+		ExtV1:  ext,
 		Events: evt,
 		CRDs:   crossplane.NewCRDsClient(cfg),
 		StatusInfo: StatusInfo{

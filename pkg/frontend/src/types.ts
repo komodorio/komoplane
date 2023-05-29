@@ -18,16 +18,19 @@ export type Status = {
     conditions: Condition[]
 }
 
+export type Reference = {
+    name: string
+}
+
 export type Provider = {
     metadata: Metadata,
     status: Status
     spec: {
         package: string
-        controllerConfigRef: {
-            name: string
-        }
+        controllerConfigRef: Reference
     }
 }
+
 
 export type K8sEvent = {
     // type, age, reason, object, message
@@ -42,4 +45,14 @@ export type K8sEvent = {
 
 export type ProviderConfig = {
     metadata: Metadata,
+}
+
+export type Claim = {
+    kind: string
+    apiVersion: string
+    metadata: Metadata
+    spec: {
+        compositionRef: Reference
+    }
+    status: Status
 }
