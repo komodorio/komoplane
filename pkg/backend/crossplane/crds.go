@@ -3,6 +3,7 @@ package crossplane
 import (
 	"context"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -11,16 +12,17 @@ import (
 
 type CRDInterface interface {
 	List(ctx context.Context, gvk schema.GroupVersionKind) (*unstructured.UnstructuredList, error)
-	Get(ctx context.Context, dst resource.Object, gvk schema.GroupVersionKind, namespace string, name string) error
+	Get(ctx context.Context, dst resource.Object, reference *v1.ObjectReference) error // todo: migrate it onto ObjectReference
 }
 
 type crdClient struct {
 	cfg *rest.Config
 }
 
-func (c *crdClient) Get(ctx context.Context, result resource.Object, gvk schema.GroupVersionKind, namespace string, name string) error {
+func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.ObjectReference) error {
+	version := ref.GroupVersionKind().GroupVersion()
 	config := *c.cfg
-	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: gvk.Group, Version: gvk.Version}
+	config.ContentConfig.GroupVersion = &version
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
@@ -32,8 +34,8 @@ func (c *crdClient) Get(ctx context.Context, result resource.Object, gvk schema.
 
 	err = client.
 		Get().
-		NamespaceIfScoped(namespace, namespace != "").Name(name).
-		Resource(gvk.Kind + "s"). // TODO: better way to pluralize?
+		NamespaceIfScoped(ref.Namespace, ref.Namespace != "").Name(ref.Name).
+		Resource(ref.Kind + "s"). // TODO: better way to pluralize?
 		Do(ctx).
 		Into(result)
 

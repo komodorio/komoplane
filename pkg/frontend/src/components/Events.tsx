@@ -3,7 +3,7 @@ import Card from '@mui/material/Card';
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
-import getAge from "../utils.ts";
+import {getAge} from "../utils.ts";
 import {useEffect, useState} from "react";
 import {DateTime} from "luxon";
 import LinearProgress from '@mui/material/LinearProgress';
@@ -23,11 +23,10 @@ function EventListItem({event}: EventListItemProps) {
                 <Grid container justifyContent="space-between">
                     <Grid item>
                         <Typography variant="body1">{event.reason}</Typography>
-                        <Typography variant="body1">{event.message}</Typography>
-                        <Typography variant="body1"></Typography>
+                        <Typography variant="body1" sx={{ fontStyle: 'oblique' }}>{event.message}</Typography>
                     </Grid>
                     <Grid item>
-                        <Typography variant="body1">{event.type}</Typography>
+                        <Typography variant="body1" className={event.type!="Normal"?"text-amber-700":""}>{event.type}</Typography>
                     </Grid>
                     <Grid item>
                         <Typography variant="body1" className="mb-1">{age} ago</Typography>

@@ -3,12 +3,15 @@ package backend
 import (
 	"context"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	uclaim "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/claim"
-	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite"
+	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite" // what's the difference between `composed` and `composite` there?
+	v13 "github.com/crossplane/crossplane/apis/apiextensions/v1"
 	cpv1 "github.com/crossplane/crossplane/apis/pkg/v1"
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
+	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -172,7 +175,9 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	}
 
 	claim := uclaim.Unstructured{}
-	err := c.CRDs.Get(c.ctx, &claim, gvk, ec.Param("namespace"), ec.Param("name"))
+	claimRef := v12.ObjectReference{Namespace: ec.Param("namespace"), Name: ec.Param("name")}
+	claimRef.SetGroupVersionKind(gvk)
+	err := c.CRDs.Get(c.ctx, &claim, &claimRef)
 	if err != nil {
 		return err
 	}
@@ -180,30 +185,77 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
 
-		xr := uxres.Unstructured{}
-		err = c.CRDs.Get(c.ctx, &xr, xrRef.GroupVersionKind(), xrRef.Namespace, xrRef.Name)
+		xr := uxres.New()
+		err = c.CRDs.Get(c.ctx, xr, xrRef)
 		if err != nil {
-			return err
+			condErrored := xpv1.Condition{
+				Type:               "Found",
+				Status:             "False",
+				LastTransitionTime: metav1.Now(),
+				Reason:             "FailedToGet",
+				Message:            err.Error(),
+			}
+			xr.SetConditions(condErrored)
 		}
 		xr.SetGroupVersionKind(gvk)
+		xr.SetNamespace(xrRef.Namespace)
+		xr.SetName(xrRef.Name)
 
-		MRs := []*unstructured.Unstructured{}
+		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := unstructured.Unstructured{}
-			err := c.CRDs.Get(c.ctx, &mr, mrRef.GroupVersionKind(), "", mrRef.Name)
-			if err != nil {
-				return err
+			mr := ManagedUnstructured{Unstructured: *uxres.New()}
+
+			if mr.GetName() == "" {
+				condNotFound := xpv1.Condition{
+					Type:               "Found",
+					Status:             "False",
+					LastTransitionTime: metav1.Now(),
+					Reason:             "NameIsEmpty",
+					Message:            "Probably, the resource were never created, and external name were not reported back",
+				}
+				mr.SetConditions(condNotFound)
+			} else {
+				err := c.CRDs.Get(c.ctx, &mr, &mrRef)
+				if err != nil {
+					return err
+				}
 			}
 
 			mr.SetGroupVersionKind(mrRef.GroupVersionKind()) // https://github.com/kubernetes/client-go/issues/308
+			mr.SetNamespace(mrRef.Namespace)
+			mr.SetName(mrRef.Name)
 
 			MRs = append(MRs, &mr)
 		}
 
+		compRef := claim.GetCompositionReference()
+		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
+
+		comp := uxres.New()
+		err = c.CRDs.Get(c.ctx, comp, compRef)
+		if err != nil {
+			condErrored := xpv1.Condition{
+				Type:               "Found",
+				Status:             "False",
+				LastTransitionTime: metav1.Now(),
+				Reason:             "FailedToGet",
+				Message:            err.Error(),
+			}
+			xr.SetConditions(condErrored)
+		}
+		xr.SetGroupVersionKind(gvk)
+		xr.SetNamespace(xrRef.Namespace)
+		xr.SetName(xrRef.Name)
+
 		claim.Object["managedResources"] = MRs
-		claim.Object["compositeResource"] = &xr
+		claim.Object["compositeResource"] = xr
+		claim.Object["composition"] = comp
 	}
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
+}
+
+type ManagedUnstructured struct { // no dedicated type for it in base CP
+	uxres.Unstructured
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {

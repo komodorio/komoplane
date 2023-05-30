@@ -62,4 +62,6 @@ export type Claim = K8sResource & {
 
 export type ClaimExtended = Claim & {
     managedResources: K8sResource[]
+    compositeResource: K8sResource
+    composition: K8sResource
 }

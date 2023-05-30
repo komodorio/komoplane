@@ -1,7 +1,7 @@
 import {Condition} from "../types.ts";
 import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import getAge from "../utils.ts";
+import {getAge} from "../utils.ts";
 import {DateTime} from "luxon";
 import Card from '@mui/material/Card';
 

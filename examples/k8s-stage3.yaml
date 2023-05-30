@@ -42,6 +42,11 @@ spec:
   resources:
     - base:
         apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: kube-system
+    - base:
+        apiVersion: v1
         kind: ServiceAccount
     - base:
         kind: ClusterRole
