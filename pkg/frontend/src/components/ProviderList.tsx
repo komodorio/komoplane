@@ -25,7 +25,7 @@ function ProviderListItem({provider}: ProviderListItemProps) {
                 <CardActionArea>
                     <CardContent>
                         <Typography variant="h6">{provider.metadata.name}</Typography>
-                        <Typography variant="body1">{provider.spec.package}</Typography>
+                        <Typography variant="body1" display="inline">{provider.spec.package}</Typography>
                         <HealthStatus status={provider.status}></HealthStatus>
                     </CardContent>
                 </CardActionArea>

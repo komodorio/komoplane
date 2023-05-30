@@ -15,10 +15,16 @@ function ConditionListItem({condition}: ConditionListItemProps) {
     return (
         <Grid item xs={12} md={12} key={condition.type}>
             <Card variant="outlined" className="p-2">
-                    <Typography>{condition.type}</Typography>
-                    <Typography>{condition.status}</Typography>
-                    <Typography>{condition.reason}</Typography>
-                    <Typography title={condition.lastTransitionTime}>{age}</Typography>
+                <Grid container justifyContent="space-between">
+                    <Grid item>
+                        <Typography variant="body1" sx={{fontWeight: "bold"}} display="inline"
+                                    className={condition.status == "True" ? "text-green-700" : "text-red-700"}>
+                            {condition.status == "True" ? "" : "Not "}{condition.type}
+                        </Typography>
+                        <Typography>{condition.reason}</Typography>
+                    </Grid>
+                    <Grid item><Typography title={condition.lastTransitionTime}>{age} ago</Typography></Grid>
+                </Grid>
             </Card>
         </Grid>
     );

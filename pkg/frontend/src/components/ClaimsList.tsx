@@ -4,7 +4,6 @@ import Typography from "@mui/material/Typography";
 import {useNavigate} from "react-router-dom";
 import ReadySynced from "./ReadySynced.tsx";
 
-
 type ItemProps = {
     item: Claim;
 };
@@ -13,7 +12,7 @@ function ListItem({item}: ItemProps) {
     const navigate = useNavigate();
     const handleOnClick = () => {
         navigate(
-            item.metadata.name,
+            item.apiVersion + "/" + item.kind + "/" + item.metadata.namespace + "/" + item.metadata.name,
             {state: item}
         );
     };

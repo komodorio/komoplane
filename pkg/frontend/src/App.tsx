@@ -21,6 +21,7 @@ import ProvidersPage from "./pages/ProvidersPage.tsx";
 import {Link} from "@mui/material";
 import ProviderPage from "./pages/ProviderPage.tsx";
 import ClaimsPage from "./pages/ClaimsPage.tsx";
+import ClaimPage from "./pages/ClaimPage.tsx";
 
 
 const drawerWidth = 260;
@@ -139,7 +140,8 @@ export default function PersistentDrawerLeft() {
                         <Route path="/providers" element={<ProvidersPage/>}/>
                         <Route path="/providers/:provider" element={<ProviderPage/>}/>
                         <Route path="/claims" element={<ClaimsPage/>}/>
-                        <Route element={<Typography>Page not found</Typography>} />
+                        <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
+                        <Route path="*" element={<Typography>Page not found</Typography>} />
                     </Routes>
                 </Main>
             </Box>

@@ -15,16 +15,23 @@ export type Condition = {
 }
 
 export type Status = {
-    conditions: Condition[]
+    users?: number
+    conditions?: Condition[]
 }
 
 export type Reference = {
     name: string
 }
 
-export type Provider = {
+export type K8sResource = {
+    kind: string
+    apiVersion: string
     metadata: Metadata,
     status: Status
+    spec: any
+}
+
+export type Provider = K8sResource & {
     spec: {
         package: string
         controllerConfigRef: Reference
@@ -43,16 +50,16 @@ export type K8sEvent = {
     lastTimestamp: string
 }
 
-export type ProviderConfig = {
-    metadata: Metadata,
+export type ProviderConfig = K8sResource & {
 }
 
-export type Claim = {
-    kind: string
-    apiVersion: string
-    metadata: Metadata
+export type Claim = K8sResource & {
     spec: {
         compositionRef: Reference
+        resourceRef: Reference
     }
-    status: Status
+}
+
+export type ClaimExtended = Claim & {
+    managedResources: K8sResource[]
 }

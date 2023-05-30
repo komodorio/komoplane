@@ -22,8 +22,6 @@ spec:
             spec:
               type: object
               properties:
-                namespace:
-                  type: string
                 version:
                   type: string
               required:
@@ -72,4 +70,3 @@ metadata:
   name: test-hd
 spec:
   version: abc
-  namespace: hd-test

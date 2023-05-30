@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import Card from '@mui/material/Card';
+import LinearProgress from '@mui/material/LinearProgress';
 
 type ListItemProps = {
     item: ProviderConfig;
@@ -24,7 +25,7 @@ type ListProps = {
 };
 
 export default function ProviderConfigs({name}: ListProps) {
-    const [items, setItems] = useState<ItemList<ProviderConfig>>({items: []});
+    const [items, setItems] = useState<ItemList<ProviderConfig> | null>(null);
     const [error, setError] = useState<object | undefined>(undefined);
 
     useEffect(() => {
@@ -36,6 +37,15 @@ export default function ProviderConfigs({name}: ListProps) {
     if (error) {
         return (<Typography>Failed getting: {error.toString()}</Typography>)
     }
+
+    if (!items) {
+        return <LinearProgress/>;
+    }
+
+    if (!items.items.length) {
+        return <Typography>None found</Typography>;
+    }
+
 
     return (
         <Grid container spacing={2}>

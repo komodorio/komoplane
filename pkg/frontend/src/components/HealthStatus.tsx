@@ -6,7 +6,7 @@ type HealthStatusProps = {
 };
 
 export default function HealthStatus({status}: HealthStatusProps) {
-    let healthy: Condition  = undefined
+    let healthy: Condition  = {lastTransitionTime: "", reason: "", status: "Unknown", type: ""}
     status.conditions.forEach((element) => {
         if (element.type == "Healthy") {
             healthy = element
@@ -19,7 +19,9 @@ export default function HealthStatus({status}: HealthStatusProps) {
         );
     }
 
+
     return (
-        <Chip label={"Healthy: "+healthy.status}></Chip>
+        <Chip label={(healthy.status == "True" ? "" : "Not ") + "Healthy"} title={healthy.reason}
+              color={(healthy.status == "True" ? "success" : "error")}></Chip>
     );
 }

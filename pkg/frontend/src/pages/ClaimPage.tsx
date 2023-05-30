@@ -1,66 +1,59 @@
+import LinearProgress from '@mui/material/LinearProgress';
 import Typography from "@mui/material/Typography";
 import {Grid} from "@mui/material";
 import {useParams} from "react-router-dom";
-import {Provider} from "../types.ts";
+import {Claim} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
-import HealthStatus from "../components/HealthStatus.tsx";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
-import ProviderConfigs from "../components/ProviderConfigs.tsx";
 import Paper from '@mui/material/Paper';
-import LinearProgress from '@mui/material/LinearProgress';
+import ReadySynced from "../components/ReadySynced.tsx";
 
-const ProviderPage = () => {
-    const {provider: providerName} = useParams();
-    const [provider, setProvider] = useState<Provider | null>(null);
+export default function ClaimPage() {
+    const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
+    const [claim, setClaim] = useState<Claim | null>(null);
     const [error, setError] = useState<object | null>(null);
 
     useEffect(() => {
-        apiClient.getProvider(providerName as string)
-            .then((data) => setProvider(data))
+        apiClient.getClaim(group, version, kind, namespace, name)
+            .then((data) => setClaim(data))
             .catch((err) => setError(err))
-    }, [providerName])
+    }, [group, version, kind, namespace, name])
 
     if (error) {
-        return (<Typography>Provider not found: {error.toString()}</Typography>)
+        return (<Typography>Not found: {error.toString()}</Typography>)
     }
 
-    if (!provider) {
-        return <LinearProgress/>
+    if (!claim) { // TODO: how to elegantly avoid it?
+        return (<LinearProgress />)
     }
 
     return (
         <>
             <div className="mb-4">
-                <Typography variant="subtitle2">PROVIDER</Typography>
-                <Typography variant="h3">{provider.metadata.name} <HealthStatus
-                    status={provider.status}></HealthStatus></Typography>
+                <Typography variant="subtitle2">CLAIM</Typography>
+                <Typography variant="h3">{claim.metadata.name} <ReadySynced
+                    status={claim.status}></ReadySynced></Typography>
             </div>
             <Grid container spacing={2} alignItems="stretch">
                 <Grid item xs={12} md={6}>
                     <Paper className="p-4">
                         <Typography variant="h6">Configuration</Typography>
                         <Typography variant="body1">
-                            Package: {provider.spec.package}
+                            Package: {claim.spec.package}
                         </Typography>
-                        {provider.spec.controllerConfigRef ? (
-                            <Typography variant="body1">
-                                Controller Config: {provider.spec.controllerConfigRef.name}
-                            </Typography>
-                        ) : (<></>)}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <Paper className="p-4">
                         <Typography variant="h6">Status</Typography>
-                        <ConditionList conditions={provider.status.conditions}></ConditionList>
+                        <ConditionList conditions={claim.status.conditions}></ConditionList>
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <Paper className="p-4">
                         <Typography variant="h6">Provider Configs</Typography>
-                        <ProviderConfigs name={provider.metadata.name}></ProviderConfigs>
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -72,7 +65,7 @@ const ProviderPage = () => {
                 <Grid item xs={12} md={12}>
                     <Paper className="p-4">
                         <Typography variant="h6">Events</Typography>
-                        <Events src={"providers/" + provider.metadata.name}></Events>
+                        <Events src={"providers/" + claim.metadata.name}></Events>
                     </Paper>
                 </Grid>
             </Grid>
@@ -80,4 +73,4 @@ const ProviderPage = () => {
     );
 };
 
-export default ProviderPage;
+

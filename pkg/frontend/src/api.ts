@@ -1,4 +1,4 @@
-import {Claim, ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
+import {Claim, ClaimExtended, ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -6,7 +6,7 @@ class APIClient {
     ) {
     }
 
-    innterFetch = async (path: string) =>{
+    innterFetch = async (path: string) => {
         const response = await fetch(`${this.baseUrl}${path}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch data from API. Status code: ${response.status}`);
@@ -42,6 +42,12 @@ class APIClient {
     getClaimList = async () => {
         const response = await this.innterFetch(`/api/claims`);
         const data: ItemList<Claim> = await response.json();
+        return data;
+    };
+
+    getClaim = async (group: string, version: string, kind: string, namespace: string, name: string) => {
+        const response = await this.innterFetch(`/api/claims/` + group + "/" + version + "/" + kind + "/" + namespace + "/" + name+"?full=1");
+        const data: ClaimExtended = await response.json();
         return data;
     };
 

@@ -3,6 +3,8 @@ package backend
 import (
 	"context"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
+	uclaim "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/claim"
+	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite"
 	cpv1 "github.com/crossplane/crossplane/apis/pkg/v1"
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/labstack/echo/v4"
@@ -11,6 +13,7 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
@@ -74,7 +77,7 @@ func (c *Controller) GetProviderConfigs(ec echo.Context) error {
 		for _, crd := range provCRDs {
 			// we're relying here on the naming standard for CRDs in all providers, which is not guaranteed
 			if crd.Spec.Names.Kind == cpk8s.ProviderConfigKind {
-				gvk := metav1.GroupVersionKind{
+				gvk := schema.GroupVersionKind{
 					Group:   crd.Spec.Group,
 					Version: crd.Spec.Versions[0].Name,
 					Kind:    crd.Spec.Names.Plural,
@@ -145,7 +148,7 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 	}
 
 	for _, xrd := range xrds.Items {
-		gvk := metav1.GroupVersionKind{
+		gvk := schema.GroupVersionKind{
 			Group:   xrd.Spec.Group,
 			Version: xrd.Spec.Versions[0].Name,
 			Kind:    xrd.Spec.ClaimNames.Plural,
@@ -159,6 +162,48 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 	}
 
 	return ec.JSONPretty(http.StatusOK, list, "  ")
+}
+
+func (c *Controller) GetClaim(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+
+	claim := uclaim.Unstructured{}
+	err := c.CRDs.Get(c.ctx, &claim, gvk, ec.Param("namespace"), ec.Param("name"))
+	if err != nil {
+		return err
+	}
+
+	if ec.QueryParam("full") != "" {
+		xrRef := claim.GetResourceReference()
+
+		xr := uxres.Unstructured{}
+		err = c.CRDs.Get(c.ctx, &xr, xrRef.GroupVersionKind(), xrRef.Namespace, xrRef.Name)
+		if err != nil {
+			return err
+		}
+		xr.SetGroupVersionKind(gvk)
+
+		MRs := []*unstructured.Unstructured{}
+		for _, mrRef := range xr.GetResourceReferences() {
+			mr := unstructured.Unstructured{}
+			err := c.CRDs.Get(c.ctx, &mr, mrRef.GroupVersionKind(), "", mrRef.Name)
+			if err != nil {
+				return err
+			}
+
+			mr.SetGroupVersionKind(mrRef.GroupVersionKind()) // https://github.com/kubernetes/client-go/issues/308
+
+			MRs = append(MRs, &mr)
+		}
+
+		claim.Object["managedResources"] = MRs
+		claim.Object["compositeResource"] = &xr
+	}
+	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {

@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"time"
 )
 
 func NewRouter(data *Controller, debug bool) *echo.Echo {
@@ -29,6 +30,7 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 		LogError:  true,
 
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			// FIXME: latency measurement always reports zero
 			if v.Status < 400 && v.Error == nil {
 				log.Infof("HTTP %d %s - %s %s", v.Status, v.Latency, v.Method, v.URI)
 			} else {
@@ -39,12 +41,21 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 	}))
 
 	api.Use(errSet500)
+	api.Use(slowness)
 
 	if os.Getenv("KP_CORS_OFF") != "" {
 		api.Use(devNoCORS)
 	}
 
 	return api
+}
+
+func slowness(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Warnf("Slowing down for debugging")
+		time.Sleep(1 * time.Second)
+		return next(c)
+	}
 }
 
 func devNoCORS(next echo.HandlerFunc) echo.HandlerFunc {
@@ -85,6 +96,7 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 
 	claims := api.Group("/claims")
 	claims.GET("", data.GetClaims)
+	claims.GET("/:group/:version/:kind/:namespace/:name", data.GetClaim)
 }
 
 func configureStatic(api *echo.Echo) {

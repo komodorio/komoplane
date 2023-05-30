@@ -2,7 +2,7 @@ package crossplane
 
 import (
 	"context"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -10,14 +10,37 @@ import (
 )
 
 type CRDInterface interface {
-	List(ctx context.Context, gvk metav1.GroupVersionKind) (*unstructured.UnstructuredList, error)
+	List(ctx context.Context, gvk schema.GroupVersionKind) (*unstructured.UnstructuredList, error)
+	Get(ctx context.Context, dst resource.Object, gvk schema.GroupVersionKind, namespace string, name string) error
 }
 
 type crdClient struct {
 	cfg *rest.Config
 }
 
-func (c *crdClient) List(ctx context.Context, gvk metav1.GroupVersionKind) (*unstructured.UnstructuredList, error) {
+func (c *crdClient) Get(ctx context.Context, result resource.Object, gvk schema.GroupVersionKind, namespace string, name string) error {
+	config := *c.cfg
+	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: gvk.Group, Version: gvk.Version}
+	config.APIPath = "/apis"
+	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
+	config.UserAgent = rest.DefaultKubernetesUserAgent()
+
+	client, err := rest.RESTClientFor(&config)
+	if err != nil {
+		return err
+	}
+
+	err = client.
+		Get().
+		NamespaceIfScoped(namespace, namespace != "").Name(name).
+		Resource(gvk.Kind + "s"). // TODO: better way to pluralize?
+		Do(ctx).
+		Into(result)
+
+	return err
+}
+
+func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*unstructured.UnstructuredList, error) {
 	config := *c.cfg
 	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: gvk.Group, Version: gvk.Version}
 	config.APIPath = "/apis"

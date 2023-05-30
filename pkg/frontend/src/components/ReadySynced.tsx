@@ -22,8 +22,8 @@ export default function ReadySynced({status}: HealthStatusProps) {
 
     return (
         <>
-            {ready}
             {synced}
+            {ready}
         </>
     );
 }
