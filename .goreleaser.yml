@@ -1,0 +1,21 @@
+# .goreleaser.yml
+# Build customization
+builds:
+  - main: ./main.go
+    binary: komoplane
+    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+archives:
+  - id: komoplane
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
