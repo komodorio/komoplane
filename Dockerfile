@@ -3,7 +3,9 @@ FROM node:latest as frontend
 
 WORKDIR /build
 
-COPY ./ ./
+COPY ./pkg/frontend ./pkg/frontend
+
+WORKDIR /build/pkg/frontend
 
 RUN npm i && npm run build
 
@@ -16,7 +18,7 @@ ENV CGO_ENABLED=0
 
 WORKDIR /build
 
-COPY --from=frontend /build/pkg/frontend /build/pkg/frontend
+COPY --from=frontend /build/pkg/frontend/dist /build/pkg/frontend/dist
 
 COPY go.mod ./
 COPY go.sum ./

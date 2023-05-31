@@ -1,4 +1,4 @@
-node_modules
+pkg/frontend/node_modules
 Dockerfile
 .idea
 .dockerignore
