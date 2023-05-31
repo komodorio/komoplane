@@ -56,7 +56,7 @@ class APIClient {
         return data;
     };
 
-    getClaim = async (group: string, version: string, kind: string, namespace: string, name: string) => {
+    getClaim = async (group?: string, version?: string, kind?: string, namespace?: string, name?: string) => {
         const response = await this.innterFetch(`/api/claims/` + group + "/" + version + "/" + kind + "/" + namespace + "/" + name + "?full=1");
         const data: ClaimExtended = await response.json();
         return data;

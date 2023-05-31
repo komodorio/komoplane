@@ -1,3 +1,4 @@
+/*
 import React, {useCallback, useEffect, useMemo} from "react";
 import ReactFlow, {
     addEdge,
@@ -100,3 +101,4 @@ const ResourcesDiagaram: React.FC<ResourcesDiagaramProps> = ({
 };
 
 export default ResourcesDiagaram;
+*/
