@@ -7,7 +7,7 @@ type HealthStatusProps = {
 
 export default function HealthStatus({status}: HealthStatusProps) {
     let healthy: Condition  = {lastTransitionTime: "", reason: "", status: "Unknown", type: ""}
-    status.conditions.forEach((element) => {
+    status.conditions?.forEach((element) => {
         if (element.type == "Healthy") {
             healthy = element
         }

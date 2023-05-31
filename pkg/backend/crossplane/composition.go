@@ -20,7 +20,7 @@ func (c *compositionClient) List(ctx context.Context) (*v1.CompositionList, erro
 	result := v1.CompositionList{}
 	err := c.restClient.
 		Get().
-		Resource(utils.Plural(v1.CompositeResourceDefinitionKind)).
+		Resource(utils.Plural(v1.CompositionKind)).
 		Do(ctx).
 		Into(&result)
 
@@ -31,7 +31,7 @@ func (c *compositionClient) Get(ctx context.Context, name string) (*v1.Compositi
 	result := v1.Composition{}
 	err := c.restClient.
 		Get().
-		Resource(utils.Plural(v1.CompositeResourceDefinitionKind)).
+		Resource(utils.Plural(v1.CompositionKind)).
 		Name(name).
 		Do(ctx).
 		Into(&result)

@@ -103,6 +103,12 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 
 	composite := api.Group("/composite")
 	composite.GET("", data.GetComposite)
+
+	compositions := api.Group("/compositions")
+	compositions.GET("", data.GetCompositions)
+
+	xrds := api.Group("/xrds")
+	xrds.GET("", data.GetXRDs)
 }
 
 func configureStatic(api *echo.Echo) {

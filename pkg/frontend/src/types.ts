@@ -23,6 +23,11 @@ export type Reference = {
     name: string
 }
 
+export type TypeReference = {
+    kind: string
+    apiVersion: string
+}
+
 export type K8sResource = {
     kind: string
     apiVersion: string
@@ -37,7 +42,6 @@ export type Provider = K8sResource & {
         controllerConfigRef: Reference
     }
 }
-
 
 export type K8sEvent = {
     // type, age, reason, object, message
@@ -81,13 +85,14 @@ export type CompositeResource = K8sResource & {
 
 export type Composition = K8sResource & {
     spec: {
-        compositeTypeRef: Reference
+        compositeTypeRef: TypeReference
         resources: {
             name: string
             base: K8sResource
             patches: any // TODO
         }[]
     }
+    status: never
 }
 
 export type Names = {

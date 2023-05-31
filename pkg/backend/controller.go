@@ -151,7 +151,7 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 	}
 
 	for _, xrd := range xrds.Items {
-		gvk := schema.GroupVersionKind{
+		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
 			Group:   xrd.Spec.Group,
 			Version: xrd.Spec.Versions[0].Name,
 			Kind:    xrd.Spec.ClaimNames.Plural,
@@ -303,7 +303,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	}
 
 	for _, xrd := range xrds.Items {
-		gvk := schema.GroupVersionKind{
+		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceTypeRef is more logical here
 			Group:   xrd.Spec.Group,
 			Version: xrd.Spec.Versions[0].Name,
 			Kind:    xrd.Spec.Names.Plural,
@@ -317,6 +317,24 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	}
 
 	return ec.JSONPretty(http.StatusOK, list, "  ")
+}
+
+func (c *Controller) GetCompositions(ec echo.Context) error {
+	items, err := c.ExtV1.Compositions().List(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, items, "  ")
+}
+
+func (c *Controller) GetXRDs(ec echo.Context) error {
+	items, err := c.ExtV1.XRDs().List(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, items, "  ")
 }
 
 type ManagedUnstructured struct { // no dedicated type for it in base CP

@@ -8,7 +8,7 @@ type HealthStatusProps = {
 export default function ReadySynced({status}: HealthStatusProps) {
     let ready = <></>
     let synced = <></>
-    status.conditions.forEach((element) => {
+    status.conditions?.forEach((element) => {
         if (element.type == "Ready") {
             ready = <Chip label={(element.status == "True" ? "" : "Not ") + "Ready"} title={element.reason}
                           color={(element.status == "True" ? "success" : "error")}></Chip>
