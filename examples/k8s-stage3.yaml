@@ -1,0 +1,77 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xhelmdashboards.xrd.komodor.com
+spec:
+  group: xrd.komodor.com
+  names:
+    kind: XHelmDashboard
+    plural: xhelmdashboards
+  claimNames:
+    kind: HelmDashboard
+    plural: helmdashboards
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                version:
+                  type: string
+              required:
+                - version
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: hd-composition
+#  labels:
+#    crossplane.io/xrd: xkomodorchartset.xrd.komodor.com
+#    provider: helm-provider
+spec:
+  #writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: xrd.komodor.com/v1alpha1
+    kind: XHelmDashboard
+  resources:
+    - base:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: kube-system
+    - base:
+        apiVersion: v1
+        kind: ServiceAccount
+    - base:
+        kind: ClusterRole
+        apiVersion: rbac.authorization.k8s.io/v1
+        rules:
+          - apiGroups: [ "*" ]
+            resources: [ "*" ]
+            verbs: [ "get", "list", "watch", "create", "delete", "patch", "update" ]
+    - base:
+        apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: TBD
+        subjects:
+          - kind: ServiceAccount
+            namespace: TBD
+            name: TBD
+      patches:
+
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: HelmDashboard
+metadata:
+  name: test-hd
+spec:
+  version: abc

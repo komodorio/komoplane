@@ -1,0 +1,67 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: provider-helm-cr
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list", "watch", "create", "delete", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: provider-helm-crb2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: provider-helm-cr
+subjects:
+  - kind: ServiceAccount
+    name: provider-helm-503c3591121b # this name comes from `kubectl -n crossplane-system get sa -o name | grep provider-helm`
+    namespace: crossplane-system
+
+
+
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-helm
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.15.0
+---
+apiVersion: helm.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: helm-provider
+spec:
+  credentials:
+    source: InjectedIdentity
+---
+apiVersion: helm.crossplane.io/v1beta1
+kind: Release
+metadata:
+  name: wordpress-example
+spec:
+  forProvider:
+    chart:
+      name: wordpress
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.1.5
+    namespace: wordpress
+    set:
+      - name: param1
+        value: value2
+    values:
+      service:
+        type: ClusterIP
+  providerConfigRef:
+    name: helm-provider
+
+
+
+
+  #SA=$(kubectl -n crossplane-system get sa -o name | grep provider-helm | sed -e 's|serviceaccount\/|crossplane-system:|g')
+  #kubectl create clusterrolebinding provider-helm-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
+  #kubectl apply -f examples/provider-config/provider-config-incluster.yaml

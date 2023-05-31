@@ -1,4 +1,4 @@
 /.idea/
-/node_modules/
-/pkg/frontend/index.html
-/pkg/frontend/assets/
+node_modules
+/pkg/frontend/.vite/
+/pkg/frontend/dist

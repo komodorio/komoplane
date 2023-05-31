@@ -62,8 +62,8 @@ spec:
               apiKey: please specify
               watcher:
                 clusterName: CPManagedCluster
-          providerConfigRef:
-            name: helm-provider
+          #providerConfigRef:
+          #  name: helm-provider
       patches:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.watcherVer
@@ -83,7 +83,7 @@ spec:
               version: 0.1.7
             namespace: komodor
           providerConfigRef:
-            name: helm-provider
+            name: helm-provider-pc
       patches:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.hdashboardVer
@@ -99,8 +99,9 @@ spec:
   hdashboardVer: 0.1.8
   watcherKey: abc
 
-  compositionRef:
-    name: example-komodorset-composition
+  #compositionRef:
+  #  name: example-komodorset-composition
+
 #  writeConnectionSecretToRef:
 #    namespace: crossplane-system
 #    name: my-db-connection-details
@@ -115,8 +116,9 @@ spec:
   hdashboardVer: 0.1.8
   watcherKey: abc2
 
-  compositionRef:
-    name: example-komodorset-composition
+  #compositionRef:
+  #  name: example-komodorset-composition
+
 #  writeConnectionSecretToRef:
 #    namespace: crossplane-system
 #    name: my-db-connection-details

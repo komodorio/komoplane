@@ -44,7 +44,7 @@ func main() {
 		opts.BindHost = host
 	}
 
-	opts.Verbose = opts.Verbose || os.Getenv("DEBUG") != ""
+	opts.Verbose = opts.Verbose || os.Getenv("DEBUG") != "" || os.Getenv("CGO_CFLAGS") != ""
 	setupLogging(opts.Verbose)
 
 	server := backend.Server{
