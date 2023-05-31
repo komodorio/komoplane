@@ -7,7 +7,6 @@ type ItemProps = {
 };
 
 function ListItem({item}: ItemProps) {
-    console.log(item)
     return (
         <Grid item xs={12} md={12} key={item.metadata.name}>
             <Card variant="outlined">

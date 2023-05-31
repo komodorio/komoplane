@@ -4,6 +4,7 @@ import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import HealthStatus from "./HealthStatus.tsx";
 import {useNavigate} from "react-router-dom";
+import ConditionChips from "./ConditionChips.tsx";
 
 
 type ProviderListItemProps = {
@@ -26,7 +27,7 @@ function ProviderListItem({provider}: ProviderListItemProps) {
                     <CardContent>
                         <Typography variant="h6">{provider.metadata.name}</Typography>
                         <Typography variant="body1" display="inline">{provider.spec.package}</Typography>
-                        <HealthStatus status={provider.status}></HealthStatus>
+                        <ConditionChips status={provider.status}></ConditionChips>
                     </CardContent>
                 </CardActionArea>
             </Card>

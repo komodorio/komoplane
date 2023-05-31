@@ -41,7 +41,7 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 	}))
 
 	api.Use(errSet500)
-	api.Use(slowness)
+	//api.Use(slowness)
 
 	if os.Getenv("KP_CORS_OFF") != "" {
 		api.Use(devNoCORS)
