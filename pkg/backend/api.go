@@ -97,6 +97,9 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	claims := api.Group("/claims")
 	claims.GET("", data.GetClaims)
 	claims.GET("/:group/:version/:kind/:namespace/:name", data.GetClaim)
+
+	managed := api.Group("/managed")
+	managed.GET("", data.GetManaged)
 }
 
 func configureStatic(api *echo.Echo) {

@@ -1,4 +1,4 @@
-import {Claim, ClaimExtended, ItemList, K8sEvent, Provider, ProviderConfig} from "./types.ts";
+import {Claim, ClaimExtended, ItemList, K8sEvent, ManagedResource, Provider, ProviderConfig} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -50,6 +50,13 @@ class APIClient {
         const data: ClaimExtended = await response.json();
         return data;
     };
+
+    getManagedResourcesList = async () => {
+        const response = await this.innterFetch(`/api/managed`);
+        const data: ItemList<ManagedResource> = await response.json();
+        return data;
+    };
+
 
 }
 

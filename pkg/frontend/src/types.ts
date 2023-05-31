@@ -65,3 +65,9 @@ export type ClaimExtended = Claim & {
     compositeResource: K8sResource
     composition: K8sResource
 }
+
+export type ManagedResource = K8sResource & {
+    spec: {
+        providerConfigRef: Reference
+    }
+}

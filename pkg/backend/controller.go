@@ -258,6 +258,39 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
 }
 
+func (c *Controller) GetManaged(ec echo.Context) error {
+	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
+	for _, mrd := range c.allMRDs() {
+		if mrd.Spec.Names.Kind == cpk8s.ProviderConfigKind || mrd.Spec.Names.Kind == cpk8s.ProviderConfigUsageKind {
+			log.Debugf("Skipping %s/%s from listing of all MRs", mrd.Spec.Group, mrd.Spec.Names.Kind)
+			continue
+		}
+
+		gvk := schema.GroupVersionKind{
+			Group:   mrd.Spec.Group,
+			Version: mrd.Spec.Versions[0].Name,
+			Kind:    mrd.Spec.Names.Plural,
+		}
+		items, err := c.CRDs.List(c.ctx, gvk)
+		if err != nil {
+			log.Warnf("Failed to list CRD: %v: %v", mrd.GroupVersionKind(), err)
+			continue
+		}
+
+		res.Items = append(res.Items, items.Items...)
+	}
+	return ec.JSONPretty(http.StatusOK, res, "  ")
+}
+
+func (c *Controller) allMRDs() []*v1.CustomResourceDefinition {
+	res := []*v1.CustomResourceDefinition{}
+	for _, crds := range c.provCRDs {
+		res = append(res, crds...)
+	}
+
+	return res
+}
+
 type ManagedUnstructured struct { // no dedicated type for it in base CP
 	uxres.Unstructured
 }

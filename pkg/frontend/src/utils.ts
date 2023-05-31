@@ -31,7 +31,13 @@ export function getAge(date1: DateTime, date2: DateTime) {
     return "n/a"
 }
 
-export function graphDataFromClaim(claim: ClaimExtended): Data {
+export function getAgeParse(date1: string, date2?: string): string {
+    const dt1 = DateTime.fromISO(date1)
+    const dt2 = date2? DateTime.fromISO(date2): DateTime.now()
+    return getAge(dt1, dt2)
+}
+
+export function graphDataFromClaim(claim: ClaimExtended): Data { // FIXME: wrong placement of fn
     const nodes: DataSetNodes = new DataSet()
     const edges: DataSetEdges = new DataSet()
 
