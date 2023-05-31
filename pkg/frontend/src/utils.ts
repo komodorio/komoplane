@@ -33,7 +33,7 @@ export function getAge(date1: DateTime, date2: DateTime) {
 
 export function getAgeParse(date1: string, date2?: string): string {
     const dt1 = DateTime.fromISO(date1)
-    const dt2 = date2? DateTime.fromISO(date2): DateTime.now()
+    const dt2 = date2 ? DateTime.fromISO(date2) : DateTime.now()
     return getAge(dt1, dt2)
 }
 
@@ -42,16 +42,16 @@ export function graphDataFromClaim(claim: ClaimExtended): Data { // FIXME: wrong
     const edges: DataSetEdges = new DataSet()
 
     const claimId = nodes.add({
-        font: { multi: true },
-        label: "<b>"+claim.metadata.name+"</b>\n<code>Claim</code>",
+        font: {multi: true},
+        label: "<b>" + claim.metadata.name + "</b>\n<code>Claim</code>",
         shape: "box",
         color: {background: "#FFAAFF"},
         borderWidth: 2,
     })[0]
 
     const compId = nodes.add({
-        font: { multi: true },
-        label: "<b>"+claim.composition.metadata.name+"</b>\n<code>Composition</code>",
+        font: {multi: true},
+        label: "<b>" + claim.composition.metadata.name + "</b>\n<code>Composition</code>",
         shape: "box",
         color: {background: "#AAFFAA"}
     })[0]
@@ -60,8 +60,8 @@ export function graphDataFromClaim(claim: ClaimExtended): Data { // FIXME: wrong
     })
 
     const xrId = nodes.add({
-        font: { multi: true },
-        label: "<b>"+claim.compositeResource.metadata.name+"</b>\n<code>Composite Resource</code>",
+        font: {multi: true},
+        label: "<b>" + claim.compositeResource.metadata.name + "</b>\n<code>Composite Resource</code>",
         shape: "box",
         color: {background: "#AAFFFF"}
     })[0]
@@ -72,8 +72,8 @@ export function graphDataFromClaim(claim: ClaimExtended): Data { // FIXME: wrong
 
     claim.managedResources?.map(res => {
         const resId = nodes.add({
-            font: { multi: true },
-            label: "<b>"+res.metadata.name+"</b>\n<code>Managed Resource</code>",
+            font: {multi: true},
+            label: "<b>" + res.metadata.name + "</b>\n<code>Managed Resource</code>",
             shape: "box",
             color: {background: "#FFFFAA"}
         })[0]
@@ -85,7 +85,7 @@ export function graphDataFromClaim(claim: ClaimExtended): Data { // FIXME: wrong
             },
             smooth: {
                 enabled: true,
-                type:  'cubicBezier', //'', '', '', '', '', 'curvedCW', 'curvedCCW', ''
+                type: 'cubicBezier', //'', '', '', '', '', 'curvedCW', 'curvedCCW', ''
             }
         })
     })

@@ -1,8 +1,6 @@
-import {Card, CardContent, CardActionArea} from '@mui/material';
+import {Card, CardActionArea, CardContent, Grid} from '@mui/material';
 import {ItemList, Provider} from "../types.ts";
-import {Grid} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import HealthStatus from "./HealthStatus.tsx";
 import {useNavigate} from "react-router-dom";
 import ConditionChips from "./ConditionChips.tsx";
 

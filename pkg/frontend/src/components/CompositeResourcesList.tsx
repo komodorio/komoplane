@@ -1,5 +1,5 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {ItemList, CompositeResource} from "../types.ts";
+import {CompositeResource, ItemList} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 
@@ -11,13 +11,13 @@ function ListItem({item}: ItemProps) {
     return (
         <Grid item xs={12} md={12} key={item.metadata.name}>
             <Card variant="outlined">
-                    <CardContent>
-                        <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                        <Typography variant="h6">Kind: {item.kind}</Typography>
-                        <Typography variant="h6">Group: {item.apiVersion}</Typography>
-                        <Typography variant="h6">Composition: {item.spec.compositionRef.name}</Typography>
-                        <ReadySynced status={item.status}></ReadySynced>
-                    </CardContent>
+                <CardContent>
+                    <Typography variant="h6">Name: {item.metadata.name}</Typography>
+                    <Typography variant="h6">Kind: {item.kind}</Typography>
+                    <Typography variant="h6">Group: {item.apiVersion}</Typography>
+                    <Typography variant="h6">Composition: {item.spec.compositionRef.name}</Typography>
+                    <ReadySynced status={item.status}></ReadySynced>
+                </CardContent>
             </Card>
         </Grid>
     );

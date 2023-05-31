@@ -14,13 +14,11 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.1",
-    "autoprefixer": "^10.4.14",
     "luxon": "^3.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
     "reactflow": "^11.7.2",
-    "tailwindcss": "^3.3.2",
     "vis-data": "^7.1.6",
     "vis-network": "^9.1.6"
   },
@@ -34,6 +32,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "typescript": "^5.0.2",
-    "vite": "^4.3.2"
+    "vite": "^4.3.2",
+    "autoprefixer": "^10.4.14",
+    "tailwindcss": "^3.3.2",
+    "prettier": "2.8.4"
   }
 }

@@ -1,12 +1,14 @@
 import {
     Claim,
     ClaimExtended,
-    CompositeResource, Composition,
+    CompositeResource,
+    Composition,
     ItemList,
     K8sEvent,
     ManagedResource,
     Provider,
-    ProviderConfig, XRD
+    ProviderConfig,
+    XRD
 } from "./types.ts";
 
 class APIClient {
@@ -55,7 +57,7 @@ class APIClient {
     };
 
     getClaim = async (group: string, version: string, kind: string, namespace: string, name: string) => {
-        const response = await this.innterFetch(`/api/claims/` + group + "/" + version + "/" + kind + "/" + namespace + "/" + name+"?full=1");
+        const response = await this.innterFetch(`/api/claims/` + group + "/" + version + "/" + kind + "/" + namespace + "/" + name + "?full=1");
         const data: ClaimExtended = await response.json();
         return data;
     };
@@ -72,13 +74,13 @@ class APIClient {
         return data;
     };
 
-    getCompositionsList= async () => {
+    getCompositionsList = async () => {
         const response = await this.innterFetch(`/api/compositions`);
         const data: ItemList<Composition> = await response.json();
         return data;
     };
 
-    getXRDsList= async () => {
+    getXRDsList = async () => {
         const response = await this.innterFetch(`/api/xrds`);
         const data: ItemList<XRD> = await response.json();
         return data;
