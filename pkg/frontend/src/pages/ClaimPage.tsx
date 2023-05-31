@@ -1,6 +1,4 @@
-import LinearProgress from '@mui/material/LinearProgress';
-import Typography from "@mui/material/Typography";
-import {Grid} from "@mui/material";
+import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
 import {useParams} from "react-router-dom";
 import {ClaimExtended} from "../types.ts";
 import {useEffect, useState} from "react";
@@ -8,7 +6,6 @@ import apiClient from "../api.ts";
 import {graphDataFromClaim} from "../utils.ts";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
-import Paper from '@mui/material/Paper';
 import ReadySynced from "../components/ReadySynced.tsx";
 import {RelationsGraph} from "../components/RelationsGraph.tsx";
 
@@ -24,7 +21,7 @@ export default function ClaimPage() {
     }, [group, version, kind, namespace, name])
 
     if (error) {
-        return (<Typography>Not found: {error.toString()}</Typography>)
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
     }
 
     if (!claim) {

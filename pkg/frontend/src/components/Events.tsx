@@ -1,7 +1,5 @@
 import {ItemList, K8sEvent} from "../types.ts";
-import Card from '@mui/material/Card';
-import {Grid} from "@mui/material";
-import Typography from "@mui/material/Typography";
+import {Alert, Card, Grid, Typography} from "@mui/material";
 import apiClient from "../api.ts";
 import {getAgeParse} from "../utils.ts";
 import {useEffect, useState} from "react";
@@ -52,7 +50,7 @@ export default function Events({src}: EventsListProps) {
     }, [src])
 
     if (error) {
-        return (<Typography>Failed getting events: {error.toString()}</Typography>)
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
     }
 
     if (!events) {

@@ -1,19 +1,22 @@
-import Typography from "@mui/material/Typography";
-import {Toolbar} from "@mui/material";
+import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {CompositeResource, ItemList} from "../types.ts";
-import LinearProgress from '@mui/material/LinearProgress';
 import CompositeResourcesList from "../components/CompositeResourcesList.tsx";
 
 const CompositeResourcesPage = () => {
     const [items, setItems] = useState<ItemList<CompositeResource> | null>(null);
+    const [error, setError] = useState<object | null>(null);
 
     useEffect(() => {
         apiClient.getCompositeResourcesList()
             .then((data) => setItems(data))
-            .catch((error) => console.error(error));
+            .catch((error) => setError(error));
     }, []);
+
+    if (error) {
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
+    }
 
     if (!items) {
         return <LinearProgress/>;

@@ -24,6 +24,8 @@ import ClaimsPage from "./pages/ClaimsPage.tsx";
 import ClaimPage from "./pages/ClaimPage.tsx";
 import ManagedResourcesPage from "./pages/ManagedResourcesPage.tsx";
 import CompositeResourcesPage from "./pages/CompositeResourcesPage.tsx";
+import CompositionsPage from "./pages/CompositionsPage.tsx";
+import XRDsPage from "./pages/XRDsPage.tsx";
 
 
 const drawerWidth = 260;
@@ -119,7 +121,7 @@ export default function PersistentDrawerLeft() {
                     <Divider/>
                     <List>
                         <ListItem key="Compositions" disablePadding>
-                            <ListItemButton>
+                            <ListItemButton component={RouterLink} to="/compositions">
                                 <ListItemIcon>
                                     <CompositionsIcon/>
                                 </ListItemIcon>
@@ -127,7 +129,7 @@ export default function PersistentDrawerLeft() {
                             </ListItemButton>
                         </ListItem>
                         <ListItem key="XRDs" disablePadding>
-                            <ListItemButton>
+                            <ListItemButton component={RouterLink} to="/xrds">
                                 <ListItemIcon>
                                     <XRDsIcon/>
                                 </ListItemIcon>
@@ -145,6 +147,8 @@ export default function PersistentDrawerLeft() {
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
                         <Route path="/managed" element={<ManagedResourcesPage/>}/>
                         <Route path="/composite" element={<CompositeResourcesPage/>}/>
+                        <Route path="/compositions" element={<CompositionsPage/>}/>
+                        <Route path="/xrds" element={<XRDsPage/>}/>
                         <Route path="*" element={<Typography>Page not found</Typography>}/>
                     </Routes>
                 </Main>

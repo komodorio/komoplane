@@ -1,10 +1,7 @@
 import {ItemList, ProviderConfig} from "../types.ts";
-import {Grid} from "@mui/material";
-import Typography from "@mui/material/Typography";
+import {Alert, Card, Grid, LinearProgress, Typography} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
-import Card from '@mui/material/Card';
-import LinearProgress from '@mui/material/LinearProgress';
 
 type ListItemProps = {
     item: ProviderConfig;
@@ -35,7 +32,7 @@ export default function ProviderConfigs({name}: ListProps) {
     }, [name])
 
     if (error) {
-        return (<Typography>Failed getting: {error.toString()}</Typography>)
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
     }
 
     if (!items) {

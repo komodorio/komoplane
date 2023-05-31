@@ -1,5 +1,4 @@
-import Typography from "@mui/material/Typography";
-import {Grid} from "@mui/material";
+import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
 import {useParams} from "react-router-dom";
 import {Provider} from "../types.ts";
 import {useEffect, useState} from "react";
@@ -8,8 +7,6 @@ import HealthStatus from "../components/HealthStatus.tsx";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
 import ProviderConfigs from "../components/ProviderConfigs.tsx";
-import Paper from '@mui/material/Paper';
-import LinearProgress from '@mui/material/LinearProgress';
 
 const ProviderPage = () => {
     const {provider: providerName} = useParams();
@@ -23,7 +20,7 @@ const ProviderPage = () => {
     }, [providerName])
 
     if (error) {
-        return (<Typography>Provider not found: {error.toString()}</Typography>)
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
     }
 
     if (!provider) {

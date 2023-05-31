@@ -1,15 +1,15 @@
 import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
-import {ItemList, ManagedResource} from "../types.ts";
-import ManagedResourcesList from "../components/ManagedResourcesList.tsx";
+import {ItemList, XRD} from "../types.ts";
+import XRDsList from "../components/XRDsList.tsx";
 
-const ManagedResourcesPage = () => {
-    const [items, setItems] = useState<ItemList<ManagedResource> | null>(null);
+const XRDsPage = () => {
+    const [items, setItems] = useState<ItemList<XRD> | null>(null);
     const [error, setError] = useState<object | null>(null);
 
     useEffect(() => {
-        apiClient.getManagedResourcesList()
+        apiClient.getXRDsList()
             .then((data) => setItems(data))
             .catch((error) => setError(error));
     }, []);
@@ -25,12 +25,12 @@ const ManagedResourcesPage = () => {
     return (
         <>
             <Toolbar>
-                <Typography variant="h5">Managed Resources</Typography>
+                <Typography variant="h5">Composite Resource Definitions (XRDs)</Typography>
             </Toolbar>
 
-            <ManagedResourcesList items={items}></ManagedResourcesList>
+            <XRDsList items={items}></XRDsList>
         </>
     );
 };
 
-export default ManagedResourcesPage;
+export default XRDsPage;

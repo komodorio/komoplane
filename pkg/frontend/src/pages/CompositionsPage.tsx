@@ -1,16 +1,15 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Toolbar, Alert, Typography, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
-import {Claim, ItemList} from "../types.ts";
-import ClaimsList from "../components/ClaimsList.tsx";
+import {Composition, ItemList} from "../types.ts";
+import CompositionsList from "../components/CompositionsList.tsx";
 
-
-const ClaimsPage = () => {
-    const [items, setItems] = useState<ItemList<Claim> | null>(null);
+const CompositionsPage = () => {
+    const [items, setItems] = useState<ItemList<Composition> | null>(null);
     const [error, setError] = useState<object | null>(null);
 
     useEffect(() => {
-        apiClient.getClaimList()
+        apiClient.getCompositionsList()
             .then((data) => setItems(data))
             .catch((error) => setError(error));
     }, []);
@@ -26,12 +25,12 @@ const ClaimsPage = () => {
     return (
         <>
             <Toolbar>
-                <Typography variant="h5">Claims</Typography>
+                <Typography variant="h5">Compositions</Typography>
             </Toolbar>
 
-            <ClaimsList items={items}></ClaimsList>
+            <CompositionsList items={items}></CompositionsList>
         </>
     );
 };
 
-export default ClaimsPage;
+export default CompositionsPage;

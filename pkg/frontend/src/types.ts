@@ -78,3 +78,33 @@ export type CompositeResource = K8sResource & {
         resourceRefs: Reference[]
     }
 }
+
+export type Composition = K8sResource & {
+    spec: {
+        compositeTypeRef: Reference
+        resources: {
+            name: string
+            base: K8sResource
+            patches: any // TODO
+        }[]
+    }
+}
+
+export type Names = {
+    kind: string
+    plural: string
+}
+
+export type Version = {
+    name: string
+    schema: any
+}
+
+export type XRD = K8sResource & {
+    spec: {
+        group: string
+        claimNames: Names
+        names: Names
+        versions: Version[]
+    }
+}
