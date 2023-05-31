@@ -23,6 +23,7 @@ import ProviderPage from "./pages/ProviderPage.tsx";
 import ClaimsPage from "./pages/ClaimsPage.tsx";
 import ClaimPage from "./pages/ClaimPage.tsx";
 import ManagedResourcesPage from "./pages/ManagedResourcesPage.tsx";
+import CompositeResourcesPage from "./pages/CompositeResourcesPage.tsx";
 
 
 const drawerWidth = 260;
@@ -90,12 +91,28 @@ export default function PersistentDrawerLeft() {
                                 <ListItemText primary="Claims"/>
                             </ListItemButton>
                         </ListItem>
+                        <ListItem key="Composite Resources" disablePadding>
+                            <ListItemButton component={RouterLink} to="/composite">
+                                <ListItemIcon>
+                                    <Polyline/>
+                                </ListItemIcon>
+                                <ListItemText primary="Composite Resources"/>
+                            </ListItemButton>
+                        </ListItem>
                         <ListItem key="Managed Resources" disablePadding>
                             <ListItemButton component={RouterLink} to="/managed">
                                 <ListItemIcon>
                                     <InboxIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Managed Resources"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="Providers" disablePadding>
+                            <ListItemButton component={RouterLink} to="/providers">
+                                <ListItemIcon>
+                                    <ProvidersIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary="Providers"/>
                             </ListItemButton>
                         </ListItem>
                     </List>
@@ -109,28 +126,12 @@ export default function PersistentDrawerLeft() {
                                 <ListItemText primary="Compositions"/>
                             </ListItemButton>
                         </ListItem>
-                        <ListItem key="Composite Resources" disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <Polyline/>
-                                </ListItemIcon>
-                                <ListItemText primary="Composite Resources"/>
-                            </ListItemButton>
-                        </ListItem>
                         <ListItem key="XRDs" disablePadding>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <XRDsIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="XRDs"/>
-                            </ListItemButton>
-                        </ListItem>
-                        <ListItem key="Providers" disablePadding>
-                            <ListItemButton component={RouterLink} to="/providers">
-                                <ListItemIcon>
-                                    <ProvidersIcon/>
-                                </ListItemIcon>
-                                <ListItemText primary="Providers"/>
                             </ListItemButton>
                         </ListItem>
                     </List>
@@ -143,6 +144,7 @@ export default function PersistentDrawerLeft() {
                         <Route path="/claims" element={<ClaimsPage/>}/>
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
                         <Route path="/managed" element={<ManagedResourcesPage/>}/>
+                        <Route path="/composite" element={<CompositeResourcesPage/>}/>
                         <Route path="*" element={<Typography>Page not found</Typography>}/>
                     </Routes>
                 </Main>

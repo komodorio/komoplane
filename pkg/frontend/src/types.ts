@@ -50,8 +50,7 @@ export type K8sEvent = {
     lastTimestamp: string
 }
 
-export type ProviderConfig = K8sResource & {
-}
+export type ProviderConfig = K8sResource & {}
 
 export type Claim = K8sResource & {
     spec: {
@@ -69,5 +68,13 @@ export type ClaimExtended = Claim & {
 export type ManagedResource = K8sResource & {
     spec: {
         providerConfigRef: Reference
+    }
+}
+
+export type CompositeResource = K8sResource & {
+    spec: {
+        claimRef?: Reference
+        compositionRef: Reference
+        resourceRefs: Reference[]
     }
 }

@@ -291,6 +291,34 @@ func (c *Controller) allMRDs() []*v1.CustomResourceDefinition {
 	return res
 }
 
+func (c *Controller) GetComposite(ec echo.Context) error {
+	list := unstructured.UnstructuredList{
+		Object: nil,
+		Items:  []unstructured.Unstructured{},
+	}
+
+	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, xrd := range xrds.Items {
+		gvk := schema.GroupVersionKind{
+			Group:   xrd.Spec.Group,
+			Version: xrd.Spec.Versions[0].Name,
+			Kind:    xrd.Spec.Names.Plural,
+		}
+		res, err := c.CRDs.List(c.ctx, gvk)
+		if err != nil {
+			return err
+		}
+
+		list.Items = append(list.Items, res.Items...)
+	}
+
+	return ec.JSONPretty(http.StatusOK, list, "  ")
+}
+
 type ManagedUnstructured struct { // no dedicated type for it in base CP
 	uxres.Unstructured
 }

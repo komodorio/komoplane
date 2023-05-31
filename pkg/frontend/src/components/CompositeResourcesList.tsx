@@ -1,10 +1,10 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {ItemList, ManagedResource} from "../types.ts";
+import {ItemList, CompositeResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 
 type ItemProps = {
-    item: ManagedResource;
+    item: CompositeResource;
 };
 
 function ListItem({item}: ItemProps) {
@@ -15,7 +15,7 @@ function ListItem({item}: ItemProps) {
                         <Typography variant="h6">Name: {item.metadata.name}</Typography>
                         <Typography variant="h6">Kind: {item.kind}</Typography>
                         <Typography variant="h6">Group: {item.apiVersion}</Typography>
-                        <Typography variant="h6">Provider Config: {item.spec.providerConfigRef.name}</Typography>
+                        <Typography variant="h6">Composition: {item.spec.compositionRef.name}</Typography>
                         <ReadySynced status={item.status}></ReadySynced>
                     </CardContent>
             </Card>
@@ -24,13 +24,13 @@ function ListItem({item}: ItemProps) {
 }
 
 type ItemListProps = {
-    items: ItemList<ManagedResource> | undefined;
+    items: ItemList<CompositeResource> | undefined;
 };
 
-export default function ManagedResourcesList({items}: ItemListProps) {
+export default function CompositeResourcesList({items}: ItemListProps) {
     return (
         <Grid container spacing={2}>
-            {items?.items?.map((item: ManagedResource) => (
+            {items?.items?.map((item: CompositeResource) => (
                 <ListItem item={item} key={item.metadata.name}/>
             ))}
         </Grid>

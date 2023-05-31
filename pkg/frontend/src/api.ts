@@ -1,4 +1,13 @@
-import {Claim, ClaimExtended, ItemList, K8sEvent, ManagedResource, Provider, ProviderConfig} from "./types.ts";
+import {
+    Claim,
+    ClaimExtended,
+    CompositeResource,
+    ItemList,
+    K8sEvent,
+    ManagedResource,
+    Provider,
+    ProviderConfig
+} from "./types.ts";
 
 class APIClient {
     constructor(
@@ -57,6 +66,12 @@ class APIClient {
         return data;
     };
 
+
+    getCompositeResourcesList = async () => {
+        const response = await this.innterFetch(`/api/composite`);
+        const data: ItemList<CompositeResource> = await response.json();
+        return data;
+    };
 
 }
 

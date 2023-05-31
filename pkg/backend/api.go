@@ -100,6 +100,9 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 
 	managed := api.Group("/managed")
 	managed.GET("", data.GetManaged)
+
+	composite := api.Group("/composite")
+	composite.GET("", data.GetComposite)
 }
 
 func configureStatic(api *echo.Echo) {

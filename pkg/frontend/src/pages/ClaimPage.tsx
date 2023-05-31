@@ -13,7 +13,7 @@ import ReadySynced from "../components/ReadySynced.tsx";
 import {RelationsGraph} from "../components/RelationsGraph.tsx";
 
 export default function ClaimPage() {
-    const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
+    const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams<string>();
     const [claim, setClaim] = useState<ClaimExtended | null>(null);
     const [error, setError] = useState<object | null>(null);
 
