@@ -45,7 +45,13 @@ export default function ClaimPage() {
                     <Paper className="p-4">
                         <Typography variant="h6">Configuration</Typography>
                         <Typography variant="body1">
-                            Package: {claim.spec.package}
+                            API Version: {claim.apiVersion}
+                        </Typography>
+                        <Typography variant="body1">
+                            Kind: {claim.kind}
+                        </Typography>
+                        <Typography variant="body1">
+                            Namespace: {claim.metadata.namespace}
                         </Typography>
                     </Paper>
                 </Grid>

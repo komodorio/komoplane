@@ -22,8 +22,8 @@ function EventListItem({event}: EventListItemProps) {
             <Card variant="outlined" className="p-2">
                 <Grid container justifyContent="space-between">
                     <Grid item>
-                        <Typography variant="body1">{event.reason}</Typography>
-                        <Typography variant="body1" sx={{ fontStyle: 'oblique' }}>{event.message}</Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{event.reason}</Typography>
+                        <Typography variant="body1">{event.message}</Typography>
                     </Grid>
                     <Grid item>
                         <Typography variant="body1" className={event.type!="Normal"?"text-amber-700":""}>{event.type}</Typography>

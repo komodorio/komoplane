@@ -89,14 +89,6 @@ export default function PersistentDrawerLeft() {
                                 <ListItemText primary="Claims"/>
                             </ListItemButton>
                         </ListItem>
-                        <ListItem key="Composite Resources" disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <Polyline/>
-                                </ListItemIcon>
-                                <ListItemText primary="Composite Resources"/>
-                            </ListItemButton>
-                        </ListItem>
                         <ListItem key="Managed Resources" disablePadding>
                             <ListItemButton>
                                 <ListItemIcon>
@@ -114,6 +106,14 @@ export default function PersistentDrawerLeft() {
                                     <CompositionsIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Compositions"/>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem key="Composite Resources" disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <Polyline/>
+                                </ListItemIcon>
+                                <ListItemText primary="Composite Resources"/>
                             </ListItemButton>
                         </ListItem>
                         <ListItem key="XRDs" disablePadding>

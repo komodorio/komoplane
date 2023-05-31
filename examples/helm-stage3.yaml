@@ -83,7 +83,7 @@ spec:
               version: 0.1.7
             namespace: komodor
           providerConfigRef:
-            name: helm-provider
+            name: helm-provider-pc
       patches:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.hdashboardVer

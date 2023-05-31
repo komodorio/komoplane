@@ -168,6 +168,7 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 }
 
 func (c *Controller) GetClaim(ec echo.Context) error {
+	// FIXME: refactor a lot of duplications
 	gvk := schema.GroupVersionKind{
 		Group:   ec.Param("group"),
 		Version: ec.Param("version"),
@@ -181,6 +182,9 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	if err != nil {
 		return err
 	}
+	claim.SetGroupVersionKind(claimRef.GroupVersionKind())
+	claim.SetNamespace(claimRef.Namespace)
+	claim.SetName(claimRef.Name)
 
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
