@@ -15,9 +15,7 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 	api := echo.New()
 	api.Debug = debug
 	if debug {
-		api.Use(middleware.Recover())
-	} else {
-
+		api.Use(middleware.Recover()) // TODO: is it right to do it under debug and not prod?
 	}
 
 	configureRoutes(data, api)
@@ -41,7 +39,7 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 	}))
 
 	api.Use(errSet500)
-	//api.Use(slowness)
+	api.Use(slowness)
 
 	if os.Getenv("KP_CORS_OFF") != "" {
 		api.Use(devNoCORS)
@@ -50,10 +48,13 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 	return api
 }
 
+// slowness middleware makes every request 1s slower, to test loading indicators
 func slowness(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		log.Warnf("Slowing down for debugging")
-		time.Sleep(1 * time.Second)
+		if os.Getenv("SLOWNESS") != "" {
+			log.Warnf("Slowing down for debugging")
+			time.Sleep(1 * time.Second)
+		}
 		return next(c)
 	}
 }

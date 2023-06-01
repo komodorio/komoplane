@@ -1,0 +1,5 @@
+Thank you for installing komoplane.
+
+Visit our repo at:
+https://github.com/komodorio/komoplane
+

@@ -11,13 +11,13 @@ function ListItem({item}: ItemProps) {
     return (
         <Grid item xs={12} md={12} key={item.metadata.name}>
             <Card variant="outlined">
-                    <CardContent>
-                        <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                        <Typography variant="h6">Kind: {item.kind}</Typography>
-                        <Typography variant="h6">Group: {item.apiVersion}</Typography>
-                        <Typography variant="h6">Provider Config: {item.spec.providerConfigRef.name}</Typography>
-                        <ReadySynced status={item.status}></ReadySynced>
-                    </CardContent>
+                <CardContent>
+                    <Typography variant="h6">Name: {item.metadata.name}</Typography>
+                    <Typography variant="h6">Kind: {item.kind}</Typography>
+                    <Typography variant="h6">Group: {item.apiVersion}</Typography>
+                    <Typography variant="h6">Provider Config: {item.spec.providerConfigRef.name}</Typography>
+                    <ReadySynced status={item.status}></ReadySynced>
+                </CardContent>
             </Card>
         </Grid>
     );

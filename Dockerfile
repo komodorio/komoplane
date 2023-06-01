@@ -3,7 +3,9 @@ FROM node:latest as frontend
 
 WORKDIR /build
 
-COPY ./ ./
+COPY ./pkg/frontend ./pkg/frontend
+
+WORKDIR /build/pkg/frontend
 
 RUN npm i && npm run build
 
@@ -16,7 +18,8 @@ ENV CGO_ENABLED=0
 
 WORKDIR /build
 
-COPY --from=frontend /build/pkg/frontend /build/pkg/frontend
+COPY --from=frontend /build/pkg/frontend/dist /build/pkg/frontend/dist
+
 
 COPY go.mod ./
 COPY go.sum ./
@@ -26,9 +29,9 @@ RUN go mod download
 ARG VER=0.0.0
 ENV VERSION=${VER}
 
-ADD . src
-
-WORKDIR /build/src
+ADD Makefile ./
+ADD ./pkg/backend ./pkg/backend
+ADD ./pkg/frontend/fs.go ./pkg/frontend
 
 RUN make build
 
@@ -36,7 +39,7 @@ RUN make build
 FROM alpine
 EXPOSE 8080
 
-COPY --from=builder /build/src/bin/komoplane /bin/komoplane
+COPY --from=builder /build/bin/komoplane /bin/komoplane
 
 ENTRYPOINT ["/bin/komoplane", "--bind=0.0.0.0", "--port=8090"]
 

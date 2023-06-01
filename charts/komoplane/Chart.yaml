@@ -1,0 +1,9 @@
+apiVersion: v2
+type: application
+
+name: komoplane
+description: Komodor tool to visualize Crossplane
+# icon: TODO
+
+version: 0.0.0
+appVersion: 0.0.0
