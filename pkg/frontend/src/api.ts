@@ -89,8 +89,7 @@ class APIClient {
 
 let baseURL = ""
 
-// @ts-ignore
-if (window["$RefreshReg$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm run dev` - help out!
+if (import.meta.env.DEV) {
     baseURL = "http://localhost:8090"
 }
 

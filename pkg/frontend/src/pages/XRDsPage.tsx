@@ -10,7 +10,7 @@ const XRDsPage = () => {
     const [items, setItems] = useState<ItemList<XRD> | null>(null);
     const [error, setError] = useState<object | null>(null);
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
-    const [bridge, _] = useState<ItemContext>(new ItemContext());
+    const [bridge] = useState<ItemContext>(new ItemContext());
 
 
     useEffect(() => {

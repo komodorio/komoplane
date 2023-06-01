@@ -33,7 +33,7 @@ export type K8sResource = {
     apiVersion: string
     metadata: Metadata,
     status: Status
-    spec: any
+    spec: object
 }
 
 export type Provider = K8sResource & {
@@ -54,7 +54,7 @@ export type K8sEvent = {
     lastTimestamp: string
 }
 
-export type ProviderConfig = K8sResource & {}
+export type ProviderConfig = K8sResource
 
 export type Claim = K8sResource & {
     spec: {
@@ -89,7 +89,7 @@ export type Composition = K8sResource & {
         resources: {
             name: string
             base: K8sResource
-            patches: any // TODO
+            patches: object[] // TODO
         }[]
     }
     status: never
@@ -102,7 +102,7 @@ export type Names = {
 
 export type Version = {
     name: string
-    schema: any
+    schema: object
 }
 
 export type XRD = K8sResource & {

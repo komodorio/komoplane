@@ -42,7 +42,7 @@ type ItemProps = {
 const InfoTabs = ({bridge}: ItemProps) => {
     const [currentTabIndex, setCurrentTabIndex] = useState<string>("yaml");
 
-    const handleTabChange = (_: any, tabIndex: string) => {
+    const handleTabChange = (_: object, tabIndex: string) => {
         setCurrentTabIndex(tabIndex);
     };
 
