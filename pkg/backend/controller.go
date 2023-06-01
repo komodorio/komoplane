@@ -77,7 +77,7 @@ func (c *Controller) GetProviderEvents(ec echo.Context) error {
 	}
 	ref.SetGroupVersionKind(gvk)
 
-	res, err := c.Events.List(c.ctx, ref)
+	res, err := c.Events.List(c.ctx, &ref)
 	if err != nil {
 		return err
 	}
