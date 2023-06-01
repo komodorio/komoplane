@@ -11,22 +11,27 @@ import (
 )
 
 type EventsInterface interface {
-	List(ctx context.Context, name string, kind string, group string, version string) (*v1.EventList, error)
+	List(ctx context.Context, reference *v1.ObjectReference) (*v1.EventList, error)
 }
 
 type eventsClient struct {
 	clientset *kubernetes.Clientset
 }
 
-func (c *eventsClient) List(ctx context.Context, name string, kind string, group string, version string) (*v1.EventList, error) {
+func (c *eventsClient) List(ctx context.Context, reference *v1.ObjectReference) (*v1.EventList, error) {
 	meta := metav1.TypeMeta{
-		Kind:       kind,
-		APIVersion: version,
+		Kind:       reference.Kind,
+		APIVersion: reference.APIVersion,
 	}
 	options := metav1.ListOptions{
-		FieldSelector: "involvedObject.name=" + name,
+		FieldSelector: "involvedObject.name=" + reference.Name,
 		TypeMeta:      meta,
 	}
+
+	if reference.Namespace != "" {
+		options.FieldSelector += ",involvedObject.namespace=" + reference.Namespace
+	}
+
 	events, err := c.clientset.CoreV1().Events("").List(context.TODO(), options)
 	return events, err
 }

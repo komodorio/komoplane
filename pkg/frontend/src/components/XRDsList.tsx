@@ -1,16 +1,16 @@
 import {Card, CardActionArea, CardContent, Grid} from '@mui/material';
-import {ItemList, XRD} from "../types.ts";
+import {ItemList, K8sResource, XRD} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ConditionChips from "./ConditionChips.tsx";
 
 type ItemProps = {
     item: XRD;
-    onItemClick: { (): void }
+    onItemClick: { (item: K8sResource): void }
 };
 
 function ListItem({item, onItemClick}: ItemProps) {
     return (
-        <Grid item xs={12} md={12} key={item.metadata.name} onClick={onItemClick}>
+        <Grid item xs={12} md={12} key={item.metadata.name} onClick={()=>{onItemClick(item)}}>
             <Card variant="outlined">
                 <CardActionArea>
                     <CardContent>
@@ -28,7 +28,7 @@ function ListItem({item, onItemClick}: ItemProps) {
 
 type ItemListProps = {
     items: ItemList<XRD> | undefined;
-    onItemClick: { (): void }
+    onItemClick: { (item: K8sResource): void }
 };
 
 export default function XRDsList({items, onItemClick}: ItemListProps) {

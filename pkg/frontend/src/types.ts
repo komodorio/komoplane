@@ -4,7 +4,7 @@ export type ItemList<S> = {
 
 export type Metadata = {
     name: string
-    namespace: string
+    namespace?: string
 }
 
 export type Condition = {
