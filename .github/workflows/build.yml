@@ -38,13 +38,6 @@ jobs:
           go test -v -race ./... -covermode=atomic -coverprofile=coverage.out # Run all the tests with the race detector enabled
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-      - name: Static analysis
-        run: |
-          go vet ./... # go vet is the official Go static analyzer
-      - name: Cyclomatic complexity
-        run: |
-          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
-          /home/runner/go/bin/gocyclo -over 19 main.go pkg # forbid code with huge/complex functions
       - name: Dry Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
@@ -52,14 +45,6 @@ jobs:
           args: release --snapshot --rm-dist
       - name: Test Binary is Runnable
         run: "dist/komoplane_linux_amd64_v1/komoplane --help"
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          # version: latest
-          # skip-go-installation: true
-          skip-pkg-cache: true
-          skip-build-cache: true
-          # args: --timeout=15m
 
   image:
     runs-on: ubuntu-latest
@@ -75,13 +60,30 @@ jobs:
           outputs: local
           build-args: VER=0.0.0-dev
 
-  helm_check:
+  static:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          fetch-depth: 0
+          go-version: "1.20"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # version: latest
+          # skip-go-installation: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+          # args: --timeout=15m
+      - name: Static analysis
+        run: |
+          go vet ./... # go vet is the official Go static analyzer
+      - name: Cyclomatic complexity
+        run: |
+          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+          /home/runner/go/bin/gocyclo -over 19 main.go pkg # forbid code with huge/complex functions
       - name: Helm Template Check For Sanity
         uses: igabaydulin/helm-check-action@0.2.0
         env:
