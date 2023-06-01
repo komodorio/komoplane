@@ -65,6 +65,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Helm Template Check For Sanity
+        uses: igabaydulin/helm-check-action@0.2.0
+        env:
+          CHART_LOCATION: ./charts/komoplane
+          CHART_VALUES: ./charts/komoplane/values.yaml
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -83,8 +89,16 @@ jobs:
         run: |
           go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
           /home/runner/go/bin/gocyclo -over 19 main.go pkg # forbid code with huge/complex functions
-      - name: Helm Template Check For Sanity
-        uses: igabaydulin/helm-check-action@0.2.0
-        env:
-          CHART_LOCATION: ./charts/komoplane
-          CHART_VALUES: ./charts/komoplane/values.yaml
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          cache-dependency-path: pkg/frontend/package-lock.json
+      - name: NPM install
+        run: npm i
+        working-directory: ./pkg/frontend
+      - name: NPM lint
+        run: npm run lint
+        working-directory: ./pkg/frontend
+
