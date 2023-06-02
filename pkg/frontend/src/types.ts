@@ -3,6 +3,7 @@ export type ItemList<S> = {
 }
 
 export type Metadata = {
+    managedFields?: object[];
     name: string
     namespace?: string
 }

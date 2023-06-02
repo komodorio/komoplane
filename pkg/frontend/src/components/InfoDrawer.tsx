@@ -15,10 +15,10 @@ const InfoDrawer = ({ isOpen, onClose, children, title } :ItemProps) => {
         <Drawer anchor="right" open={isOpen} onClose={onClose} PaperProps={{
             sx: { width: "75%" },
         }}>
-            <div className="flex flex-col h-full p-4 w-50">
+            <div className="flex flex-col h-full w-50">
                 <div className="flex-grow">
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'  }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'  }} className="p-4">
                         <Typography variant="h5">{title}</Typography>
                         <Box>
                             <IconButton onClick={onClose}>

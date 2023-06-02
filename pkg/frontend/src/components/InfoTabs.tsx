@@ -4,6 +4,7 @@ import {TabContext, TabList, TabPanel} from '@mui/lab';
 import ConditionList from "./ConditionList.tsx";
 import {Condition, K8sResource} from "../types.ts";
 import Events from "./Events.tsx";
+import YAMLCodeBlock from "./YAMLCodeBlock.tsx";
 
 
 export class ItemContext {
@@ -45,7 +46,7 @@ type ItemProps = {
 };
 
 const InfoTabs = ({bridge}: ItemProps) => {
-    const [currentTabIndex, setCurrentTabIndex] = useState<string>("yaml");
+    const [currentTabIndex, setCurrentTabIndex] = useState<string>("status");
 
     const handleTabChange = (_: object, tabIndex: string) => {
         setCurrentTabIndex(tabIndex);
@@ -54,28 +55,31 @@ const InfoTabs = ({bridge}: ItemProps) => {
     return (
         <>
             <TabContext value={currentTabIndex}>
-                <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                <Box sx={{borderBottom: 1, borderColor: 'divider'}} className="pl-2">
                     <TabList value={currentTabIndex} onChange={handleTabChange}>
-                        <Tab label='YAML' value="yaml"/>
                         <Tab label='Status' value="status"/>
                         <Tab label='Events' value="events"/>
                         <Tab label='Relations' value="relations"/>
+                        <Tab label='YAML' value="yaml"/>
                     </TabList>
                 </Box>
-                <TabPanel value="yaml">{currentTabIndex == "yaml" ? getYAML(bridge) : (<></>)}</TabPanel>
-                <TabPanel
-                    value="status">{currentTabIndex == "status" ? getStatus(bridge.getConditions()) : (<></>)}</TabPanel>
-                <TabPanel
-                    value="events">{currentTabIndex == "events" ? getEvents(bridge.getEventsURL()) : (<></>)}</TabPanel>
-                <TabPanel value="relations">{currentTabIndex == "relations" ? getRelations() : (<></>)}</TabPanel>
+                <Box className="bg-gray-100">
+                    <TabPanel value="yaml">{currentTabIndex == "yaml" ? getYAML(bridge) : (<></>)}</TabPanel>
+                    <TabPanel
+                        value="status">{currentTabIndex == "status" ? getStatus(bridge.getConditions()) : (<></>)}</TabPanel>
+                    <TabPanel
+                        value="events">{currentTabIndex == "events" ? getEvents(bridge.getEventsURL()) : (<></>)}</TabPanel>
+                    <TabPanel value="relations">{currentTabIndex == "relations" ? getRelations() : (<></>)}</TabPanel>
+                </Box>
             </TabContext>
         </>
     );
 };
 
 function getYAML(bridge: ItemContext) {
-    console.log("get YAML", bridge)
-    return <></>
+    return <>
+        <YAMLCodeBlock obj={bridge.curItem}></YAMLCodeBlock>
+    </>
 }
 
 function getStatus(conditions: Condition[]) {

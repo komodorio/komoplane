@@ -34,7 +34,6 @@ const XRDsPage = () => {
     const onItemClick = (item: K8sResource) => {
         bridge.setCurrent(item)
         setDrawerOpen(true)
-        console.log("after set", bridge)
     }
 
     return (
