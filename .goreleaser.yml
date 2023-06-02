@@ -1,7 +1,8 @@
 # .goreleaser.yml
 # Build customization
 builds:
-  - main: ./main.go
+  - id: unix
+    main: ./main.go
     binary: komoplane
     ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
     goos:
@@ -12,7 +13,8 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
-  - main: ./main.go
+  - id: Win
+    main: ./main.go
     binary: komoplane
     ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
     goos:
