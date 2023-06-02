@@ -8,6 +8,7 @@ const XRDsPage = () => {
     const [items, setItems] = useState<ItemList<XRD> | null>(null);
     const [error, setError] = useState<object | null>(null);
 
+
     useEffect(() => {
         apiClient.getXRDsList()
             .then((data) => setItems(data))

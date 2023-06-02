@@ -66,7 +66,18 @@ func (c *Controller) GetProvider(ec echo.Context) error {
 }
 
 func (c *Controller) GetProviderEvents(ec echo.Context) error {
-	res, err := c.Events.List(c.ctx, ec.Param("name"), cpv1.ProviderKind, cpv1.Group, cpv1.Version)
+	gvk := schema.GroupVersionKind{
+		Group:   cpv1.Group,
+		Version: cpv1.Version,
+		Kind:    cpv1.ProviderKind,
+	}
+
+	ref := v12.ObjectReference{
+		Name: ec.Param("name"),
+	}
+	ref.SetGroupVersionKind(gvk)
+
+	res, err := c.Events.List(c.ctx, &ref)
 	if err != nil {
 		return err
 	}
@@ -335,6 +346,25 @@ func (c *Controller) GetXRDs(ec echo.Context) error {
 	}
 
 	return ec.JSONPretty(http.StatusOK, items, "  ")
+}
+
+func (c *Controller) GetEvents(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Kind: ec.QueryParam("kind"),
+	}
+
+	ref := v12.ObjectReference{
+		Name:      ec.Param("name"),
+		Namespace: ec.Param("namespace"),
+	}
+	ref.SetGroupVersionKind(gvk)
+
+	res, err := c.Events.List(c.ctx, &ref)
+	if err != nil {
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
 type ManagedUnstructured struct { // no dedicated type for it in base CP

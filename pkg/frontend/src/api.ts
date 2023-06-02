@@ -38,8 +38,8 @@ class APIClient {
         return data;
     };
 
-    getProviderEvents = async (name: string) => {
-        const response = await this.innterFetch(`/api/${name}/events`); // TODO: unversal API or not
+    getEvents = async (path: string) => {
+        const response = await this.innterFetch(`/api/events/${path}`);
         const data: ItemList<K8sEvent> = await response.json();
         return data;
     };
@@ -89,8 +89,7 @@ class APIClient {
 
 let baseURL = ""
 
-// @ts-ignore
-if (window["$RefreshReg$"] !== undefined) { // TODO: if anyone knows the better way to detect `npm run dev` - help out!
+if (import.meta.env.DEV) {
     baseURL = "http://localhost:8090"
 }
 

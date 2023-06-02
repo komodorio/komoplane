@@ -14,6 +14,7 @@ const CompositionsPage = () => {
             .catch((error) => setError(error));
     }, []);
 
+
     if (error) {
         return (<Alert severity="error">Failed: {error.toString()}</Alert>)
     }
@@ -21,6 +22,7 @@ const CompositionsPage = () => {
     if (!items) {
         return <LinearProgress/>;
     }
+
 
     return (
         <>

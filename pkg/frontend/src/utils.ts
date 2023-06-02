@@ -1,14 +1,12 @@
 import {DataSet} from 'vis-data/peer';
 import {Data, DataSetEdges, DataSetNodes} from 'vis-network/peer';
-import {DateTime, Interval, DurationUnit} from "luxon";
+import {DateTime, DurationUnit} from "luxon";
 import {ClaimExtended} from "./types.ts";
 
 export function getAge(date1: DateTime, date2: DateTime) {
     if (date1 == date2) {
         return "now"
     }
-
-    const diff = Interval.fromDateTimes(date1, date2);
 
     interface ValMap {
         [key: string]: string;
@@ -24,10 +22,11 @@ export function getAge(date1: DateTime, date2: DateTime) {
         "milliseconds": "ms"
     }
 
-    let units: DurationUnit[] = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
-    for (let unit of units) {
-        debugger
-        const val = Math.abs(diff.length(unit));
+    const units: DurationUnit[] = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
+    const diff = date1.diff(date2, units);
+
+    for (const unit of units) {
+        const val = Math.abs(diff.as(unit));
         if (val >= 1) {
             return Math.round(val) + umap[unit]
         }

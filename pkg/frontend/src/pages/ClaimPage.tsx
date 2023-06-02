@@ -73,6 +73,6 @@ export default function ClaimPage() {
             </Grid>
         </>
     );
-};
+}
 
 
