@@ -14,15 +14,23 @@ Relations graph:
 
 Styled toolbar: Type, Title, subtitle, help button to explain and link to CP learning
 
+Make event type be aligned better
+
 ### Claims
 
 ### XRs
+Turn it into table
 
 ### MRs
+
+Turn it into table
 
 ### Providers
 
 ### Compositions
+
+Inline list of composed resource types, or expand it on click
+Turn it into table
 
 ### XRDs
 

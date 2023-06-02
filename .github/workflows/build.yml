@@ -71,18 +71,18 @@ jobs:
           CHART_LOCATION: ./charts/komoplane
           CHART_VALUES: ./charts/komoplane/values.yaml
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.20"
       - name: make dir for frontend results
         run: mkdir pkg/frontend/dist && touch pkg/frontend/dist/.gitkeep
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          skip-go-installation: true
+          # skip-pkg-cache: true
           version: latest
           args: --timeout=3m
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
       - name: Static analysis
         run: |
           go vet ./... # go vet is the official Go static analyzer

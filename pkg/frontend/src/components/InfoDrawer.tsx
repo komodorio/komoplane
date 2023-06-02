@@ -6,11 +6,12 @@ type ItemProps = {
     isOpen: boolean;
     onClose: { (): void }
     children: React.ReactNode,
-    title: string
+    type: string
+    title: React.ReactNode | string
 };
 
 
-const InfoDrawer = ({ isOpen, onClose, children, title } :ItemProps) => {
+const InfoDrawer = ({ isOpen, onClose, children, type, title } :ItemProps) => {
     return (
         <Drawer anchor="right" open={isOpen} onClose={onClose} PaperProps={{
             sx: { width: "75%" },
@@ -19,7 +20,10 @@ const InfoDrawer = ({ isOpen, onClose, children, title } :ItemProps) => {
                 <div className="flex-grow">
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row'  }} className="p-4">
-                        <Typography variant="h5">{title}</Typography>
+                        <Box>
+                        <Typography variant="subtitle2" sx={{textTransform: "uppercase"}}>{type}</Typography>
+                        <Typography variant="h4">{title}</Typography>
+                        </Box>
                         <Box>
                             <IconButton onClick={onClose}>
                                 <CloseIcon />

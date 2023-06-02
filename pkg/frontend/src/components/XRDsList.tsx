@@ -1,7 +1,10 @@
 import {Card, CardActionArea, CardContent, Grid} from '@mui/material';
-import {ItemList, XRD} from "../types.ts";
+import {ItemList, K8sResource, XRD} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ConditionChips from "./ConditionChips.tsx";
+import InfoDrawer from "./InfoDrawer.tsx";
+import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
+import {useState} from "react";
 
 type ItemProps = {
     item: XRD;
@@ -28,15 +31,31 @@ function ListItem({item, onItemClick}: ItemProps) {
 
 type ItemListProps = {
     items: ItemList<XRD> | undefined;
-    onItemClick: { (item: XRD): void }
 };
 
-export default function XRDsList({items, onItemClick}: ItemListProps) {
+export default function XRDsList({items}: ItemListProps) {
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
+    const [bridge] = useState<ItemContext>(new ItemContext());
+
+    const onClose = () => {
+        setDrawerOpen(false)
+    }
+
+    const onItemClick = (item: K8sResource) => {
+        bridge.setCurrent(item)
+        setDrawerOpen(true)
+    }
+
     return (
-        <Grid container spacing={2}>
-            {items?.items?.map((item: XRD) => (
-                <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
-            ))}
-        </Grid>
+        <>
+            <Grid container spacing={2}>
+                {items?.items?.map((item: XRD) => (
+                    <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
+                ))}
+            </Grid>
+            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition" title={bridge.curItem.metadata.name}>
+                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
+            </InfoDrawer>
+        </>
     );
 }

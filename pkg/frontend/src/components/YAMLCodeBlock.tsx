@@ -10,9 +10,10 @@ const YAMLCodeBlock = ({obj}: { obj: K8sResource }) => {
     }
     return (
         <Box className="border">
-        <SyntaxHighlighter language="yaml" style={theme}  wrapLongLines={true} showLineNumbers={true} lineNumberStyle={{color: "silver"}}>
-            {YAML.stringify(obj)}
-        </SyntaxHighlighter>
+            <SyntaxHighlighter language="yaml" style={theme} wrapLines={true} wrapLongLines={true}
+                               showLineNumbers={true} lineNumberStyle={{color: "silver"}}>
+                {YAML.stringify(obj)}
+            </SyntaxHighlighter>
         </Box>
     );
 };
