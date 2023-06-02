@@ -30,9 +30,14 @@ export class ItemContext {
     }
 
     getEventsURL() {
-        return "";
+        let path = "";
+        if (this.curItem.metadata.namespace) {
+            path += this.curItem.metadata.namespace + "/" + this.curItem.metadata.name
+        } else {
+            path += this.curItem.metadata.name
+        }
+        return path;
     }
-
 }
 
 type ItemProps = {

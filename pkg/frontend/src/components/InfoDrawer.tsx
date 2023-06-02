@@ -13,7 +13,7 @@ type ItemProps = {
 const InfoDrawer = ({ isOpen, onClose, children, title } :ItemProps) => {
     return (
         <Drawer anchor="right" open={isOpen} onClose={onClose} PaperProps={{
-            sx: { minWidth: "75%" },
+            sx: { width: "75%" },
         }}>
             <div className="flex flex-col h-full p-4 w-50">
                 <div className="flex-grow">

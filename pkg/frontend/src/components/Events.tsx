@@ -44,7 +44,7 @@ export default function Events({src}: EventsListProps) {
     const [error, setError] = useState<object | undefined>(undefined);
 
     useEffect(() => {
-        apiClient.getProviderEvents(src as string)
+        apiClient.getEvents(src as string)
             .then((data) => setEvents(data))
             .catch((err) => setError(err))
     }, [src])

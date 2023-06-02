@@ -88,6 +88,8 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	})
 
 	api := eng.Group("/api")
+	api.GET("/events/:name", data.GetEvents)
+	api.GET("/events/:namespace/:name", data.GetEvents)
 
 	rels := api.Group("/providers")
 	rels.GET("", data.GetProviders)
