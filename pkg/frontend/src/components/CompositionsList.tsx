@@ -1,4 +1,4 @@
-import {Card, CardContent, Grid} from '@mui/material';
+import {Card, CardActionArea, CardContent, Grid} from '@mui/material';
 import {Composition, ItemList} from "../types.ts";
 import Typography from "@mui/material/Typography";
 
@@ -9,14 +9,18 @@ type ItemProps = {
 
 function ListItem({item, onItemClick}: ItemProps) {
     return (
-        <Grid item xs={12} md={12} key={item.metadata.name} onClick={()=>{onItemClick(item)}}>
+        <Grid item xs={12} md={12} key={item.metadata.name} onClick={() => {
+            onItemClick(item)
+        }}>
             <Card variant="outlined">
-                <CardContent>
-                    <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                    <Typography variant="h6">Composite Kind: {item.spec.compositeTypeRef.kind}</Typography>
-                    <Typography variant="h6">Composite Group: {item.spec.compositeTypeRef.apiVersion}</Typography>
-                    <Typography variant="h6">{item.spec.resources.length} resources composed</Typography>
-                </CardContent>
+                <CardActionArea>
+                    <CardContent>
+                        <Typography variant="h6">Name: {item.metadata.name}</Typography>
+                        <Typography variant="h6">Composite Kind: {item.spec.compositeTypeRef.kind}</Typography>
+                        <Typography variant="h6">Composite Group: {item.spec.compositeTypeRef.apiVersion}</Typography>
+                        <Typography variant="h6">{item.spec.resources.length} resources composed</Typography>
+                    </CardContent>
+                </CardActionArea>
             </Card>
         </Grid>
     );

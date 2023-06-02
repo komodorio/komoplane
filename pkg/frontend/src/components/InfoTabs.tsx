@@ -67,19 +67,19 @@ const InfoTabs = ({bridge, noStatus, noEvents}: ItemProps) => {
             <TabContext value={currentTabIndex}>
                 <Box sx={{borderBottom: 1, borderColor: 'divider'}} className="pl-2">
                     <TabList value={currentTabIndex} onChange={handleTabChange}>
-                        {noStatus?(<></>):(<Tab label='Status' value="status"/>)}
-                        {noEvents?(<></>):(<Tab label='Events' value="events"/>)}
+                        {noStatus?null:(<Tab label='Status' value="status"/>)}
+                        {noEvents?null:(<Tab label='Events' value="events"/>)}
                         <Tab label='Relations' value="relations"/>
                         <Tab label='YAML' value="yaml"/>
                     </TabList>
                 </Box>
                 <Box className="bg-gray-100">
-                    <TabPanel value="yaml">{currentTabIndex == "yaml" ? getYAML(bridge) : (<></>)}</TabPanel>
+                    <TabPanel value="yaml">{currentTabIndex == "yaml" ? getYAML(bridge) : null}</TabPanel>
                     <TabPanel
-                        value="status">{currentTabIndex == "status" ? getStatus(bridge.getConditions()) : (<></>)}</TabPanel>
+                        value="status">{currentTabIndex == "status" ? getStatus(bridge.getConditions()) : null}</TabPanel>
                     <TabPanel
-                        value="events">{currentTabIndex == "events" ? getEvents(bridge.getEventsURL()) : (<></>)}</TabPanel>
-                    <TabPanel value="relations">{currentTabIndex == "relations" ? getRelations() : (<></>)}</TabPanel>
+                        value="events">{currentTabIndex == "events" ? getEvents(bridge.getEventsURL()) : null}</TabPanel>
+                    <TabPanel value="relations">{currentTabIndex == "relations" ? getRelations() : null}</TabPanel>
                 </Box>
             </TabContext>
         </>
