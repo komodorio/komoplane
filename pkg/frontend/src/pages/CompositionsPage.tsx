@@ -45,7 +45,7 @@ const CompositionsPage = () => {
 
             <CompositionsList items={items} onItemClick={onItemClick}></CompositionsList>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} title="Composition">
-                <InfoTabs bridge={bridge} noStatus={true} noEvents={true}></InfoTabs>
+                <InfoTabs bridge={bridge} noStatus={true} noEvents={true} initial="yaml"></InfoTabs>
             </InfoDrawer>
         </>
     );

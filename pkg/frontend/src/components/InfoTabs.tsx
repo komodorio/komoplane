@@ -43,18 +43,12 @@ export class ItemContext {
 
 type ItemProps = {
     bridge: ItemContext
+    initial: string
     noStatus?: boolean
     noEvents?: boolean
 };
 
-const InfoTabs = ({bridge, noStatus, noEvents}: ItemProps) => {
-    let initial="status";
-    if (noStatus) {
-        initial="events"
-        if (noEvents) {
-            initial="relations"
-        }
-    }
+const InfoTabs = ({bridge, initial, noStatus, noEvents}: ItemProps) => {
 
     const [currentTabIndex, setCurrentTabIndex] = useState<string>(initial);
 
@@ -67,8 +61,8 @@ const InfoTabs = ({bridge, noStatus, noEvents}: ItemProps) => {
             <TabContext value={currentTabIndex}>
                 <Box sx={{borderBottom: 1, borderColor: 'divider'}} className="pl-2">
                     <TabList value={currentTabIndex} onChange={handleTabChange}>
-                        {noStatus?null:(<Tab label='Status' value="status"/>)}
-                        {noEvents?null:(<Tab label='Events' value="events"/>)}
+                        {noStatus ? null : (<Tab label='Status' value="status"/>)}
+                        {noEvents ? null : (<Tab label='Events' value="events"/>)}
                         <Tab label='Relations' value="relations"/>
                         <Tab label='YAML' value="yaml"/>
                     </TabList>

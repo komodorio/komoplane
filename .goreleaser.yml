@@ -1,26 +1,19 @@
 # .goreleaser.yml
 # Build customization
 builds:
-  - id: unix
-    main: ./main.go
+  - main: ./main.go
     binary: komoplane
     ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
     goos:
+      - windows
       - darwin
       - linux
     goarch:
       - amd64
       - arm64
-    env:
-      - CGO_ENABLED=0
-  - id: Win
-    main: ./main.go
-    binary: komoplane
-    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
-    goos:
-      - windows
-    goarch:
-      - amd64
+    ignore:
+      - goos: windows
+        goarch: arm64
     env:
       - CGO_ENABLED=0
 archives:

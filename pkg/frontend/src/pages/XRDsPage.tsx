@@ -44,7 +44,7 @@ const XRDsPage = () => {
 
             <XRDsList items={items} onItemClick={onItemClick}></XRDsList>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} title="Composite Resource Definition">
-                <InfoTabs bridge={bridge}></InfoTabs>
+                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
             </InfoDrawer>
         </>
     );
