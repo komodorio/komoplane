@@ -4,11 +4,12 @@ import Typography from "@mui/material/Typography";
 
 type ItemProps = {
     item: Composition;
+    onItemClick: { (item: Composition): void }
 };
 
-function ListItem({item}: ItemProps) {
+function ListItem({item, onItemClick}: ItemProps) {
     return (
-        <Grid item xs={12} md={12} key={item.metadata.name}>
+        <Grid item xs={12} md={12} key={item.metadata.name} onClick={()=>{onItemClick(item)}}>
             <Card variant="outlined">
                 <CardContent>
                     <Typography variant="h6">Name: {item.metadata.name}</Typography>
@@ -23,13 +24,14 @@ function ListItem({item}: ItemProps) {
 
 type ItemListProps = {
     items: ItemList<Composition> | undefined;
+    onItemClick: { (item: Composition): void }
 };
 
-export default function CompositionsList({items}: ItemListProps) {
+export default function CompositionsList({items, onItemClick}: ItemListProps) {
     return (
         <Grid container spacing={2}>
             {items?.items?.map((item) => (
-                <ListItem item={item} key={item.metadata.name}/>
+                <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
             ))}
         </Grid>
     );
