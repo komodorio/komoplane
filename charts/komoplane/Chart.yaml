@@ -7,3 +7,5 @@ description: Komodor tool to visualize Crossplane
 
 version: 0.0.0
 appVersion: 0.0.0
+
+# docker build . -t komodorio/komoplane:unstable && kind load docker-image komodorio/komoplane:unstable && helm upgrade --install komoplane charts/komoplane --set image.tag=unstable
