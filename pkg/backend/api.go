@@ -5,7 +5,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
-	"io/fs"
 	"net/http"
 	"os"
 	"time"
@@ -51,9 +50,15 @@ func NewRouter(data *Controller, debug bool) *echo.Echo {
 // slowness middleware makes every request 1s slower, to test loading indicators
 func slowness(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if os.Getenv("SLOWNESS") != "" {
+		slow := os.Getenv("KP_SLOWNESS")
+		if slow != "" {
 			log.Warnf("Slowing down for debugging")
-			time.Sleep(1 * time.Second)
+			dur, err := time.ParseDuration(slow)
+			if err != nil {
+				log.Warnf("Failed to parse duration: %v", err)
+			} else {
+				time.Sleep(dur)
+			}
 		}
 		return next(c)
 	}
@@ -115,15 +120,10 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 }
 
 func configureStatic(api *echo.Echo) {
-	var fsys fs.FS
-	// local dev speed-up
-	localDevPath := "pkg/frontend/assets"
-	if _, err := os.Stat(localDevPath); err == nil {
-		log.Warnf("Using local development path to serve static files")
-		fsys = os.DirFS("pkg")
-	} else {
-		fsys = frontend.StaticFS
-	}
+	// for root fallback to not conflict with assets StaticFS, we have to separate it
+	assets := echo.MustSubFS(frontend.StaticFS, "dist/assets")
+	api.StaticFS("/assets", assets)
 
-	api.StaticFS("/", echo.MustSubFS(fsys, "frontend"))
+	root := echo.MustSubFS(frontend.StaticFS, "dist")
+	api.GET("*", echo.StaticFileHandler("index.html", root))
 }
