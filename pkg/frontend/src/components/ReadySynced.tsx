@@ -10,12 +10,12 @@ export default function ReadySynced({status}: HealthStatusProps) {
     let synced = <></>
     status.conditions?.forEach((element) => {
         if (element.type == "Ready") {
-            ready = <Chip label={(element.status == "True" ? "" : "Not ") + "Ready"} title={element.reason}
+            ready = <Chip className="me-2" label={(element.status == "True" ? "" : "Not ") + "Ready"} title={element.reason}
                           color={(element.status == "True" ? "success" : "error")}></Chip>
         }
 
         if (element.type == "Synced") {
-            synced = <Chip label={(element.status == "True" ? "" : "Not ") + "Synced"} title={element.reason}
+            synced = <Chip className="me-2" label={(element.status == "True" ? "" : "Not ") + "Synced"} title={element.reason}
                            color={(element.status == "True" ? "primary" : "warning")}></Chip>
         }
     });
