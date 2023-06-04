@@ -10,7 +10,6 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {useEffect} from "react";
 
 const dagreGraph = new dagre.graphlib.Graph({directed: true});
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -63,8 +62,8 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
         "RL"
     );
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+    const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
+    const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
 
     return (
         <ReactFlow
