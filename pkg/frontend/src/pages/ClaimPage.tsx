@@ -1,5 +1,5 @@
 import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
-import {Node, Edge} from "reactflow";
+import {Edge, MarkerType, Node} from "reactflow";
 import {useParams} from "react-router-dom";
 import {ClaimExtended} from "../types.ts";
 import {useEffect, useState} from "react";
@@ -61,7 +61,7 @@ export default function ClaimPage() {
                 <Grid item xs={12} md={12}>
                     <Paper className="p-4 flex flex-col" sx={{height: '20rem'}}>
                         <Typography variant="h6">Relations</Typography>
-                        <RelationsGraph data={data}></RelationsGraph>
+                        <RelationsGraph nodes={data.nodes} edges={data.edges}></RelationsGraph>
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={12}>
@@ -76,56 +76,65 @@ export default function ClaimPage() {
 }
 
 
-
-function graphDataFromClaim(claim: ClaimExtended): {nodes: Node[], edges: Edge[]} { // FIXME: wrong placement of fn
+function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[] } { // FIXME: wrong placement of fn
     const nodes: Node[] = []
     const edges: Edge[] = []
-    let id=0
+    let id = 0
 
-    const claimId = nodes.push({
-        id: (id++).toString(),
-        label: "<b>" + claim.metadata.name + "</b>\n<code>Claim</code>",
+    nodes.push({
+        id: (++id).toString(),
+        data: {
+            label: "<b>" + claim.metadata.name + "</b>\n<code>Claim</code>",
+        },
+        position: {x: 0, y: 0}
     })
+    const claimId = id.toString()
 
-    const compId = nodes.push({
-        font: {multi: true},
-        label: "<b>" + claim.composition.metadata.name + "</b>\n<code>Composition</code>",
-        shape: "box",
-        color: {background: "#AAFFAA"}
-    })[0]
+    nodes.push({
+        id: (++id).toString(),
+        data: {
+            label: "<b>" + claim.composition.metadata.name + "</b>\n<code>Composition</code>",
+        },
+        position: {x: 0, y: 0}
+    })
+    const compId = id.toString();
     edges.push({
-        from: compId, to: claimId, arrows: {from: {enabled: true}}
+        id: (++id).toString(),
+        source: compId,
+        target: claimId,
+        style: {width: 10},
+        markerStart: { type: MarkerType.ArrowClosed }
     })
 
-    const xrId = nodes.push({
-        font: {multi: true},
-        label: "<b>" + claim.compositeResource.metadata.name + "</b>\n<code>Composite Resource</code>",
-        shape: "box",
-        color: {background: "#AAFFFF"}
-    })[0]
+    nodes.push({
+        id: (++id).toString(),
+        data: {
+            label: "<b>" + claim.compositeResource.metadata.name + "</b>\n<code>Composite Resource</code>",
+        },
+        position: {x: 0, y: 0}
+    })
+    const xrId = id.toString()
     edges.push({
-        from: xrId, to: claimId, arrows: {from: {enabled: true}}
+        id: (++id).toString(),
+        source: xrId,
+        target: claimId,
+        markerStart: { type: MarkerType.ArrowClosed }
     })
-
 
     claim.managedResources?.map(res => {
-        const resId = nodes.push({
-            font: {multi: true},
-            label: "<b>" + res.metadata.name + "</b>\n<code>Managed Resource</code>",
-            shape: "box",
-            color: {background: "#FFFFAA"}
-        })[0]
-        edges.push({
-            from: resId,
-            to: xrId,
-            arrows: {
-                from: {enabled: true}
+        nodes.push({
+            id: (++id).toString(),
+            data: {
+                label: "<b>" + res.metadata.name + "</b>\n<code>Managed Resource</code>",
             },
-            smooth: {
-                enabled: true,
-                type: 'cubicBezier', //'', '', '', '', '', 'curvedCW', 'curvedCCW', ''
-                roundness: 1
-            }
+            position: {x: 0, y: 0}
+        })
+        const resId = id.toString()
+        edges.push({
+            id: (++id).toString(),
+            source: resId,
+            target: xrId,
+            markerStart: { type: MarkerType.ArrowClosed }
         })
     })
 

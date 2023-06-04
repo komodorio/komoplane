@@ -1,33 +1,25 @@
-import {useCallback} from 'react';
 import ReactFlow, {
-    addEdge,
+    Background,
     ConnectionLineType,
+    Controls,
     Edge,
     Node,
-    Panel,
     Position,
     useEdgesState,
     useNodesState
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {IconButton} from "@mui/material";
-import {EastTwoTone as LRIcon, SouthTwoTone as TBIcon} from '@mui/icons-material';
+import {useEffect} from "react";
 
-const initialNodes = [
-    {id: '1', position: {x: 0, y: 0}, data: {label: '1'}},
-    {id: '2', position: {x: 0, y: 100}, data: {label: '2'}},
-];
-const initialEdges = [{id: 'e1-2', source: '1', target: '2'}];
-
-const dagreGraph = new dagre.graphlib.Graph();
+const dagreGraph = new dagre.graphlib.Graph({directed: true});
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const nodeWidth = 172;
 const nodeHeight = 36;
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
-    const isHorizontal = direction === 'LR';
+    const isHorizontal = direction === 'LR' || direction==="RL";
     dagreGraph.setGraph({rankdir: direction});
 
     nodes.forEach((node) => {
@@ -42,8 +34,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
 
     nodes.forEach((node) => {
         const nodeWithPosition = dagreGraph.node(node.id);
-        node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-        node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+        node.targetPosition = isHorizontal ? Position.Right : Position.Top;
+        node.sourcePosition = isHorizontal ? Position.Left : Position.Bottom;
 
         // We are shifting the dagre node position (anchor=center center) to the top left
         // so it matches the React Flow node anchor point (top left).
@@ -58,35 +50,21 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
     return {nodes, edges};
 };
 
-const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(
-    initialNodes,
-    initialEdges
-);
 
-const RelationsGraph = () => {
+type GraphProps = {
+    nodes: Node[];
+    edges: Edge[];
+};
+
+const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) => {
+    const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(
+        initialNodes,
+        initialEdges,
+        "RL"
+    );
+
     const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
-
-    const onConnect = useCallback(
-        (params) =>
-            setEdges((eds) =>
-                addEdge({...params, type: ConnectionLineType.SmoothStep, animated: true}, eds)
-            ),
-        []
-    );
-    const onLayout = useCallback(
-        (direction: string) => {
-            const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(
-                nodes,
-                edges,
-                direction
-            );
-
-            setNodes([...layoutedNodes]);
-            setEdges([...layoutedEdges]);
-        },
-        [nodes, edges]
-    );
 
     return (
         <ReactFlow
@@ -94,14 +72,12 @@ const RelationsGraph = () => {
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
             connectionLineType={ConnectionLineType.SmoothStep}
+            nodesConnectable={false}
             fitView
         >
-            <Panel position="top-right">
-                <IconButton onClick={() => onLayout('TB')}><TBIcon/></IconButton>
-                <IconButton onClick={() => onLayout('LR')}><LRIcon/></IconButton>
-            </Panel>
+            <Background/>
+            <Controls showInteractive={false} showZoom={false} position={"top-right"}/>
         </ReactFlow>
     );
 };
