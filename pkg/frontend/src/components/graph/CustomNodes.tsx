@@ -16,7 +16,7 @@ export enum NodeStatus {
     NotFound="Not Found",
 }
 
-function NodeStatusLine({data}: {data: object}) {
+function NodeStatusLine({data}: {data: {status: string, statusMsg: string}}) {
     let icon = (<></>)
 
     switch (data.status) {
