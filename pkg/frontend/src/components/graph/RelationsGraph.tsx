@@ -10,15 +10,18 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
+import {useMemo} from "react";
+import {ClaimNode, MRNode, XRNode, CompositionNode} from "./CustomNodes.tsx"
+
 
 const dagreGraph = new dagre.graphlib.Graph({directed: true});
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 172;
-const nodeHeight = 36;
+const nodeWidth = 300;
+const nodeHeight = 50;
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
-    const isHorizontal = direction === 'LR' || direction==="RL";
+    const isHorizontal = direction === 'LR' || direction === "RL";
     dagreGraph.setGraph({rankdir: direction});
 
     nodes.forEach((node) => {
@@ -65,8 +68,16 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
     const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
     const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
 
+    const nodeTypes = useMemo(() => ({
+        claim: ClaimNode,
+        composed: XRNode,
+        managed: MRNode,
+        composition: CompositionNode,
+    }), []);
+
     return (
         <ReactFlow
+            nodeTypes={nodeTypes}
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -75,7 +86,7 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
             nodesConnectable={false}
             fitView
         >
-            <Background/>
+            <Background color="white"/>
             <Controls showInteractive={false} showZoom={false} position={"top-right"}/>
         </ReactFlow>
     );

@@ -7,7 +7,7 @@ import apiClient from "../api.ts";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
 import ReadySynced from "../components/ReadySynced.tsx";
-import RelationsGraph from "../components/RelationsGraph.tsx";
+import RelationsGraph from "../components/graph/RelationsGraph.tsx";
 
 export default function ClaimPage() {
     const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
@@ -83,8 +83,9 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
 
     nodes.push({
         id: (++id).toString(),
+        type: "claim",
         data: {
-            label: "<b>" + claim.metadata.name + "</b>\n<code>Claim</code>",
+            label: claim.metadata.name,
         },
         position: {x: 0, y: 0}
     })
@@ -92,8 +93,9 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
 
     nodes.push({
         id: (++id).toString(),
+        type: "composition",
         data: {
-            label: "<b>" + claim.composition.metadata.name + "</b>\n<code>Composition</code>",
+            label: claim.composition.metadata.name,
         },
         position: {x: 0, y: 0}
     })
@@ -103,13 +105,14 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
         source: compId,
         target: claimId,
         style: {width: 10},
-        markerStart: { type: MarkerType.ArrowClosed }
+        markerStart: {type: MarkerType.ArrowClosed}
     })
 
     nodes.push({
         id: (++id).toString(),
+        type: "composed",
         data: {
-            label: "<b>" + claim.compositeResource.metadata.name + "</b>\n<code>Composite Resource</code>",
+            label: claim.compositeResource.metadata.name,
         },
         position: {x: 0, y: 0}
     })
@@ -118,14 +121,15 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
         id: (++id).toString(),
         source: xrId,
         target: claimId,
-        markerStart: { type: MarkerType.ArrowClosed }
+        markerStart: {type: MarkerType.ArrowClosed}
     })
 
     claim.managedResources?.map(res => {
         nodes.push({
             id: (++id).toString(),
+            type: "managed",
             data: {
-                label: "<b>" + res.metadata.name + "</b>\n<code>Managed Resource</code>",
+                label: res.metadata.name,
             },
             position: {x: 0, y: 0}
         })
@@ -134,7 +138,7 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
             id: (++id).toString(),
             source: resId,
             target: xrId,
-            markerStart: { type: MarkerType.ArrowClosed }
+            markerStart: {type: MarkerType.ArrowClosed}
         })
     })
 
