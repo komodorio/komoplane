@@ -20,6 +20,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
+	"os"
 )
 
 type StatusInfo struct {
@@ -417,7 +418,9 @@ func getK8sConfig() (*rest.Config, error) {
 
 	//kubeconfig := os.Getenv("KUBECONFIG")
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
+	configOverrides := &clientcmd.ConfigOverrides{
+		CurrentContext: os.Getenv("KUBECONTEXT"),
+	}
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 
 	return kubeConfig.ClientConfig()

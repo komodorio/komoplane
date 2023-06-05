@@ -2,9 +2,17 @@
 
 Experiment with visualizing Crossplane resources
 
+## Installation
+
+_Helm installation will be the primary way_
+
+### Running Without Helm
+
+Download standalone binary from Releases. Use `KUBECONTEXT` env variable to point to different context.
+
 ## Roadmap
 
-Milestone 1: Local helm install, images in registry, user analytics, update check, main page
+Milestone 1: Local helm install, images in registry, user analytics, update check, main page, ability to choose kubecontext
 
 Fill main page
 
@@ -26,6 +34,7 @@ Turn it into table
 
 ### Providers
 
+Solve empty relations
 
 ### Compositions
 
