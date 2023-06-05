@@ -11,7 +11,7 @@ export class ItemContext {
     public curItem: K8sResource;
 
     constructor() {
-        this.curItem = {kind: "", apiVersion: "", metadata: {name: ""}, status: {}, spec: {}};
+        this.curItem = {kind: "", apiVersion: "", metadata: {name: ""}};
     }
 
     setCurrent(item: K8sResource) {

@@ -33,8 +33,7 @@ export type K8sResource = {
     kind: string
     apiVersion: string
     metadata: Metadata,
-    status: Status
-    spec: object
+    status?: Status
 }
 
 export type Provider = K8sResource & {
@@ -42,11 +41,10 @@ export type Provider = K8sResource & {
         package: string
         controllerConfigRef: Reference
     }
+    status: Status
 }
 
-export type K8sEvent = {
-    // type, age, reason, object, message
-    metadata: Metadata,
+export type K8sEvent = K8sResource & {
     reason: string
     count: number
     message: string
@@ -62,6 +60,7 @@ export type Claim = K8sResource & {
         compositionRef: Reference
         resourceRef: Reference
     }
+    status: Status
 }
 
 export type ClaimExtended = Claim & {
@@ -74,6 +73,7 @@ export type ManagedResource = K8sResource & {
     spec: {
         providerConfigRef: Reference
     }
+    status: Status
 }
 
 export type CompositeResource = K8sResource & {
@@ -82,6 +82,7 @@ export type CompositeResource = K8sResource & {
         compositionRef: Reference
         resourceRefs: Reference[]
     }
+    status: Status
 }
 
 export type Composition = K8sResource & {
@@ -113,4 +114,5 @@ export type XRD = K8sResource & {
         names: Names
         versions: Version[]
     }
+    status: Status
 }

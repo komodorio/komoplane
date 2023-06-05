@@ -1,13 +1,15 @@
 import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
 import {Edge, MarkerType, Node} from "reactflow";
 import {useParams} from "react-router-dom";
-import {ClaimExtended} from "../types.ts";
+import {ClaimExtended, K8sResource} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
 import ReadySynced from "../components/ReadySynced.tsx";
 import RelationsGraph from "../components/graph/RelationsGraph.tsx";
+import {NodeStatus} from "../components/graph/CustomNodes.tsx";
+import {EdgeMarkerType} from "@reactflow/core/dist/esm/types/edges";
 
 export default function ClaimPage() {
     const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
@@ -76,74 +78,99 @@ export default function ClaimPage() {
 }
 
 
-function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[] } { // FIXME: wrong placement of fn
+function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[] } {
     const nodes: Node[] = []
     const edges: Edge[] = []
     let id = 0
 
-    nodes.push({
-        id: (++id).toString(),
-        type: "claim",
-        data: {
-            label: claim.metadata.name,
-        },
-        position: {x: 0, y: 0}
-    })
-    const claimId = id.toString()
-
-    nodes.push({
-        id: (++id).toString(),
-        type: "composition",
-        data: {
-            label: claim.composition.metadata.name,
-        },
-        position: {x: 0, y: 0}
-    })
-    const compId = id.toString();
-    edges.push({
-        id: (++id).toString(),
-        source: compId,
-        target: claimId,
-        style: {width: 10},
-        markerStart: {type: MarkerType.ArrowClosed}
-    })
-
-    nodes.push({
-        id: (++id).toString(),
-        type: "composed",
-        data: {
-            label: claim.compositeResource.metadata.name,
-        },
-        position: {x: 0, y: 0}
-    })
-    const xrId = id.toString()
-    edges.push({
-        id: (++id).toString(),
-        source: xrId,
-        target: claimId,
-        markerStart: {type: MarkerType.ArrowClosed}
-    })
-
-    claim.managedResources?.map(res => {
-        nodes.push({
+    // TODO: make separate class from this
+    function addNode(ntype: string, label: string, status: [NodeStatus, string]): Node {
+        let node = {
             id: (++id).toString(),
-            type: "managed",
+            type: ntype,
             data: {
-                label: res.metadata.name,
+                label: label,
+                status: status[0],
+                statusMsg: status[1]
             },
             position: {x: 0, y: 0}
-        })
-        const resId = id.toString()
-        edges.push({
+        };
+        nodes.push(node)
+        return node
+    }
+
+    function addEdge(src: Node, tgt: Node): void {
+        const edge: Edge = {
             id: (++id).toString(),
-            source: resId,
-            target: xrId,
-            markerStart: {type: MarkerType.ArrowClosed}
-        })
+            source: src.id,
+            target: tgt.id,
+        };
+
+        const marker: EdgeMarkerType = {type: MarkerType.ArrowClosed, width: 20, height: 20}
+
+        switch (src.data.status) {
+            case NodeStatus.NotFound:
+                edge.style = {stroke: 'maroon'}
+                marker.color = "maroon"
+                break
+            case NodeStatus.NotReady:
+                edge.style = {stroke: 'red'}
+                marker.color = "red"
+                break
+            case NodeStatus.Unhealthy:
+                edge.style = {stroke: 'red'}
+                marker.color = "red"
+                break
+            case NodeStatus.NotSynced:
+                edge.style = {stroke: 'orange'}
+                marker.color = "orange"
+                break
+            default:
+                break;
+        }
+
+        edge.markerStart = marker
+
+        edges.push(edge)
+    }
+
+    const claimId = addNode("claim", claim.metadata.name, getStatus(claim))
+
+    const compId = addNode("composition", claim.composition.metadata.name, getStatus(claim.composition));
+    addEdge(compId, claimId)
+
+    const xrId = addNode("composed", claim.compositeResource.metadata.name, getStatus(claim.compositeResource))
+    addEdge(xrId, claimId)
+
+    claim.managedResources?.map(res => {
+        const resId = addNode("managed", res.metadata.name, getStatus(res))
+        addEdge(resId, xrId)
     })
 
     return {
         nodes: nodes,
         edges: edges,
     };
+}
+
+function getStatus(res: K8sResource): [NodeStatus, string] {
+    const problems: { [key: string]: string } = {}
+
+    res.status?.conditions?.forEach((element) => {
+        if (element.status != "True") {
+            problems[element.type] = element.reason
+        }
+    });
+
+    if (problems["Found"]) {
+        return [NodeStatus.NotFound, problems["Found"]]
+    } else if (problems["Healthy"]) {
+        return [NodeStatus.Unhealthy, problems["Healthy"]]
+    } else if (problems["Synced"]) {
+        return [NodeStatus.NotSynced, problems["Synced"]]
+    } else if (problems["Ready"]) {
+        return [NodeStatus.NotReady, problems["Ready"]]
+    }
+
+    return [NodeStatus.Ok, ""]
 }

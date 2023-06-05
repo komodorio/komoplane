@@ -51,7 +51,7 @@ const ProviderPage = () => {
                 <Grid item xs={12} md={6}>
                     <Paper className="p-4">
                         <Typography variant="h6">Status</Typography>
-                        <ConditionList conditions={provider.status.conditions}></ConditionList>
+                        <ConditionList conditions={provider.status?.conditions}></ConditionList>
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>

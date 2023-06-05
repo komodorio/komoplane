@@ -51,7 +51,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
 
     const title = (<>
         {bridge.curItem.metadata.name}
-        <ConditionChips status={bridge.curItem.status}></ConditionChips>
+        <ConditionChips status={bridge.curItem.status?bridge.curItem.status:{}}></ConditionChips>
     </>)
 
     return (
