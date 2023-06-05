@@ -1,4 +1,4 @@
-import {Handle, NodeProps} from 'reactflow';
+import {Handle, NodeProps, Position} from 'reactflow';
 import Box from "@mui/material/Box";
 import {Typography} from "@mui/material";
 
@@ -12,8 +12,8 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
             <Box className="px-3 py-1">
                     <Typography variant="h6">{data.label}</Typography>
             </Box>
-            <Handle type="target" position={targetPosition}/>
-            <Handle type="source" position={sourcePosition}/>
+            <Handle type="target" position={targetPosition?targetPosition:Position.Top}/>
+            <Handle type="source" position={sourcePosition?targetPosition:Position.Bottom}/>
         </Box>
     );
 }
