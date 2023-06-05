@@ -75,3 +75,9 @@ button:focus-visible {
         background-color: #f9f9f9;
     }
 }
+
+.react-flow__handle {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}

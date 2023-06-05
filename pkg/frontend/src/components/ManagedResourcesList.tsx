@@ -51,7 +51,7 @@ export default function ManagedResourcesList({items}: ItemListProps) {
 
     const title = (<>
         {bridge.curItem.metadata.name}
-        <ConditionChips status={bridge.curItem.status}></ConditionChips>
+        <ConditionChips status={bridge.curItem.status ? bridge.curItem.status : {}}></ConditionChips>
     </>)
 
     return (
@@ -63,7 +63,7 @@ export default function ManagedResourcesList({items}: ItemListProps) {
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
+                <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
             </InfoDrawer>
         </>
     );

@@ -13,7 +13,9 @@ type ItemProps = {
 
 function ListItem({item, onItemClick}: ItemProps) {
     return (
-        <Grid item xs={12} md={12} key={item.metadata.name} onClick={()=>{onItemClick(item)}}>
+        <Grid item xs={12} md={12} key={item.metadata.name} onClick={() => {
+            onItemClick(item)
+        }}>
             <Card variant="outlined">
                 <CardActionArea>
                     <CardContent>
@@ -53,8 +55,9 @@ export default function XRDsList({items}: ItemListProps) {
                     <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
                 ))}
             </Grid>
-            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition" title={bridge.curItem.metadata.name}>
-                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
+            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition"
+                        title={bridge.curItem.metadata.name}>
+                <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
             </InfoDrawer>
         </>
     );

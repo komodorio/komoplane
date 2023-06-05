@@ -54,7 +54,7 @@ export default function CompositionsList({items}: ItemListProps) {
                 ))}
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composition" title={bridge.curItem.metadata.name}>
-                <InfoTabs bridge={bridge} noStatus={true} noEvents={true} initial="yaml"></InfoTabs>
+                <InfoTabs bridge={bridge} noStatus={true} noEvents={true} noRelations={true} initial="yaml"></InfoTabs>
             </InfoDrawer>
         </>
     );

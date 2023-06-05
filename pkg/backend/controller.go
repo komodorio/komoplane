@@ -220,7 +220,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 		for _, mrRef := range xr.GetResourceReferences() {
 			mr := ManagedUnstructured{Unstructured: *uxres.New()}
 
-			if mr.GetName() == "" {
+			if mrRef.Name == "" {
 				condNotFound := xpv1.Condition{
 					Type:               "Found",
 					Status:             "False",
