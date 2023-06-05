@@ -84,16 +84,17 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
     let id = 0
 
     // TODO: make separate class from this
-    function addNode(ntype: string, label: string, status: [NodeStatus, string]): Node {
-        let node = {
+    function addNode(ntype: string, label: string, status: [NodeStatus, string], isMain?: boolean): Node {
+        const node = {
             id: (++id).toString(),
             type: ntype,
             data: {
                 label: label,
                 status: status[0],
-                statusMsg: status[1]
+                statusMsg: status[1],
+                main: isMain
             },
-            position: {x: 0, y: 0}
+            position: {x: 0, y: 0},
         };
         nodes.push(node)
         return node
@@ -134,7 +135,7 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
         edges.push(edge)
     }
 
-    const claimId = addNode("claim", claim.metadata.name, getStatus(claim))
+    const claimId = addNode("claim", claim.metadata.name, getStatus(claim), true)
 
     const compId = addNode("composition", claim.composition.metadata.name, getStatus(claim.composition));
     addEdge(compId, claimId)

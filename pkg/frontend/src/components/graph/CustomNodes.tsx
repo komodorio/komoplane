@@ -44,9 +44,8 @@ function NodeStatusLine({data}: {data: {status: string, statusMsg: string}}) {
 }
 
 function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
-
     return (
-        <Box className="border rounded border-gray-500" sx={{backgroundColor: data.bgcolor, maxWidth: 300}}>
+        <Box className="border rounded border-gray-500" sx={{backgroundColor: data.bgcolor, maxWidth: 300, borderWidth: data.main?3:null}}>
             <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20 "
             >
                 <Typography fontSize="x-small" className="uppercase text-xs">{data.type}</Typography>

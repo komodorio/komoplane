@@ -46,10 +46,10 @@ type ItemProps = {
     initial: string
     noStatus?: boolean
     noEvents?: boolean
+    noRelations?: boolean
 };
 
-const InfoTabs = ({bridge, initial, noStatus, noEvents}: ItemProps) => {
-
+const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps) => {
     const [currentTabIndex, setCurrentTabIndex] = useState<string>(initial);
 
     const handleTabChange = (_: object, tabIndex: string) => {
@@ -63,7 +63,7 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents}: ItemProps) => {
                     <TabList value={currentTabIndex} onChange={handleTabChange}>
                         {noStatus ? null : (<Tab label='Status' value="status"/>)}
                         {noEvents ? null : (<Tab label='Events' value="events"/>)}
-                        <Tab label='Relations' value="relations"/>
+                        {noRelations ? null : (<Tab label='Relations' value="relations"/>)}
                         <Tab label='YAML' value="yaml"/>
                     </TabList>
                 </Box>
