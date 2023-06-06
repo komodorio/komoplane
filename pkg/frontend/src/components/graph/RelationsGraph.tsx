@@ -10,8 +10,8 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {useMemo} from "react";
-import {ClaimNode, MRNode, XRNode, CompositionNode} from "./CustomNodes.tsx"
+import {BaseSyntheticEvent, useMemo} from "react";
+import {ClaimNode, CompositionNode, MRNode, XRNode} from "./CustomNodes.tsx"
 
 
 const dagreGraph = new dagre.graphlib.Graph({directed: true});
@@ -75,6 +75,12 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
         composition: CompositionNode,
     }), []);
 
+    const onNodeClick = (_: BaseSyntheticEvent, element: Node | Edge) => {
+        if (element.data.onClick) {
+            element.data.onClick()
+        }
+    }
+
     return (
         <ReactFlow
             nodeTypes={nodeTypes}
@@ -84,6 +90,7 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
             onEdgesChange={onEdgesChange}
             connectionLineType={ConnectionLineType.SmoothStep}
             nodesConnectable={false}
+            onNodeClick={onNodeClick}
             fitView
         >
             <Background color="white"/>

@@ -58,7 +58,9 @@ const DrawerHeader = styled('div')(({theme}) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'center',
 }));
-export default function PersistentDrawerLeft() {
+export default function App() {
+    const XRDs = <XRDsPage/>
+    const compositions = <CompositionsPage/>
     return (
         <BrowserRouter>
             <Box className={"flex grow"}>
@@ -147,8 +149,10 @@ export default function PersistentDrawerLeft() {
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
                         <Route path="/managed" element={<ManagedResourcesPage/>}/>
                         <Route path="/composite" element={<CompositeResourcesPage/>}/>
-                        <Route path="/compositions" element={<CompositionsPage/>}/>
-                        <Route path="/xrds" element={<XRDsPage/>}/>
+                        <Route path="/compositions" element={compositions}/>
+                        <Route path="/compositions/:name" element={compositions}/>
+                        <Route path="/xrds" element={XRDs}/>
+                        <Route path="/xrds/:name" element={XRDs}/>
                         <Route path="*" element={<Typography>Page not found</Typography>}/>
                     </Routes>
                 </Main>

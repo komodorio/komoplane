@@ -5,6 +5,7 @@ import ConditionChips from "./ConditionChips.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import {useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 
 type ItemProps = {
     item: XRD;
@@ -36,17 +37,35 @@ type ItemListProps = {
 };
 
 export default function XRDsList({items}: ItemListProps) {
-    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
-    const [bridge] = useState<ItemContext>(new ItemContext());
+    const {name: focusedName} = useParams();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
+    const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
+    const navigate = useNavigate();
 
     const onClose = () => {
         setDrawerOpen(false)
+        navigate("/xrds", {state: focused})
     }
 
     const onItemClick = (item: K8sResource) => {
-        bridge.setCurrent(item)
+        setFocused(item)
         setDrawerOpen(true)
+        navigate(
+            "./" + item.metadata.name,
+            {state: item}
+        );
     }
+
+    if (!focused.metadata.name && focusedName) {
+        items?.items?.forEach((item) => {
+            if (focusedName == item.metadata.name) {
+                onItemClick(item)
+            }
+        })
+    }
+
+    const bridge = new ItemContext()
+    bridge.setCurrent(focused)
 
     return (
         <>
@@ -56,7 +75,7 @@ export default function XRDsList({items}: ItemListProps) {
                 ))}
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition"
-                        title={bridge.curItem.metadata.name}>
+                        title={focused.metadata.name}>
                 <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
             </InfoDrawer>
         </>

@@ -6,6 +6,7 @@ export type Metadata = {
     managedFields?: object[];
     name: string
     namespace?: string
+    annotations?: {[key: string]: string;}
 }
 
 export type Condition = {

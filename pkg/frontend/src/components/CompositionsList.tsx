@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import {useState} from "react";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
+import {useNavigate, useParams} from "react-router-dom";
 
 type ItemProps = {
     item: Composition;
@@ -34,17 +35,35 @@ type ItemListProps = {
 };
 
 export default function CompositionsList({items}: ItemListProps) {
-    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
-    const [bridge] = useState<ItemContext>(new ItemContext());
+    const {name: focusedName} = useParams();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
+    const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
+    const navigate = useNavigate();
 
     const onClose = () => {
         setDrawerOpen(false)
+        navigate("/compositions", {state: focused})
     }
 
     const onItemClick = (item: K8sResource) => {
-        bridge.setCurrent(item)
+        setFocused(item)
         setDrawerOpen(true)
+        navigate(
+            "./" + item.metadata.name,
+            {state: item}
+        );
     }
+
+    if (!focused.metadata.name && focusedName) {
+        items?.items?.forEach((item) => {
+            if (focusedName == item.metadata.name) {
+                onItemClick(item)
+            }
+        })
+    }
+
+    const bridge = new ItemContext()
+    bridge.setCurrent(focused)
 
     return (
         <>
