@@ -62,6 +62,7 @@ export default function App() {
     const XRDs = <XRDsPage/>
     const compositions = <CompositionsPage/>
     const composite = <CompositeResourcesPage/>
+    const managed = <ManagedResourcesPage/>
     return (
         <BrowserRouter>
             <Box className={"flex grow"}>
@@ -148,7 +149,8 @@ export default function App() {
                         <Route path="/providers/:provider" element={<ProviderPage/>}/>
                         <Route path="/claims" element={<ClaimsPage/>}/>
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
-                        <Route path="/managed" element={<ManagedResourcesPage/>}/>
+                        <Route path="/managed" element={managed}/>
+                        <Route path="/managed/:group/:version/:kind/:name" element={managed}/>
                         <Route path="/composite" element={composite}/>
                         <Route path="/composite/:group/:version/:kind/:name" element={composite}/>
                         <Route path="/compositions" element={compositions}/>

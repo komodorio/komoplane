@@ -151,7 +151,9 @@ function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): {
     addEdge(xrId, claimId)
 
     claim.managedResources?.map(res => {
-        const resId = addNode("managed", res.metadata.name, getStatus(res))
+        const resId = addNode("managed", res.metadata.name, getStatus(res), false, () => {
+            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
+        });
         addEdge(resId, xrId)
     })
 

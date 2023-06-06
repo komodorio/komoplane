@@ -72,6 +72,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         {focused.metadata.name}
         <ConditionChips status={focused.status?focused.status:{}}></ConditionChips>
     </>)
+
     return (
         <>
             <Grid container spacing={2}>
