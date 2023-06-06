@@ -6,6 +6,7 @@ import {useState} from "react";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import ConditionChips from "./ConditionChips.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
+import {useNavigate, useParams} from "react-router-dom";
 
 type ItemProps = {
     item: CompositeResource;
@@ -37,21 +38,39 @@ type ItemListProps = {
 };
 
 export default function CompositeResourcesList({items}: ItemListProps) {
-    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
-    const [bridge] = useState<ItemContext>(new ItemContext());
+    const {name: focusedName} = useParams();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
+    const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
+    const navigate = useNavigate();
 
     const onClose = () => {
         setDrawerOpen(false)
+        navigate("/composite", {state: focused})
     }
 
     const onItemClick = (item: K8sResource) => {
-        bridge.setCurrent(item)
+        setFocused(item)
         setDrawerOpen(true)
+        navigate(
+            "./" + item.apiVersion+"/"+item.kind+"/"+item.metadata.name,
+            {state: item}
+        );
     }
 
+    if (!focused.metadata.name && focusedName) {
+        items?.items?.forEach((item) => {
+            if (focusedName == item.metadata.name) {
+                onItemClick(item)
+            }
+        })
+    }
+
+    const bridge = new ItemContext()
+    bridge.setCurrent(focused)
+
     const title = (<>
-        {bridge.curItem.metadata.name}
-        <ConditionChips status={bridge.curItem.status?bridge.curItem.status:{}}></ConditionChips>
+        {focused.metadata.name}
+        <ConditionChips status={focused.status?focused.status:{}}></ConditionChips>
     </>)
 
     return (

@@ -58,7 +58,11 @@ const DrawerHeader = styled('div')(({theme}) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'center',
 }));
-export default function PersistentDrawerLeft() {
+export default function App() {
+    const XRDs = <XRDsPage/>
+    const compositions = <CompositionsPage/>
+    const composite = <CompositeResourcesPage/>
+    const managed = <ManagedResourcesPage/>
     return (
         <BrowserRouter>
             <Box className={"flex grow"}>
@@ -145,10 +149,14 @@ export default function PersistentDrawerLeft() {
                         <Route path="/providers/:provider" element={<ProviderPage/>}/>
                         <Route path="/claims" element={<ClaimsPage/>}/>
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
-                        <Route path="/managed" element={<ManagedResourcesPage/>}/>
-                        <Route path="/composite" element={<CompositeResourcesPage/>}/>
-                        <Route path="/compositions" element={<CompositionsPage/>}/>
-                        <Route path="/xrds" element={<XRDsPage/>}/>
+                        <Route path="/managed" element={managed}/>
+                        <Route path="/managed/:group/:version/:kind/:name" element={managed}/>
+                        <Route path="/composite" element={composite}/>
+                        <Route path="/composite/:group/:version/:kind/:name" element={composite}/>
+                        <Route path="/compositions" element={compositions}/>
+                        <Route path="/compositions/:name" element={compositions}/>
+                        <Route path="/xrds" element={XRDs}/>
+                        <Route path="/xrds/:name" element={XRDs}/>
                         <Route path="*" element={<Typography>Page not found</Typography>}/>
                     </Routes>
                 </Main>

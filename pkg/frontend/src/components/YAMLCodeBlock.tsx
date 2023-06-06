@@ -8,6 +8,12 @@ const YAMLCodeBlock = ({obj}: { obj: K8sResource }) => {
     if (obj.metadata.managedFields) {
         obj.metadata.managedFields = undefined
     }
+
+    const lastApplied="kubectl.kubernetes.io/last-applied-configuration"
+    if (obj.metadata.annotations && obj.metadata.annotations[lastApplied]) {
+         delete obj.metadata.annotations[lastApplied]
+    }
+
     return (
         <Box className="border">
             <SyntaxHighlighter language="yaml" style={theme} wrapLines={true} wrapLongLines={true}

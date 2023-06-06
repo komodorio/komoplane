@@ -1,6 +1,6 @@
 import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
 import {Edge, MarkerType, Node} from "reactflow";
-import {useParams} from "react-router-dom";
+import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
 import {ClaimExtended, K8sResource} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
@@ -15,6 +15,7 @@ export default function ClaimPage() {
     const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
     const [claim, setClaim] = useState<ClaimExtended | null>(null);
     const [error, setError] = useState<object | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         apiClient.getClaim(group, version, kind, namespace, name)
@@ -30,7 +31,7 @@ export default function ClaimPage() {
         return (<LinearProgress/>)
     }
 
-    const data = graphDataFromClaim(claim);
+    const data = graphDataFromClaim(claim, navigate);
 
     return (
         <>
@@ -78,13 +79,13 @@ export default function ClaimPage() {
 }
 
 
-function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[] } {
+function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): { nodes: Node[], edges: Edge[] } {
     const nodes: Node[] = []
     const edges: Edge[] = []
     let id = 0
 
     // TODO: make separate class from this
-    function addNode(ntype: string, label: string, status: [NodeStatus, string], isMain?: boolean): Node {
+    function addNode(ntype: string, label: string, status: [NodeStatus, string], isMain?: boolean, onClick?: () => void): Node {
         const node = {
             id: (++id).toString(),
             type: ntype,
@@ -92,7 +93,8 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
                 label: label,
                 status: status[0],
                 statusMsg: status[1],
-                main: isMain
+                main: isMain,
+                onClick: onClick,
             },
             position: {x: 0, y: 0},
         };
@@ -137,14 +139,21 @@ function graphDataFromClaim(claim: ClaimExtended): { nodes: Node[], edges: Edge[
 
     const claimId = addNode("claim", claim.metadata.name, getStatus(claim), true)
 
-    const compId = addNode("composition", claim.composition.metadata.name, getStatus(claim.composition));
+    const compId = addNode("composition", claim.composition.metadata.name, getStatus(claim.composition), false, () => {
+        navigate("/compositions/" + claim.composition.metadata.name)
+    });
     addEdge(compId, claimId)
 
-    const xrId = addNode("composed", claim.compositeResource.metadata.name, getStatus(claim.compositeResource))
+
+    const xrId = addNode("composed", claim.compositeResource.metadata.name, getStatus(claim.compositeResource), false, () => {
+        navigate("/composite/" + claim.compositeResource.apiVersion + "/" + claim.compositeResource.kind + "/" + claim.compositeResource.metadata.name) // FIXME: don't do if resource is missing!
+    });
     addEdge(xrId, claimId)
 
     claim.managedResources?.map(res => {
-        const resId = addNode("managed", res.metadata.name, getStatus(res))
+        const resId = addNode("managed", res.metadata.name, getStatus(res), false, () => {
+            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
+        });
         addEdge(resId, xrId)
     })
 

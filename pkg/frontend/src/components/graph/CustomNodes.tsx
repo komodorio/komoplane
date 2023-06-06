@@ -10,13 +10,13 @@ import {
 
 export enum NodeStatus {
     Ok = "Ok",
-    NotSynced= "Not Synced",
-    NotReady= "Not Ready",
-    Unhealthy="Unhealthy",
-    NotFound="Not Found",
+    NotSynced = "Not Synced",
+    NotReady = "Not Ready",
+    Unhealthy = "Unhealthy",
+    NotFound = "Not Found",
 }
 
-function NodeStatusLine({data}: {data: {status: string, statusMsg: string}}) {
+function NodeStatusLine({data}: { data: { status: string, statusMsg: string } }) {
     let icon = (<></>)
 
     switch (data.status) {
@@ -45,7 +45,12 @@ function NodeStatusLine({data}: {data: {status: string, statusMsg: string}}) {
 
 function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
     return (
-        <Box className="border rounded border-gray-500" sx={{backgroundColor: data.bgcolor, maxWidth: 300, borderWidth: data.main?3:null}}>
+        <Box className="border rounded border-gray-500" sx={{
+            backgroundColor: data.bgcolor,
+            maxWidth: 300,
+            borderWidth: data.main ? 3 : null,
+            cursor: data.onClick ? "pointer" : "grab"
+        }}>
             <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20 "
             >
                 <Typography fontSize="x-small" className="uppercase text-xs">{data.type}</Typography>
