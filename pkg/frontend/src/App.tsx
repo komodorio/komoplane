@@ -61,6 +61,7 @@ const DrawerHeader = styled('div')(({theme}) => ({
 export default function App() {
     const XRDs = <XRDsPage/>
     const compositions = <CompositionsPage/>
+    const composite = <CompositeResourcesPage/>
     return (
         <BrowserRouter>
             <Box className={"flex grow"}>
@@ -148,7 +149,8 @@ export default function App() {
                         <Route path="/claims" element={<ClaimsPage/>}/>
                         <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
                         <Route path="/managed" element={<ManagedResourcesPage/>}/>
-                        <Route path="/composite" element={<CompositeResourcesPage/>}/>
+                        <Route path="/composite" element={composite}/>
+                        <Route path="/composite/:group/:version/:kind/:name" element={composite}/>
                         <Route path="/compositions" element={compositions}/>
                         <Route path="/compositions/:name" element={compositions}/>
                         <Route path="/xrds" element={XRDs}/>

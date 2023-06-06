@@ -144,7 +144,10 @@ function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): {
     });
     addEdge(compId, claimId)
 
-    const xrId = addNode("composed", claim.compositeResource.metadata.name, getStatus(claim.compositeResource))
+
+    const xrId = addNode("composed", claim.compositeResource.metadata.name, getStatus(claim.compositeResource), false, () => {
+        navigate("/composite/" + claim.compositeResource.apiVersion + "/" + claim.compositeResource.kind + "/" + claim.compositeResource.metadata.name) // FIXME: don't do if resource is missing!
+    });
     addEdge(xrId, claimId)
 
     claim.managedResources?.map(res => {
