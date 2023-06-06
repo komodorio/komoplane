@@ -12,12 +12,9 @@ Download standalone binary from Releases. Use `KUBECONTEXT` env variable to poin
 
 ## Roadmap
 
-Milestone 1: Local helm install, images in registry, user analytics, update check, main page, ability to choose kubecontext
+Milestone 1: Local helm install, images in registry, user analytics, update check, main page
 
-Fill main page
-
-Relations graph:
-    Clicking on node should either open object info, or navigate to that object
+Fill main page: counts of objects in each category?
 
 Styled toolbar: Type, Title, subtitle, help button to explain and link to CP learning
 
