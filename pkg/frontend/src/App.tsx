@@ -9,9 +9,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/HubTwoTone';
-import PanTool from '@mui/icons-material/PanToolTwoTone';
-import Polyline from '@mui/icons-material/PolylineTwoTone';
+import ManagedIcon from '@mui/icons-material/HubTwoTone';
+import ClaimsIcon from '@mui/icons-material/PanToolTwoTone';
+import CompositeIcon from '@mui/icons-material/PolylineTwoTone';
 import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
 import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
@@ -92,7 +92,7 @@ export default function App() {
                         <ListItem key="Claims" disablePadding>
                             <ListItemButton component={RouterLink} to="/claims">
                                 <ListItemIcon>
-                                    <PanTool/>
+                                    <ClaimsIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Claims"/>
                             </ListItemButton>
@@ -100,7 +100,7 @@ export default function App() {
                         <ListItem key="Composite Resources" disablePadding>
                             <ListItemButton component={RouterLink} to="/composite">
                                 <ListItemIcon>
-                                    <Polyline/>
+                                    <CompositeIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Composite Resources"/>
                             </ListItemButton>
@@ -108,7 +108,7 @@ export default function App() {
                         <ListItem key="Managed Resources" disablePadding>
                             <ListItemButton component={RouterLink} to="/managed">
                                 <ListItemIcon>
-                                    <InboxIcon/>
+                                    <ManagedIcon/>
                                 </ListItemIcon>
                                 <ListItemText primary="Managed Resources"/>
                             </ListItemButton>
