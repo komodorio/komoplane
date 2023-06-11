@@ -18,7 +18,7 @@ function ListItem({item, onItemClick}: ItemProps) {
         <Grid item xs={12} md={12} key={item.metadata.name} onClick={() => {
             onItemClick(item)
         }}>
-            <Card variant="outlined">
+            <Card variant="outlined" className="cursor-pointer">
                 <CardContent>
                     <Typography variant="h6">Name: {item.metadata.name}</Typography>
                     <Typography variant="h6">Kind: {item.kind}</Typography>

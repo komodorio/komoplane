@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import ProviderList from "../components/ProviderList.tsx";
 import {useEffect, useState} from "react";
 import {ItemList, Provider} from "../types.ts";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 const ProvidersPage = () => {
     const [providers, setProviders] = useState<ItemList<Provider> | null>(null);
@@ -22,11 +24,10 @@ const ProvidersPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Providers</Typography>
-            </Toolbar>
-
-            <ProviderList providers={providers}></ProviderList>
+            <HeaderBar title="Providers"/>
+            <PageBody>
+                <ProviderList providers={providers}></ProviderList>
+            </PageBody>
         </>
     );
 };

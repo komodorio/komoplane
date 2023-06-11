@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 .react-flow__handle {
     opacity: 0;
     width: 0;

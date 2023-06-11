@@ -20,7 +20,7 @@ function ProviderListItem({provider}: ProviderListItemProps) {
 
     return (
         <Grid item xs={12} md={6} lg={6} xl={4} key={provider.metadata.name} onClick={handleOnClick}>
-            <Card variant="outlined">
+            <Card variant="outlined" className="cursor-pointer">
                 <CardActionArea>
                     <CardContent>
                         <Typography variant="h6">{provider.metadata.name}</Typography>

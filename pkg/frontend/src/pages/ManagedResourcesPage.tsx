@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {ItemList, ManagedResource} from "../types.ts";
 import ManagedResourcesList from "../components/ManagedResourcesList.tsx";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 const ManagedResourcesPage = () => {
     const [items, setItems] = useState<ItemList<ManagedResource> | null>(null);
@@ -24,11 +26,10 @@ const ManagedResourcesPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Managed Resources</Typography>
-            </Toolbar>
-
-            <ManagedResourcesList items={items}></ManagedResourcesList>
+            <HeaderBar title="Managed Resources"/>
+            <PageBody>
+                <ManagedResourcesList items={items}></ManagedResourcesList>
+            </PageBody>
         </>
     );
 };

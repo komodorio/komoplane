@@ -6,10 +6,11 @@ import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
 import ConditionList from "../components/ConditionList.tsx";
 import Events from "../components/Events.tsx";
-import ReadySynced from "../components/ReadySynced.tsx";
 import RelationsGraph from "../components/graph/RelationsGraph.tsx";
 import {NodeStatus} from "../components/graph/CustomNodes.tsx";
 import {EdgeMarkerType} from "@reactflow/core/dist/esm/types/edges";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 export default function ClaimPage() {
     const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
@@ -35,45 +36,43 @@ export default function ClaimPage() {
 
     return (
         <>
-            <div className="mb-4">
-                <Typography variant="subtitle2">CLAIM</Typography>
-                <Typography variant="h3">{claim.metadata.name} <ReadySynced
-                    status={claim.status}></ReadySynced></Typography>
-            </div>
-            <Grid container spacing={2} alignItems="stretch">
-                <Grid item xs={12} md={6}>
-                    <Paper className="p-4">
-                        <Typography variant="h6">Configuration</Typography>
-                        <Typography variant="body1">
-                            API Version: {claim.apiVersion}
-                        </Typography>
-                        <Typography variant="body1">
-                            Kind: {claim.kind}
-                        </Typography>
-                        <Typography variant="body1">
-                            Namespace: {claim.metadata.namespace}
-                        </Typography>
-                    </Paper>
+            <HeaderBar title={claim.metadata.name} super="Claim"/>
+            <PageBody>
+                <Grid container spacing={2} alignItems="stretch">
+                    <Grid item xs={12} md={6}>
+                        <Paper className="p-4">
+                            <Typography variant="h6">Configuration</Typography>
+                            <Typography variant="body1">
+                                API Version: {claim.apiVersion}
+                            </Typography>
+                            <Typography variant="body1">
+                                Kind: {claim.kind}
+                            </Typography>
+                            <Typography variant="body1">
+                                Namespace: {claim.metadata.namespace}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Paper className="p-4">
+                            <Typography variant="h6">Status</Typography>
+                            <ConditionList conditions={claim.status.conditions}></ConditionList>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={12}>
+                        <Paper className="p-4 flex flex-col" sx={{height: '20rem'}}>
+                            <Typography variant="h6">Relations</Typography>
+                            <RelationsGraph nodes={data.nodes} edges={data.edges}></RelationsGraph>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={12}>
+                        <Paper className="p-4">
+                            <Typography variant="h6">Events</Typography>
+                            <Events src={"providers/" + claim.metadata.name}></Events>
+                        </Paper>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <Paper className="p-4">
-                        <Typography variant="h6">Status</Typography>
-                        <ConditionList conditions={claim.status.conditions}></ConditionList>
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={12}>
-                    <Paper className="p-4 flex flex-col" sx={{height: '20rem'}}>
-                        <Typography variant="h6">Relations</Typography>
-                        <RelationsGraph nodes={data.nodes} edges={data.edges}></RelationsGraph>
-                    </Paper>
-                </Grid>
-                <Grid item xs={12} md={12}>
-                    <Paper className="p-4">
-                        <Typography variant="h6">Events</Typography>
-                        <Events src={"providers/" + claim.metadata.name}></Events>
-                    </Paper>
-                </Grid>
-            </Grid>
+            </PageBody>
         </>
     );
 }

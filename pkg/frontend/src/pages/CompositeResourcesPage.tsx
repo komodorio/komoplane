@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {CompositeResource, ItemList} from "../types.ts";
 import CompositeResourcesList from "../components/CompositeResourcesList.tsx";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 const CompositeResourcesPage = () => {
     const [items, setItems] = useState<ItemList<CompositeResource> | null>(null);
@@ -24,11 +26,10 @@ const CompositeResourcesPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Composite Resources</Typography>
-            </Toolbar>
-
-            <CompositeResourcesList items={items}></CompositeResourcesList>
+            <HeaderBar title="Composite Resources"/>
+            <PageBody>
+                <CompositeResourcesList items={items}></CompositeResourcesList>
+            </PageBody>
         </>
     );
 };

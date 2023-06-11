@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {Composition, ItemList} from "../types.ts";
 import CompositionsList from "../components/CompositionsList.tsx";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 const CompositionsPage = () => {
     const [items, setItems] = useState<ItemList<Composition> | null>(null);
@@ -26,11 +28,10 @@ const CompositionsPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Compositions</Typography>
-            </Toolbar>
-
-            <CompositionsList items={items}></CompositionsList>
+            <HeaderBar title="Compositions"/>
+            <PageBody>
+                <CompositionsList items={items}></CompositionsList>
+            </PageBody>
         </>
     );
 };

@@ -12,11 +12,9 @@ Download standalone binary from Releases. Use `KUBECONTEXT` env variable to poin
 
 ## Roadmap
 
-Milestone 1: Local helm install, images in registry, user analytics, update check, main page
+Milestone 1: Local helm install, images in registry, user analytics, update check
 
-Fill main page: counts of objects in each category?
-
-Styled toolbar: Type, Title, subtitle, help button to explain and link to CP learning
+help buttons to explain and link to CP learning
 
 Make event type be aligned better in event list
 

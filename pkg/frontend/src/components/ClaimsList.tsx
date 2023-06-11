@@ -19,7 +19,7 @@ function ListItem({item}: ItemProps) {
 
     return (
         <Grid item xs={12} md={12} key={item.metadata.name} onClick={handleOnClick}>
-            <Card variant="outlined">
+            <Card variant="outlined" className="cursor-pointer">
                 <CardActionArea>
                     <CardContent>
                         <Typography variant="h6">{item.metadata.name}</Typography>

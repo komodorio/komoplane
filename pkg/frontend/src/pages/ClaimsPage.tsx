@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {Claim, ItemList} from "../types.ts";
 import ClaimsList from "../components/ClaimsList.tsx";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 
 const ClaimsPage = () => {
@@ -25,11 +27,10 @@ const ClaimsPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Claims</Typography>
-            </Toolbar>
-
-            <ClaimsList items={items}></ClaimsList>
+            <HeaderBar title="Claims"/>
+            <PageBody>
+                <ClaimsList items={items}></ClaimsList>
+            </PageBody>
         </>
     );
 };

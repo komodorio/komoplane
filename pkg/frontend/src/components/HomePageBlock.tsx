@@ -7,7 +7,7 @@ type Props = {
     title: string
     getter: () => Promise<ItemList<K8sResource>>
     onClick: () => void
-    icon: React.JSX
+    icon: React.ReactNode
 };
 
 const HomePageBlock = ({title, getter, onClick, icon}: Props) => {

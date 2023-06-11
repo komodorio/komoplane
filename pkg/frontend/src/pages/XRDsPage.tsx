@@ -1,8 +1,10 @@
-import {Alert, LinearProgress, Toolbar, Typography} from "@mui/material";
+import {Alert, LinearProgress} from "@mui/material";
 import apiClient from "../api.ts";
 import {useEffect, useState} from "react";
 import {ItemList, XRD} from "../types.ts";
 import XRDsList from "../components/XRDsList.tsx";
+import HeaderBar from "../components/HeaderBar.tsx";
+import PageBody from "../components/PageBody.tsx";
 
 const XRDsPage = () => {
     const [items, setItems] = useState<ItemList<XRD> | null>(null);
@@ -25,11 +27,10 @@ const XRDsPage = () => {
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h5">Composite Resource Definitions (XRDs)</Typography>
-            </Toolbar>
-
-            <XRDsList items={items}></XRDsList>
+            <HeaderBar title="Composite Resource Definitions (XRDs)"/>
+            <PageBody>
+                <XRDsList items={items}></XRDsList>
+            </PageBody>
         </>
     );
 };
