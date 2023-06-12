@@ -180,7 +180,6 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 }
 
 func (c *Controller) GetClaim(ec echo.Context) error {
-	// FIXME: refactor a lot of duplications
 	gvk := schema.GroupVersionKind{
 		Group:   ec.Param("group"),
 		Version: ec.Param("version"),
@@ -201,73 +200,59 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
 
-		xr := uxres.New()
-		err = c.CRDs.Get(c.ctx, xr, xrRef)
-		if err != nil {
-			condErrored := xpv1.Condition{
-				Type:               "Found",
-				Status:             "False",
-				LastTransitionTime: metav1.Now(),
-				Reason:             "FailedToGet",
-				Message:            err.Error(),
-			}
-			xr.SetConditions(condErrored)
-		}
-		xr.SetGroupVersionKind(gvk)
-		xr.SetNamespace(xrRef.Namespace)
-		xr.SetName(xrRef.Name)
+		xr := c.getRes(xrRef, gvk)
 
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := ManagedUnstructured{Unstructured: *uxres.New()}
+			mr := c.getRes(&mrRef, mrRef.GroupVersionKind())
 
-			if mrRef.Name == "" {
-				condNotFound := xpv1.Condition{
-					Type:               "Found",
-					Status:             "False",
-					LastTransitionTime: metav1.Now(),
-					Reason:             "NameIsEmpty",
-					Message:            "Probably, the resource were never created, and external name were not reported back",
-				}
-				mr.SetConditions(condNotFound)
-			} else {
-				err := c.CRDs.Get(c.ctx, &mr, &mrRef)
-				if err != nil {
-					return err
-				}
-			}
-
-			mr.SetGroupVersionKind(mrRef.GroupVersionKind()) // https://github.com/kubernetes/client-go/issues/308
-			mr.SetNamespace(mrRef.Namespace)
-			mr.SetName(mrRef.Name)
-
-			MRs = append(MRs, &mr)
+			MRs = append(MRs, &ManagedUnstructured{Unstructured: *mr})
 		}
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
 
-		comp := uxres.New()
-		err = c.CRDs.Get(c.ctx, comp, compRef)
-		if err != nil {
-			condErrored := xpv1.Condition{
-				Type:               "Found",
-				Status:             "False",
-				LastTransitionTime: metav1.Now(),
-				Reason:             "FailedToGet",
-				Message:            err.Error(),
-			}
-			xr.SetConditions(condErrored)
-		}
-		xr.SetGroupVersionKind(gvk)
-		xr.SetNamespace(xrRef.Namespace)
-		xr.SetName(xrRef.Name)
+		comp := c.getRes(compRef, v13.CompositionGroupVersionKind)
 
 		claim.Object["managedResources"] = MRs
 		claim.Object["compositeResource"] = xr
 		claim.Object["composition"] = comp
 	}
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
+}
+
+func (c *Controller) getRes(ref *v12.ObjectReference, gvk schema.GroupVersionKind) *uxres.Unstructured {
+	res := uxres.New()
+
+	if ref.Name == "" {
+		condNotFound := xpv1.Condition{
+			Type:               "Found",
+			Status:             "False",
+			LastTransitionTime: metav1.Now(),
+			Reason:             "NameIsEmpty",
+			Message:            "Probably, the resource were never created, and external name were not reported back",
+		}
+		res.SetConditions(condNotFound)
+	} else {
+		err := c.CRDs.Get(c.ctx, res, ref)
+		if err != nil {
+			condErrored := xpv1.Condition{
+				Type:               "Found",
+				Status:             "False",
+				LastTransitionTime: metav1.Now(),
+				Reason:             "FailedToGet",
+				Message:            err.Error(),
+			}
+			res.SetConditions(condErrored)
+		}
+	}
+
+	// API does not return it, so we fill it ourselves
+	res.SetGroupVersionKind(gvk)
+	res.SetNamespace(ref.Namespace)
+	res.SetName(ref.Name)
+
+	return res
 }
 
 func (c *Controller) GetManaged(ec echo.Context) error {
@@ -303,7 +288,7 @@ func (c *Controller) allMRDs() []*v1.CustomResourceDefinition {
 	return res
 }
 
-func (c *Controller) GetComposite(ec echo.Context) error {
+func (c *Controller) GetComposites(ec echo.Context) error {
 	list := unstructured.UnstructuredList{
 		Object: nil,
 		Items:  []unstructured.Unstructured{},
@@ -366,6 +351,10 @@ func (c *Controller) GetEvents(ec echo.Context) error {
 	}
 
 	return ec.JSONPretty(http.StatusOK, res, "  ")
+}
+
+func (c *Controller) GetComposite(ec echo.Context) error {
+
 }
 
 type ManagedUnstructured struct { // no dedicated type for it in base CP
