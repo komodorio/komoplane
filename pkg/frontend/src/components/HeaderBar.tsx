@@ -12,7 +12,7 @@ type Props = {
 export default function HeaderBar(props: Props) {
     return (
         <ThemeProvider theme={themeDark}>
-            <Box className="p-5 py-8 mb-4 bg-gray-700" boxShadow={"0px 5px 5px gray"} bgcolor={"#1347ff"}>
+            <Box className="p-5 py-8 mb-4 bg-gray-700" boxShadow={"0px 2px 5px gray"} bgcolor={"#1347ff"}>
                 <Typography variant="subtitle2" color="textPrimary" className="uppercase">{props.super}</Typography>
                 <Typography variant="h4" color="textPrimary">{props.title}</Typography>
                 <Box>{props.infoPieces}</Box>

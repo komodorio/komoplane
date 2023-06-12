@@ -18,7 +18,7 @@ const HomePageBlock = ({title, getter, onClick, icon}: Props) => {
         getter()
             .then((data) => setCount(data.items.length))
             .catch((error) => setError(error));
-    }, []);
+    }, [getter]);
 
     if (error) {
         return (<Alert severity="error">Failed: {error.toString()}</Alert>)

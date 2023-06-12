@@ -18,6 +18,10 @@ help buttons to explain and link to CP learning
 
 Make event type be aligned better in event list
 
+Decide on presentation approach: info drawer or dedicated pages
+
+Detect crossplane is not installed and tell user to install it first
+
 ### Claims
 
 ### XRs

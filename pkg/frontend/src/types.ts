@@ -6,7 +6,7 @@ export type Metadata = {
     managedFields?: object[];
     name: string
     namespace?: string
-    annotations?: {[key: string]: string;}
+    annotations?: { [key: string]: string; }
 }
 
 export type Condition = {
@@ -62,6 +62,7 @@ export type Claim = K8sResource & {
         resourceRef: Reference
     }
     status: Status
+    [key: string]: object
 }
 
 export type ClaimExtended = Claim & {

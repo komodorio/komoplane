@@ -23,9 +23,9 @@ function ListItem({item}: ItemProps) {
                 <CardActionArea>
                     <CardContent>
                         <Typography variant="h6">{item.metadata.name}</Typography>
-                        <Typography variant="h6">{item.metadata.namespace}</Typography>
-                        <Typography variant="h6">{item.kind}</Typography>
-                        <Typography variant="h6">{item.spec.compositionRef.name}</Typography>
+                        <Typography variant="body1">Namespace: {item.metadata.namespace}</Typography>
+                        <Typography variant="body1">XR: {item.kind}</Typography>
+                        <Typography variant="body1">Composition: {item.spec.compositionRef.name}</Typography>
                         <ReadySynced status={item.status}></ReadySynced>
                     </CardContent>
                 </CardActionArea>
