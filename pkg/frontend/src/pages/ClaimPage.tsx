@@ -39,7 +39,6 @@ export default function ClaimPage() {
 
     const data = graphDataFromClaim(claim, navigate);
 
-    // TODO: drawer part start, potential duplicate code
     const onClose = () => {
         setDrawerOpen(false)
     }
@@ -56,7 +55,6 @@ export default function ClaimPage() {
         {claim.metadata.name}
         <ConditionChips status={claim.status ? claim.status : {}}></ConditionChips>
     </>)
-    // TODO: drawer part end
 
     const onYaml=()=>{
         setDrawerOpen(true)
