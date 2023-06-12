@@ -74,6 +74,12 @@ class APIClient {
         return data;
     };
 
+    getCompositeResource = async (group?: string, version?: string, kind?: string, name?: string) => {
+        const response = await this.innterFetch(`/api/composite/` + group + "/" + version + "/" + kind + "/" + name + "?full=1");
+        const data: ClaimExtended = await response.json();
+        return data;
+    };
+
     getCompositionsList = async () => {
         const response = await this.innterFetch(`/api/compositions`);
         const data: ItemList<Composition> = await response.json();

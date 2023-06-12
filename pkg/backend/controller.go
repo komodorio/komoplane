@@ -371,6 +371,13 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	if ec.QueryParam("full") != "" {
+		// claim for it, if any
+		// composition ref
+		// MR refs
+	}
+
 	return ec.JSONPretty(http.StatusOK, comp, "  ")
 }
 

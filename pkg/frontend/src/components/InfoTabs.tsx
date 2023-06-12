@@ -1,11 +1,13 @@
-import {Box, Tab} from '@mui/material';
-import {useState} from "react";
+import {Alert, Box, Tab} from '@mui/material';
+import {useEffect, useState} from "react";
 import {TabContext, TabList, TabPanel} from '@mui/lab';
 import ConditionList from "./ConditionList.tsx";
-import {Condition, GraphData, K8sResource} from "../types.ts";
+import {Condition, K8sResource} from "../types.ts";
 import Events from "./Events.tsx";
 import YAMLCodeBlock from "./YAMLCodeBlock.tsx";
 import RelationsGraph from "./graph/RelationsGraph.tsx";
+import {GraphData} from "./graph/data.ts";
+import {logger} from "../logger.ts";
 
 
 export class ItemContext {
@@ -41,11 +43,7 @@ export class ItemContext {
         return path;
     }
 
-    public getGraph: () => GraphData = () => {
-        return {
-            nodes: [],
-            edges: []
-        }
+    public getGraph: (setGraphData: (data: GraphData) => void, setError: (error: object)=>void) => void = () => {
     }
 }
 
@@ -62,11 +60,25 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
         initial = window.location.hash.substring(1)
     }
     const [currentTabIndex, setCurrentTabIndex] = useState<string>(initial);
+    const [graphData, setGraphData] = useState<GraphData>(new GraphData());
+    const [error, setError] = useState<object | null>(null);
 
     const handleTabChange = (_: object, tabIndex: string) => {
         window.location.hash = tabIndex
         setCurrentTabIndex(tabIndex);
     };
+
+    let isOnRelationsTab = currentTabIndex == "relations";
+    useEffect(() => {
+        if (isOnRelationsTab) {
+            logger.log("useEffect")
+            bridge.getGraph(setGraphData, setError)
+        }
+    }, [bridge.curItem, currentTabIndex])
+
+    if (error) {
+        return (<Alert severity="error">Failed: {error.toString()}</Alert>)
+    }
 
     return (
         <>
@@ -86,7 +98,8 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
                     <TabPanel
                         value="events">{currentTabIndex == "events" ? getEvents(bridge.getEventsURL()) : null}</TabPanel>
                     <TabPanel
-                        value="relations" style={{ height: 800 }}>{currentTabIndex == "relations" ? getRelations(bridge.getGraph()) : null}</TabPanel>
+                        value="relations"
+                        style={{height: 800}}>{isOnRelationsTab ? getRelations(graphData) : null}</TabPanel>
                 </Box>
             </TabContext>
         </>
@@ -108,6 +121,7 @@ function getEvents(url: string) {
 }
 
 function getRelations(data: GraphData) {
+    logger.log("Rels graph", data.nodes)
     return <RelationsGraph nodes={data.nodes} edges={data.edges}></RelationsGraph>
 }
 

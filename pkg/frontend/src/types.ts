@@ -1,4 +1,4 @@
-import {Edge, Node} from "reactflow";
+
 
 export type ItemList<S> = {
     items: S[]
@@ -120,5 +120,3 @@ export type XRD = K8sResource & {
     }
     status: Status
 }
-
-export type GraphData = { nodes: Node[], edges: Edge[] }

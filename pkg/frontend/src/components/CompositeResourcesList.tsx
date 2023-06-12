@@ -1,4 +1,3 @@
-import {Edge, Node} from "reactflow";
 import {Card, CardContent, Grid} from '@mui/material';
 import {CompositeResource, ItemList, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
@@ -8,6 +7,9 @@ import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import ConditionChips from "./ConditionChips.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
 import {useNavigate, useParams} from "react-router-dom";
+import {GraphData, NodeTypes} from "./graph/data.ts";
+import apiClient from "../api.ts";
+import {logger} from "../logger.ts";
 
 type ItemProps = {
     item: CompositeResource;
@@ -67,14 +69,18 @@ export default function CompositeResourcesList({items}: ItemListProps) {
 
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
-    bridge.getGraph = () => {
-        const nodes: Node[] = []
-        const edges: Edge[] = []
-
-        return {
-            nodes: nodes,
-            edges: edges,
+    bridge.getGraph = (setter, setError) => {
+        const setData = (res: K8sResource) => {
+            const data = new GraphData()
+            data.addNode(NodeTypes.CompositeResource, res, true)
+            logger.log("set graph data", data.nodes)
+            setter(data)
         }
+
+        const [group, version] = focused.apiVersion.split("/")
+        apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
+            .then((data) => setData(data))
+            .catch((err) => setError(err))
     }
 
     const title = (<>
