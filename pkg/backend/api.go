@@ -110,7 +110,8 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	managed.GET("", data.GetManaged)
 
 	composite := api.Group("/composite")
-	composite.GET("", data.GetComposite)
+	composite.GET("", data.GetComposites)
+	composite.GET("/:group/:version/:kind/:name", data.GetComposite)
 
 	compositions := api.Group("/compositions")
 	compositions.GET("", data.GetCompositions)

@@ -4,6 +4,7 @@ import (
 	"context"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	uclaim "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/claim"
 	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite" // what's the difference between `composed` and `composite` there?
 	v13 "github.com/crossplane/crossplane/apis/apiextensions/v1"
@@ -40,9 +41,13 @@ type Controller struct {
 	provCRDs map[string][]*v1.CustomResourceDefinition
 }
 
-func (c *Controller) PeriodicTasks(ctx context.Context) {
-	//TODO needed?
+type ConditionedObject interface {
+	schema.ObjectKind
+	resource.Object
+	resource.Conditioned
 }
+
+type ManagedUnstructured = uxres.Unstructured // no dedicated type for it in base CP
 
 func (c *Controller) GetStatus() StatusInfo {
 	return c.StatusInfo
@@ -186,33 +191,34 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 		Kind:    ec.Param("kind"),
 	}
 
-	claim := uclaim.Unstructured{}
 	claimRef := v12.ObjectReference{Namespace: ec.Param("namespace"), Name: ec.Param("name")}
 	claimRef.SetGroupVersionKind(gvk)
-	err := c.CRDs.Get(c.ctx, &claim, &claimRef)
+
+	claim := uclaim.Unstructured{}
+	err := c.getDynamicResource(&claimRef, &claim)
 	if err != nil {
 		return err
 	}
-	claim.SetGroupVersionKind(claimRef.GroupVersionKind())
-	claim.SetNamespace(claimRef.Namespace)
-	claim.SetName(claimRef.Name)
 
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
 
-		xr := c.getRes(xrRef, gvk)
+		xr := uxres.New()
+		_ = c.getDynamicResource(xrRef, xr)
 
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := c.getRes(&mrRef, mrRef.GroupVersionKind())
+			mr := ManagedUnstructured{}
+			_ = c.getDynamicResource(&mrRef, &mr)
 
-			MRs = append(MRs, &ManagedUnstructured{Unstructured: *mr})
+			MRs = append(MRs, &mr)
 		}
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
 
-		comp := c.getRes(compRef, v13.CompositionGroupVersionKind)
+		comp := uxres.New()
+		_ = c.getDynamicResource(compRef, comp)
 
 		claim.Object["managedResources"] = MRs
 		claim.Object["compositeResource"] = xr
@@ -221,9 +227,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
 }
 
-func (c *Controller) getRes(ref *v12.ObjectReference, gvk schema.GroupVersionKind) *uxres.Unstructured {
-	res := uxres.New()
-
+func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res ConditionedObject) (err error) {
 	if ref.Name == "" {
 		condNotFound := xpv1.Condition{
 			Type:               "Found",
@@ -234,7 +238,7 @@ func (c *Controller) getRes(ref *v12.ObjectReference, gvk schema.GroupVersionKin
 		}
 		res.SetConditions(condNotFound)
 	} else {
-		err := c.CRDs.Get(c.ctx, res, ref)
+		err = c.CRDs.Get(c.ctx, res, ref)
 		if err != nil {
 			condErrored := xpv1.Condition{
 				Type:               "Found",
@@ -248,11 +252,11 @@ func (c *Controller) getRes(ref *v12.ObjectReference, gvk schema.GroupVersionKin
 	}
 
 	// API does not return it, so we fill it ourselves
-	res.SetGroupVersionKind(gvk)
+	res.SetGroupVersionKind(ref.GroupVersionKind())
 	res.SetNamespace(ref.Namespace)
 	res.SetName(ref.Name)
 
-	return res
+	return err
 }
 
 func (c *Controller) GetManaged(ec echo.Context) error {
@@ -354,11 +358,17 @@ func (c *Controller) GetEvents(ec echo.Context) error {
 }
 
 func (c *Controller) GetComposite(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{Name: ec.Param("name")}
+	ref.SetGroupVersionKind(gvk)
 
-}
-
-type ManagedUnstructured struct { // no dedicated type for it in base CP
-	uxres.Unstructured
+	comp := uxres.New()
+	err := c.getDynamicResource(&ref, comp)
+	return err
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {

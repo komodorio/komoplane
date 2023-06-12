@@ -38,8 +38,6 @@ func (s *Server) StartServer(ctx context.Context) (string, ControlChan, error) {
 
 	go checkUpgrade(&data.StatusInfo)
 
-	go data.PeriodicTasks(ctx)
-
 	api := NewRouter(data, s.Debug)
 	done := s.startBackgroundServer(api, ctx)
 
