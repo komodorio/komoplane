@@ -73,7 +73,7 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
         }
     }
 
-    console.log("Render", layoutedNodes)
+    logger.log("Render", layoutedNodes)
 
     return (
         <ReactFlow

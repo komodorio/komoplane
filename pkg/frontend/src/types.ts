@@ -1,5 +1,3 @@
-
-
 export type ItemList<S> = {
     items: S[]
 }
@@ -68,9 +66,9 @@ export type Claim = K8sResource & {
 }
 
 export type ClaimExtended = Claim & {
-    managedResources: K8sResource[]
-    compositeResource: K8sResource
-    composition: K8sResource
+    managedResources: ManagedResource[]
+    compositeResource: CompositeResource
+    composition: Composition
 }
 
 export type ManagedResource = K8sResource & {
@@ -87,6 +85,12 @@ export type CompositeResource = K8sResource & {
         resourceRefs: Reference[]
     }
     status: Status
+}
+
+export type CompositeResourceExtended = CompositeResource & {
+    managedResources: ManagedResource[]
+    composition: Composition
+    claim?: Claim
 }
 
 export type Composition = K8sResource & {

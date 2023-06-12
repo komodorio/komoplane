@@ -1,4 +1,4 @@
-import {Alert, Box, Tab} from '@mui/material';
+import {Alert, Box, LinearProgress, Tab} from '@mui/material';
 import {useEffect, useState} from "react";
 import {TabContext, TabList, TabPanel} from '@mui/lab';
 import ConditionList from "./ConditionList.tsx";
@@ -43,7 +43,8 @@ export class ItemContext {
         return path;
     }
 
-    public getGraph: (setGraphData: (data: GraphData) => void, setError: (error: object)=>void) => void = () => {
+    public getGraph: (setGraphData: (data: GraphData) => void, setError: (error: object) => void) => void = () => {
+        // noop
     }
 }
 
@@ -60,7 +61,7 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
         initial = window.location.hash.substring(1)
     }
     const [currentTabIndex, setCurrentTabIndex] = useState<string>(initial);
-    const [graphData, setGraphData] = useState<GraphData>(new GraphData());
+    const [graphData, setGraphData] = useState<GraphData | null>(null);
     const [error, setError] = useState<object | null>(null);
 
     const handleTabChange = (_: object, tabIndex: string) => {
@@ -68,13 +69,19 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
         setCurrentTabIndex(tabIndex);
     };
 
-    let isOnRelationsTab = currentTabIndex == "relations";
+    const isOnRelationsTab = currentTabIndex == "relations";
     useEffect(() => {
         if (isOnRelationsTab) {
             logger.log("useEffect")
-            bridge.getGraph(setGraphData, setError)
+
+            const setErrorLogged = (err: object) => {
+                logger.error(err)
+                setError(err)
+            }
+
+            bridge.getGraph(setGraphData, setErrorLogged)
         }
-    }, [bridge.curItem, currentTabIndex])
+    }, [bridge.curItem, isOnRelationsTab, bridge])
 
     if (error) {
         return (<Alert severity="error">Failed: {error.toString()}</Alert>)
@@ -120,8 +127,12 @@ function getEvents(url: string) {
     return <><Events src={url}></Events></>
 }
 
-function getRelations(data: GraphData) {
-    logger.log("Rels graph", data.nodes)
+function getRelations(data: GraphData | null) {
+    if (!data) {
+        return (<LinearProgress/>)
+    }
+
+
     return <RelationsGraph nodes={data.nodes} edges={data.edges}></RelationsGraph>
 }
 

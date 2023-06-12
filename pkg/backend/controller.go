@@ -205,6 +205,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 		xr := uxres.New()
 		_ = c.getDynamicResource(xrRef, xr)
+		claim.Object["compositeResource"] = xr
 
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
@@ -213,16 +214,15 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 			MRs = append(MRs, &mr)
 		}
+		claim.Object["managedResources"] = MRs
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
 
 		comp := uxres.New()
 		_ = c.getDynamicResource(compRef, comp)
-
-		claim.Object["managedResources"] = MRs
-		claim.Object["compositeResource"] = xr
 		claim.Object["composition"] = comp
+
 	}
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
 }
@@ -366,22 +366,47 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	ref := v12.ObjectReference{Name: ec.Param("name")}
 	ref.SetGroupVersionKind(gvk)
 
-	comp := uxres.New()
-	err := c.getDynamicResource(&ref, comp)
+	xr := uxres.New()
+	err := c.getDynamicResource(&ref, xr)
 	if err != nil {
 		return err
 	}
 
 	if ec.QueryParam("full") != "" {
 		// claim for it, if any
+		claimRef := xr.GetClaimReference()
+
+		if claimRef != nil {
+			claim := uxres.New()
+			_ = c.getDynamicResource(claimRef, claim)
+			xr.Object["claim"] = claim
+		}
+
 		// composition ref
+		compRef := xr.GetCompositionReference()
+		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
+
+		comp := uxres.New()
+		_ = c.getDynamicResource(compRef, comp)
+		xr.Object["composition"] = comp
+
 		// MR refs
+		MRs := []*ManagedUnstructured{}
+		for _, mrRef := range xr.GetResourceReferences() {
+			mr := ManagedUnstructured{}
+			_ = c.getDynamicResource(&mrRef, &mr)
+
+			MRs = append(MRs, &mr)
+		}
+		xr.Object["managedResources"] = MRs
 	}
 
-	return ec.JSONPretty(http.StatusOK, comp, "  ")
+	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
+	_ = ns // TODO
+
 	apiV1, err := crossplane.NewAPIv1Client(cfg)
 	if err != nil {
 		return nil, err

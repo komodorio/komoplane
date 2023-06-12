@@ -2,6 +2,7 @@ import {EdgeMarkerType} from "@reactflow/core/dist/esm/types/edges";
 import {Edge, MarkerType, Node} from "reactflow";
 import {NodeStatus} from "./CustomNodes.tsx";
 import {K8sResource} from "../../types.ts";
+import {logger} from "../../logger.ts";
 
 export enum NodeTypes {
     Claim = "claim",
@@ -69,6 +70,7 @@ export class GraphData {
     }
 
     private getStatus(res: K8sResource): [NodeStatus, string] {
+        logger.log("get status from", res)
         const problems: { [key: string]: string } = {}
 
         res.status?.conditions?.forEach((element) => {

@@ -1,12 +1,12 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {CompositeResource, ItemList, K8sResource} from "../types.ts";
+import {CompositeResource, CompositeResourceExtended, ItemList, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 import {useState} from "react";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import ConditionChips from "./ConditionChips.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
 import {GraphData, NodeTypes} from "./graph/data.ts";
 import apiClient from "../api.ts";
 import {logger} from "../logger.ts";
@@ -70,9 +70,9 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
     bridge.getGraph = (setter, setError) => {
-        const setData = (res: K8sResource) => {
-            const data = new GraphData()
-            data.addNode(NodeTypes.CompositeResource, res, true)
+        const setData = (res: CompositeResourceExtended) => {
+            logger.log("recv from API", res)
+            const data = xrToGraph(res, navigate)
             logger.log("set graph data", data.nodes)
             setter(data)
         }
@@ -102,3 +102,30 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         </>
     );
 }
+
+function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): GraphData {
+    const data = new GraphData()
+    const xr = data.addNode(NodeTypes.CompositeResource, res, true)
+
+    if (res.claim) {
+        const claim = data.addNode(NodeTypes.Claim, res.claim, false, () => {
+            navigate("/claims/" + res.claim?.metadata.name)
+        });
+        data.addEdge(xr, claim)
+    }
+
+    const composition = data.addNode(NodeTypes.Composition, res.composition, false, () => {
+        navigate("/compositions/" + res.composition.metadata.name)
+    });
+    data.addEdge(composition, xr)
+
+    res.managedResources?.map(res => {
+        const resId = data.addNode(NodeTypes.ManagedResource, res, false, () => {
+            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
+        });
+        data.addEdge(resId, xr)
+    })
+
+    return data
+}
+

@@ -13,8 +13,8 @@ import (
 func NewRouter(data *Controller, debug bool) *echo.Echo {
 	api := echo.New()
 	api.Debug = debug
-	if debug {
-		api.Use(middleware.Recover()) // TODO: is it right to do it under debug and not prod?
+	if !debug {
+		api.Use(middleware.Recover())
 	}
 
 	configureRoutes(data, api)

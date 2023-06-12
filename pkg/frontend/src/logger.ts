@@ -1,4 +1,11 @@
 // from https://www.meticulous.ai/blog/getting-started-with-react-logging
+// with date additions
+import {DateTime} from "luxon";
+import {getAge} from "./utils.ts";
+
+/* eslint no-console: "off" */
+
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 
 /** Signature of a logging function */
 export interface LogFn {
@@ -16,6 +23,7 @@ export interface Logger {
 export type LogLevel = 'log' | 'warn' | 'error';
 
 const NO_OP: LogFn = () => {
+    // noop
 };
 
 /** Logger which outputs to the browser console */
@@ -23,8 +31,10 @@ export class ConsoleLogger implements Logger {
     readonly log: LogFn;
     readonly warn: LogFn;
     readonly error: LogFn;
+    private readonly started: DateTime;
 
     constructor(options?: { level?: LogLevel }) {
+        this.started = DateTime.now()
         const {level} = options || {};
 
         this.error = console.error.bind(console);
@@ -44,7 +54,11 @@ export class ConsoleLogger implements Logger {
             return;
         }
 
-        this.log = console.log.bind(console);
+        const fn = console.log.bind(console);
+        this.log = (message?: any, ...optionalParams: any[]) => {
+            message = getAge(DateTime.now(), this.started) + " " + message
+            fn(message, ...optionalParams)
+        }
     }
 }
 

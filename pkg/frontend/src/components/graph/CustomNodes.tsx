@@ -45,7 +45,7 @@ function NodeStatusLine({data}: { data: { status: string, statusMsg: string } })
 
 function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
     return (
-        <Box className="border rounded border-gray-500" sx={{
+        <Box className="border rounded border-gray-600" sx={{
             backgroundColor: data.bgcolor,
             maxWidth: 300,
             borderWidth: data.main ? 3 : null,
@@ -56,7 +56,7 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
                 <Typography fontSize="x-small" className="uppercase text-xs">{data.type}</Typography>
             </Box>
             <Box className="px-3 py-1">
-                <Typography variant="h6">{data.label}</Typography>
+                <Typography variant="h6" sx={data.main?{ fontWeight: 'bold' }:{}}>{data.label}</Typography>
                 <NodeStatusLine data={data}/>
             </Box>
             <Handle type="target" position={targetPosition ? targetPosition : Position.Top}/>
