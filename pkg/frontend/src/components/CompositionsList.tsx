@@ -19,10 +19,10 @@ function ListItem({item, onItemClick}: ItemProps) {
             <Card variant="outlined" className="cursor-pointer">
                 <CardActionArea>
                     <CardContent>
-                        <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                        <Typography variant="h6">Composite Kind: {item.spec.compositeTypeRef.kind}</Typography>
-                        <Typography variant="h6">Composite Group: {item.spec.compositeTypeRef.apiVersion}</Typography>
-                        <Typography variant="h6">{item.spec.resources.length} resources composed</Typography>
+                        <Typography variant="h6">{item.metadata.name}</Typography>
+                        <Typography variant="body1">Composite Kind: {item.spec.compositeTypeRef.kind}</Typography>
+                        <Typography variant="body1">Composite Group: {item.spec.compositeTypeRef.apiVersion}</Typography>
+                        <Typography variant="body1">{item.spec.resources.length} resources composed</Typography>
                     </CardContent>
                 </CardActionArea>
             </Card>

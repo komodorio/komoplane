@@ -35,7 +35,7 @@ const ProviderPage = () => {
                 <Grid container spacing={2} alignItems="stretch">
                     <Grid item xs={12} md={6}>
                         <Paper className="p-4">
-                            <Typography variant="h6">Configuration</Typography>
+                            <Typography variant="h5">Configuration</Typography>
                             <Typography variant="body1">
                                 Package: {provider.spec.package}
                             </Typography>
@@ -44,24 +44,15 @@ const ProviderPage = () => {
                                     Controller Config: {provider.spec.controllerConfigRef.name}
                                 </Typography>
                             ) : (<></>)}
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Paper className="p-4">
-                            <Typography variant="h6">Status</Typography>
-                            <ConditionList conditions={provider.status?.conditions}></ConditionList>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Paper className="p-4">
+
                             <Typography variant="h6">Provider Configs</Typography>
                             <ProviderConfigs name={provider.metadata.name}></ProviderConfigs>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Paper className="p-4">
-                            <Typography variant="h6">Relations</Typography>
-                            <Typography variant="body1">Content for widget 4</Typography>
+                            <Typography variant="h6">Status</Typography>
+                            <ConditionList conditions={provider.status?.conditions}></ConditionList>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={12}>

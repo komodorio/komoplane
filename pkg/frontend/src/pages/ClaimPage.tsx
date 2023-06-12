@@ -1,7 +1,7 @@
-import {Alert, Grid, LinearProgress, Paper, Typography} from "@mui/material";
+import {Alert, Box, Grid, IconButton, LinearProgress, Paper, Typography} from "@mui/material";
 import {Edge, MarkerType, Node} from "reactflow";
 import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
-import {ClaimExtended, K8sResource} from "../types.ts";
+import {Claim, ClaimExtended, K8sResource} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
 import ConditionList from "../components/ConditionList.tsx";
@@ -11,12 +11,17 @@ import {NodeStatus} from "../components/graph/CustomNodes.tsx";
 import {EdgeMarkerType} from "@reactflow/core/dist/esm/types/edges";
 import HeaderBar from "../components/HeaderBar.tsx";
 import PageBody from "../components/PageBody.tsx";
+import InfoTabs, {ItemContext} from "../components/InfoTabs.tsx";
+import ConditionChips from "../components/ConditionChips.tsx";
+import InfoDrawer from "../components/InfoDrawer.tsx";
+import {DataObject as YAMLIcon} from '@mui/icons-material';
 
 export default function ClaimPage() {
     const {group: group, version: version, kind: kind, namespace: namespace, name: name} = useParams();
     const [claim, setClaim] = useState<ClaimExtended | null>(null);
     const [error, setError] = useState<object | null>(null);
     const navigate = useNavigate();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(false);
 
     useEffect(() => {
         apiClient.getClaim(group, version, kind, namespace, name)
@@ -34,6 +39,29 @@ export default function ClaimPage() {
 
     const data = graphDataFromClaim(claim, navigate);
 
+    // TODO: drawer part start, potential duplicate code
+    const onClose = () => {
+        setDrawerOpen(false)
+    }
+
+    const claimClean: Claim = { ...claim };
+    delete claimClean['managedResources']
+    delete claimClean['compositeResource']
+    delete claimClean['composition']
+
+    const bridge = new ItemContext()
+    bridge.setCurrent(claimClean)
+
+    const title = (<>
+        {claim.metadata.name}
+        <ConditionChips status={claim.status ? claim.status : {}}></ConditionChips>
+    </>)
+    // TODO: drawer part end
+
+    const onYaml=()=>{
+        setDrawerOpen(true)
+    }
+
     return (
         <>
             <HeaderBar title={claim.metadata.name} super="Claim"/>
@@ -41,7 +69,12 @@ export default function ClaimPage() {
                 <Grid container spacing={2} alignItems="stretch">
                     <Grid item xs={12} md={6}>
                         <Paper className="p-4">
-                            <Typography variant="h6">Configuration</Typography>
+                            <Box className="flex justify-between">
+                                <Typography variant="h6">Configuration</Typography>
+                                <IconButton onClick={onYaml} title="Show YAML">
+                                    <YAMLIcon/>
+                                </IconButton>
+                            </Box>
                             <Typography variant="body1">
                                 API Version: {claim.apiVersion}
                             </Typography>
@@ -73,6 +106,9 @@ export default function ClaimPage() {
                     </Grid>
                 </Grid>
             </PageBody>
+            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Claim" title={title}>
+                <InfoTabs bridge={bridge} initial="yaml" noRelations={true} noEvents={true} noStatus={true}></InfoTabs>
+            </InfoDrawer>
         </>
     );
 }

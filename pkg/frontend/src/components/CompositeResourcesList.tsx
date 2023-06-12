@@ -20,12 +20,11 @@ function ListItem({item, onItemClick}: ItemProps) {
         }}>
             <Card variant="outlined" className="cursor-pointer">
                 <CardContent>
-                    <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                    <Typography variant="h6">Kind: {item.kind}</Typography>
-                    <Typography variant="h6">Group: {item.apiVersion}</Typography>
-                    <Typography variant="h6">Composition: {item.spec.compositionRef.name}</Typography>
-                    <Typography variant="h6">Composed resources: {item.spec.resourceRefs.length}</Typography>
-
+                    <Typography variant="h6">{item.metadata.name}</Typography>
+                    <Typography variant="body1">Kind: {item.kind}</Typography>
+                    <Typography variant="body1">Group: {item.apiVersion}</Typography>
+                    <Typography variant="body1">Composition: {item.spec.compositionRef.name}</Typography>
+                    <Typography variant="body1">Composed resources: {item.spec.resourceRefs.length}</Typography>
                     <ReadySynced status={item.status}></ReadySynced>
                 </CardContent>
             </Card>

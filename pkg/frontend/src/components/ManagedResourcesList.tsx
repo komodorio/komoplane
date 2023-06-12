@@ -21,10 +21,10 @@ function ListItem({item, onItemClick}: ItemProps) {
             <Card variant="outlined" className="cursor-pointer">
                 <CardActionArea>
                     <CardContent>
-                        <Typography variant="h6">Name: {item.metadata.name}</Typography>
-                        <Typography variant="h6">Kind: {item.kind}</Typography>
-                        <Typography variant="h6">Group: {item.apiVersion}</Typography>
-                        <Typography variant="h6">Provider Config: {item.spec.providerConfigRef.name}</Typography>
+                        <Typography variant="h6">{item.metadata.name}</Typography>
+                        <Typography variant="body1">Kind: {item.kind}</Typography>
+                        <Typography variant="body1">Group: {item.apiVersion}</Typography>
+                        <Typography variant="body1">Provider Config: {item.spec.providerConfigRef.name}</Typography>
                         <ReadySynced status={item.status}></ReadySynced>
                     </CardContent>
                 </CardActionArea>
