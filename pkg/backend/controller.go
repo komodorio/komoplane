@@ -368,7 +368,10 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 	comp := uxres.New()
 	err := c.getDynamicResource(&ref, comp)
-	return err
+	if err != nil {
+		return err
+	}
+	return ec.JSONPretty(http.StatusOK, comp, "  ")
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
