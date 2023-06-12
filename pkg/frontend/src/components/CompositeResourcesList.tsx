@@ -1,3 +1,4 @@
+import {Edge, Node} from "reactflow";
 import {Card, CardContent, Grid} from '@mui/material';
 import {CompositeResource, ItemList, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
@@ -51,7 +52,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         setFocused(item)
         setDrawerOpen(true)
         navigate(
-            "./" + item.apiVersion+"/"+item.kind+"/"+item.metadata.name,
+            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
             {state: item}
         );
     }
@@ -59,17 +60,26 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     if (!focused.metadata.name && focusedName) {
         items?.items?.forEach((item) => {
             if (focusedName == item.metadata.name) {
-                onItemClick(item)
+                setFocused(item)
             }
         })
     }
 
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
+    bridge.getGraph = () => {
+        const nodes: Node[] = []
+        const edges: Edge[] = []
+
+        return {
+            nodes: nodes,
+            edges: edges,
+        }
+    }
 
     const title = (<>
         {focused.metadata.name}
-        <ConditionChips status={focused.status?focused.status:{}}></ConditionChips>
+        <ConditionChips status={focused.status ? focused.status : {}}></ConditionChips>
     </>)
 
     return (
@@ -81,9 +91,8 @@ export default function CompositeResourcesList({items}: ItemListProps) {
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
+                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
             </InfoDrawer>
         </>
-
     );
 }

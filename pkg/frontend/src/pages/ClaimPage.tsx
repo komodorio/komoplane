@@ -1,7 +1,7 @@
 import {Alert, Box, Grid, IconButton, LinearProgress, Paper, Typography} from "@mui/material";
 import {Edge, MarkerType, Node} from "reactflow";
 import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
-import {Claim, ClaimExtended, K8sResource} from "../types.ts";
+import {Claim, ClaimExtended, GraphData, K8sResource} from "../types.ts";
 import {useEffect, useState} from "react";
 import apiClient from "../api.ts";
 import ConditionList from "../components/ConditionList.tsx";
@@ -112,7 +112,7 @@ export default function ClaimPage() {
 }
 
 
-function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): { nodes: Node[], edges: Edge[] } {
+function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): GraphData {
     const nodes: Node[] = []
     const edges: Edge[] = []
     let id = 0
