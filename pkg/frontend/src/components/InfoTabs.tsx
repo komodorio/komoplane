@@ -92,9 +92,9 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
             <TabContext value={currentTabIndex}>
                 <Box sx={{borderBottom: 1, borderColor: 'divider'}} className="pl-2">
                     <TabList value={currentTabIndex} onChange={handleTabChange}>
+                        {noRelations ? null : (<Tab label='Relations' value="relations"/>)}
                         {noStatus ? null : (<Tab label='Status' value="status"/>)}
                         {noEvents ? null : (<Tab label='Events' value="events"/>)}
-                        {noRelations ? null : (<Tab label='Relations' value="relations"/>)}
                         <Tab label='YAML' value="yaml"/>
                     </TabList>
                 </Box>

@@ -11,7 +11,7 @@ import ReactFlow, {
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import {BaseSyntheticEvent} from "react";
-import {ClaimNode, CompositionNode, MRNode, XRNode} from "./CustomNodes.tsx"
+import {ClaimNode, CompositionNode, MRNode, ProviderConfigNode, XRNode} from "./CustomNodes.tsx"
 import {logger} from "../../logger.ts";
 
 
@@ -64,6 +64,7 @@ const nodeTypes = {
     composed: XRNode,
     managed: MRNode,
     composition: CompositionNode,
+    provConfig: ProviderConfigNode,
 };
 
 const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) => {

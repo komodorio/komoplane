@@ -97,7 +97,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
+                <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
             </InfoDrawer>
         </>
     );
@@ -105,24 +105,18 @@ export default function CompositeResourcesList({items}: ItemListProps) {
 
 function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): GraphData {
     const data = new GraphData()
-    const xr = data.addNode(NodeTypes.CompositeResource, res, true)
+    const xr = data.addNode(NodeTypes.CompositeResource, res, true, navigate)
 
     if (res.claim) {
-        const claim = data.addNode(NodeTypes.Claim, res.claim, false, () => {
-            navigate("/claims/" + res.claim?.metadata.name)
-        });
+        const claim = data.addNode(NodeTypes.Claim, res.claim, false, navigate);
         data.addEdge(xr, claim)
     }
 
-    const composition = data.addNode(NodeTypes.Composition, res.composition, false, () => {
-        navigate("/compositions/" + res.composition.metadata.name)
-    });
+    const composition = data.addNode(NodeTypes.Composition, res.composition, false, navigate);
     data.addEdge(composition, xr)
 
     res.managedResources?.map(res => {
-        const resId = data.addNode(NodeTypes.ManagedResource, res, false, () => {
-            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
-        });
+        const resId = data.addNode(NodeTypes.ManagedResource, res, false, navigate);
         data.addEdge(resId, xr)
     })
 

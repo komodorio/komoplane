@@ -1,12 +1,15 @@
 import {Card, CardActionArea, CardContent, Grid} from '@mui/material';
-import {ItemList, K8sResource, ManagedResource} from "../types.ts";
+import {ItemList, K8sResource, ManagedResource, ManagedResourceExtended} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import {useState} from "react";
 import ConditionChips from "./ConditionChips.tsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
+import {GraphData, NodeTypes} from "./graph/data.ts";
+import {logger} from "../logger.ts";
+import apiClient from "../api.ts";
 
 type ItemProps = {
     item: ManagedResource;
@@ -52,7 +55,7 @@ export default function ManagedResourcesList({items}: ItemListProps) {
         setFocused(item)
         setDrawerOpen(true)
         navigate(
-            "./" + item.apiVersion+"/"+item.kind+"/"+item.metadata.name,
+            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
             {state: item}
         );
     }
@@ -67,10 +70,23 @@ export default function ManagedResourcesList({items}: ItemListProps) {
 
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
+    bridge.getGraph = (setter, setError) => {
+        const setData = (res: ManagedResourceExtended) => {
+            logger.log("recv from API", res)
+            const data = resToGraph(res, navigate)
+            logger.log("set graph data", data.nodes)
+            setter(data)
+        }
+
+        const [group, version] = focused.apiVersion.split("/")
+        apiClient.getManagedResource(group, version, focused.kind, focused.metadata.name)
+            .then((data) => setData(data))
+            .catch((err) => setError(err))
+    }
 
     const title = (<>
         {focused.metadata.name}
-        <ConditionChips status={focused.status?focused.status:{}}></ConditionChips>
+        <ConditionChips status={focused.status ? focused.status : {}}></ConditionChips>
     </>)
 
     return (
@@ -80,10 +96,27 @@ export default function ManagedResourcesList({items}: ItemListProps) {
                     <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
                 ))}
             </Grid>
-            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource Definition"
+            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Managed Resource"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
+                <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
             </InfoDrawer>
         </>
     );
+}
+
+
+function resToGraph(res: ManagedResourceExtended, navigate: NavigateFunction): GraphData {
+    const data = new GraphData()
+    const main = data.addNode(NodeTypes.ManagedResource, res, true, navigate)
+    if (res.composite) {
+        const provConfig = data.addNode(NodeTypes.CompositeResource, res.composite, false, navigate)
+        data.addEdge(main, provConfig)
+    }
+
+    if (res.provConfig) {
+        const provConfig = data.addNode(NodeTypes.ProviderConfig, res.provConfig, false, navigate)
+        data.addEdge(provConfig, main)
+    }
+
+    return data
 }
