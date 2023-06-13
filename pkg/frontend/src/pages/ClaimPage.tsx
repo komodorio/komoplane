@@ -113,24 +113,18 @@ export default function ClaimPage() {
 function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): GraphData {
     const graphData = new GraphData()
 
-    const claimId = graphData.addNode(NodeTypes.Claim, claim, true)
+    const claimId = graphData.addNode(NodeTypes.Claim, claim, true, navigate)
 
-    const compId = graphData.addNode(NodeTypes.Composition, claim.composition, false, () => {
-        navigate("/compositions/" + claim.composition.metadata.name)
-    });
+    const compId = graphData.addNode(NodeTypes.Composition, claim.composition, false, navigate);
     graphData.addEdge(compId, claimId)
 
-    const xrId = graphData.addNode(NodeTypes.CompositeResource, claim.compositeResource, false, () => {
-        navigate("/composite/" + claim.compositeResource.apiVersion + "/" + claim.compositeResource.kind + "/" + claim.compositeResource.metadata.name) // FIXME: don't do if resource is missing!
-    });
+    const xrId = graphData.addNode(NodeTypes.CompositeResource, claim.compositeResource, false, navigate);
     graphData.addEdge(xrId, claimId)
 
     // TODO: check that composite resource points to the same composition and draw line between them
 
     claim.managedResources?.map(res => {
-        const resId = graphData.addNode(NodeTypes.ManagedResource, res, false, () => {
-            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
-        });
+        const resId = graphData.addNode(NodeTypes.ManagedResource, res, false, navigate);
         graphData.addEdge(resId, xrId)
     })
 

@@ -37,8 +37,7 @@ type Controller struct {
 	Events     crossplane.EventsInterface
 	CRDs       crossplane.CRDInterface
 	ctx        context.Context
-
-	provCRDs map[string][]*v1.CustomResourceDefinition
+	apiExt     *apiextensionsv1.ApiextensionsV1Client
 }
 
 type ConditionedObject interface {
@@ -47,7 +46,25 @@ type ConditionedObject interface {
 	resource.Conditioned
 }
 
-type ManagedUnstructured = uxres.Unstructured // no dedicated type for it in base CP
+type ManagedUnstructured struct { // no dedicated type for it in base CP
+	uxres.Unstructured
+}
+
+func (m *ManagedUnstructured) GetProviderConfigReference() *xpv1.Reference {
+	// TODO: find a way to organize code better
+	// TODO: check field existence
+	spec := m.Object["spec"].(map[string]interface{})
+	ref := spec["providerConfigRef"].(map[string]interface{})
+
+	return &xpv1.Reference{
+		Name: ref["name"].(string),
+	}
+}
+
+func (m *ManagedUnstructured) SetProviderConfigReference(p *xpv1.Reference) {
+	//TODO implement me
+	panic("implement me")
+}
 
 func (c *Controller) GetStatus() StatusInfo {
 	return c.StatusInfo
@@ -92,8 +109,27 @@ func (c *Controller) GetProviderEvents(ec echo.Context) error {
 }
 
 func (c *Controller) GetProviderConfigs(ec echo.Context) error {
-	provCRDs, ok := c.provCRDs[ec.Param("name")]
-	if ok {
+	res, err := c.GetProviderConfigsInner(ec.Param("name"))
+	if err != nil {
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, res, "  ")
+
+}
+
+func (c *Controller) GetProviderConfigsInner(provName string) (*unstructured.UnstructuredList, error) {
+	allProvCRDs, err := c.LoadCRDs()
+	if err != nil {
+		return nil, err
+	}
+
+	list := unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
+	for k, provCRDs := range allProvCRDs {
+		if provName != "" && k != provName {
+			continue
+		}
+
 		for _, crd := range provCRDs {
 			// we're relying here on the naming standard for CRDs in all providers, which is not guaranteed
 			if crd.Spec.Names.Kind == cpk8s.ProviderConfigKind {
@@ -104,36 +140,32 @@ func (c *Controller) GetProviderConfigs(ec echo.Context) error {
 				}
 				res, err := c.CRDs.List(c.ctx, gvk)
 				if err != nil {
-					return err
+					return nil, err
 				}
-				return ec.JSONPretty(http.StatusOK, res, "  ")
+				list.Items = append(list.Items, res.Items...)
 			}
 		}
 	}
 
-	return ec.NoContent(http.StatusNotFound)
+	return &list, nil
 }
 
-func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
+func (c *Controller) LoadCRDs() (map[string][]*v1.CustomResourceDefinition, error) {
 	// FIXME: a misplaced method!
+	// FIXME: quite expensive method to call
 
 	// Create the API Extensions clientset
-	apiExtensionsClientset, err := apiextensionsv1.NewForConfig(config)
+	providers, err := c.APIv1.Providers().List(c.ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	providers, err := c.APIv1.Providers().List(ctx)
+	crdList, err := c.apiExt.CustomResourceDefinitions().List(c.ctx, metav1.ListOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	crdList, err := apiExtensionsClientset.CustomResourceDefinitions().List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-
-	c.provCRDs = map[string][]*v1.CustomResourceDefinition{}
+	provCRDs := map[string][]*v1.CustomResourceDefinition{}
 
 	for _, crd := range crdList.Items {
 		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
@@ -142,18 +174,18 @@ func (c *Controller) LoadCRDs(ctx context.Context, config *rest.Config) error {
 			if ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version {
 				for _, prov := range providers.Items {
 					if prov.Name == ref.Name {
-						if _, ok := c.provCRDs[prov.Name]; !ok {
-							c.provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
+						if _, ok := provCRDs[prov.Name]; !ok {
+							provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
 						}
 
-						c.provCRDs[prov.Name] = append(c.provCRDs[prov.Name], &crdCopy)
+						provCRDs[prov.Name] = append(provCRDs[prov.Name], &crdCopy)
 						break refLoop
 					}
 				}
 			}
 		}
 	}
-	return nil
+	return provCRDs, nil
 }
 
 func (c *Controller) GetClaims(ec echo.Context) error {
@@ -259,9 +291,14 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 	return err
 }
 
-func (c *Controller) GetManaged(ec echo.Context) error {
+func (c *Controller) GetManageds(ec echo.Context) error {
+	provCRDs, err := c.LoadCRDs()
+	if err != nil {
+		return err
+	}
+
 	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
-	for _, mrd := range c.allMRDs() {
+	for _, mrd := range c.allMRDs(provCRDs) {
 		if mrd.Spec.Names.Kind == cpk8s.ProviderConfigKind || mrd.Spec.Names.Kind == cpk8s.ProviderConfigUsageKind {
 			log.Debugf("Skipping %s/%s from listing of all MRs", mrd.Spec.Group, mrd.Spec.Names.Kind)
 			continue
@@ -283,13 +320,68 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
-func (c *Controller) allMRDs() []*v1.CustomResourceDefinition {
+func (c *Controller) allMRDs(provCRDs map[string][]*v1.CustomResourceDefinition) []*v1.CustomResourceDefinition {
 	res := []*v1.CustomResourceDefinition{}
-	for _, crds := range c.provCRDs {
+	for _, crds := range provCRDs {
 		res = append(res, crds...)
 	}
 
 	return res
+}
+
+func (c *Controller) GetManaged(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{Name: ec.Param("name")}
+	ref.SetGroupVersionKind(gvk)
+
+	xr := ManagedUnstructured{}
+	err := c.getDynamicResource(&ref, &xr)
+	if err != nil {
+		return err
+	}
+
+	if ec.QueryParam("full") != "" {
+		// provider config
+		provConfigRef := xr.GetProviderConfigReference()
+
+		if provConfigRef != nil {
+			pcs, err := c.GetProviderConfigsInner("")
+			if err != nil {
+				return err
+			}
+
+			ref := v12.ObjectReference{Name: provConfigRef.Name}
+			for _, item := range pcs.Items {
+				if item.GetName() == provConfigRef.Name {
+					ref.SetGroupVersionKind(item.GroupVersionKind())
+					ref.Name = item.GetName()
+				}
+			}
+
+			pc := uxres.New()
+			_ = c.getDynamicResource(&ref, pc)
+			xr.Object["provConfig"] = pc
+		}
+
+		// composite resource
+		oRefs := xr.GetOwnerReferences()
+		for _, oRef := range oRefs {
+			comp := uxres.New()
+			ref := v12.ObjectReference{
+				Kind:       oRef.Kind,
+				Name:       oRef.Name,
+				APIVersion: oRef.APIVersion,
+			}
+			_ = c.getDynamicResource(&ref, comp)
+			xr.Object["composite"] = comp
+		}
+	}
+
+	return ec.JSONPretty(http.StatusOK, xr.Object, "  ")
 }
 
 func (c *Controller) GetComposites(ec echo.Context) error {
@@ -422,20 +514,21 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		return nil, err
 	}
 
+	apiExt, err := apiextensionsv1.NewForConfig(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	controller := Controller{
 		ctx:    ctx,
 		APIv1:  apiV1,
 		ExtV1:  ext,
 		Events: evt,
+		apiExt: apiExt,
 		CRDs:   crossplane.NewCRDsClient(cfg),
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},
-	}
-
-	err = controller.LoadCRDs(ctx, cfg)
-	if err != nil {
-		return nil, err
 	}
 
 	return &controller, nil

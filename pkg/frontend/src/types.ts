@@ -84,6 +84,11 @@ export type ManagedResource = K8sResource & {
     status: Status
 }
 
+export type ManagedResourceExtended = ManagedResource & {
+    composite?: CompositeResource
+    provConfig?: ProviderConfig
+}
+
 export type CompositeResource = K8sResource & {
     spec: {
         claimRef?: Reference

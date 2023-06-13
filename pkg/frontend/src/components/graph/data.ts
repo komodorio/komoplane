@@ -3,12 +3,18 @@ import {Edge, MarkerType, Node} from "reactflow";
 import {NodeStatus} from "./CustomNodes.tsx";
 import {K8sResource} from "../../types.ts";
 import {logger} from "../../logger.ts";
+import {NavigateFunction} from "react-router-dom";
 
 export enum NodeTypes {
     Claim = "claim",
     Composition = "composition",
     CompositeResource = "composed",
     ManagedResource = "managed",
+    ProviderConfig = "provConfig",
+}
+
+const NOOP = () => {
+    // noop
 }
 
 export class GraphData {
@@ -16,8 +22,10 @@ export class GraphData {
     public nodes: Node[] = []
     public edges: Edge[] = []
 
-    public addNode(ntype: NodeTypes, res: K8sResource, isMain?: boolean, onClick?: () => void): Node {
+    public addNode(ntype: NodeTypes, res: K8sResource, isMain: boolean, navigate: NavigateFunction): Node {
         const status = this.getStatus(res)
+        const onClick = this.genOnClick(ntype, res, isMain, navigate)
+        logger.log("OnClick", onClick == NOOP)
         const node = {
             id: (++this.id).toString(),
             type: ntype,
@@ -26,7 +34,7 @@ export class GraphData {
                 status: status[0],
                 statusMsg: status[1],
                 main: isMain,
-                onClick: onClick,
+                onClick: onClick == NOOP ? undefined : onClick,
             },
             position: {x: 0, y: 0},
         };
@@ -79,6 +87,8 @@ export class GraphData {
             }
         });
 
+        logger.log("status " + res.metadata.name, problems)
+
         if (problems["Found"]) {
             return [NodeStatus.NotFound, problems["Found"]]
         } else if (problems["Healthy"]) {
@@ -90,5 +100,36 @@ export class GraphData {
         }
 
         return [NodeStatus.Ok, ""]
+    }
+
+    private genOnClick(ntype: NodeTypes, res: K8sResource, isMain: boolean | undefined, navigate: NavigateFunction): () => void {
+        const [status,] = this.getStatus(res)
+
+        if (isMain || status == NodeStatus.NotFound) {
+            return NOOP
+        }
+
+        let url = "/"
+        switch (ntype) {
+            case NodeTypes.Claim:
+                url = "/claims/" + res.apiVersion + '/' + res.kind + '/' + res.metadata.namespace + '/' + res.metadata.name
+                break;
+            case NodeTypes.Composition:
+                url = "/compositions/" + res.metadata.name
+                break;
+            case NodeTypes.CompositeResource:
+                url = "/composite/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                break;
+            case NodeTypes.ManagedResource:
+                url = "/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                break;
+            default:
+                logger.warn("Unhandled node type", ntype)
+                return NOOP
+        }
+
+        return () => {
+            navigate(url)
+        }
     }
 }

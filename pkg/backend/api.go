@@ -107,7 +107,8 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	claims.GET("/:group/:version/:kind/:namespace/:name", data.GetClaim)
 
 	managed := api.Group("/managed")
-	managed.GET("", data.GetManaged)
+	managed.GET("", data.GetManageds)
+	managed.GET("/:group/:version/:kind/:name", data.GetManaged)
 
 	composite := api.Group("/composite")
 	composite.GET("", data.GetComposites)
