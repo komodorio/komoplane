@@ -28,17 +28,32 @@ Refactor backend controller for cleaner arch
 
 ### Claims
 
+Add link to XRD to graph
+
 ### XRs
 
+Add link to XRD to graph
 Turn it into table
 
 ### MRs
 
 Turn it into table
 
+Show claim name
+
+Show status at provider
+
+Provider config ref available
+
+On the graph:
+  provider config
+  claim
+  XR
+
 ### Providers
 
-Solve empty relations
+Improve provider configs display
+Somehow display provider config and controller config YAMLs
 
 ### Compositions
 
