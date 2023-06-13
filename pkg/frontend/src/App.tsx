@@ -55,11 +55,10 @@ export default function App() {
                         sx={{
                             width: drawerWidth,
                             zIndex: 100,
+                            backgroundColor: "#061431",
                             '& .MuiDrawer-paper': {
                                 width: drawerWidth,
-                                //boxSizing: 'border-box',
                             },
-                            backgroundColor: "#061431",
                         }}
                         hideBackdrop={true}
                         variant="persistent"

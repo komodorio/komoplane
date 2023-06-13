@@ -12,7 +12,7 @@ Download standalone binary from Releases. Use `KUBECONTEXT` env variable to poin
 
 ## Roadmap
 
-Milestone 1: Local helm install, images in registry, user analytics, update check
+Milestone 1: Local helm install, images in registry, user analytics
 
 help buttons to explain and link to CP learning
 
