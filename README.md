@@ -30,6 +30,8 @@ Make Relations the first tab
 
 Make watcher-based resource tracker, to avoid re-reading all CRDs
 
+For providerConfig nodes, add YAML modal
+
 ### Claims
 
 Add link to XRD to graph
