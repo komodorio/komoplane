@@ -34,7 +34,16 @@ func (s *Server) StartServer(ctx context.Context) (string, ControlChan, error) {
 	}
 
 	isDevModeWithAnalytics := os.Getenv("HD_DEV_ANALYTICS") == "true"
+	data.StatusInfo.CurVer = os.Getenv("KP_VERSION")
+	data.StatusInfo.LatestVer = os.Getenv("KP_VERSION")
+	if s.Debug {
+		data.StatusInfo.LatestVer += ".1-dev" // for testing the notifications
+	}
 	data.StatusInfo.Analytics = (!s.NoTracking && s.Version != "0.0.0") || isDevModeWithAnalytics
+
+	if data.StatusInfo.Analytics {
+		log.Infof("User analytics is collected to improve the quality, disable it with --no-analytics")
+	}
 
 	go checkUpgrade(&data.StatusInfo)
 
@@ -88,16 +97,15 @@ func checkUpgrade(d *StatusInfo) { // TODO: check it once an hour
 
 	if r.StatusCode >= http.StatusBadRequest {
 		log.Warnf("Failed to check for new version: status %d", r.StatusCode)
-		return
+	} else {
+		target := new(GHRelease)
+		err = json.NewDecoder(r.Body).Decode(target)
+		if err != nil {
+			log.Warnf("Failed to decode new release version: %s", err)
+		} else {
+			d.LatestVer = target.Name
+		}
 	}
-
-	target := new(GHRelease)
-	err = json.NewDecoder(r.Body).Decode(target)
-	if err != nil {
-		log.Warnf("Failed to decode new release version: %s", err)
-		return
-	}
-	d.LatestVer = target.Name
 
 	v1, err := version.NewVersion(d.CurVer)
 	if err != nil {

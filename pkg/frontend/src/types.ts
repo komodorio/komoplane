@@ -1,3 +1,9 @@
+export type AppStatus = {
+    CurVer: string;
+    LatestVer: string;
+    Analytics: boolean;
+}
+
 export type ItemList<S> = {
     items: S[]
 }

@@ -15,6 +15,7 @@ import CompositeIcon from '@mui/icons-material/PolylineTwoTone';
 import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
 import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
+import GHIcon from '@mui/icons-material/GitHub';
 import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
@@ -27,6 +28,7 @@ import CompositeResourcesPage from "./pages/CompositeResourcesPage.tsx";
 import CompositionsPage from "./pages/CompositionsPage.tsx";
 import XRDsPage from "./pages/XRDsPage.tsx";
 import {themeDark, themeLight} from "./theme.ts";
+import UpgradeNotifier from "./components/UpgradeNotifier.tsx";
 
 const drawerWidth = 260;
 
@@ -58,7 +60,8 @@ export default function App() {
                                 width: drawerWidth,
                                 boxSizing: 'border-box',
                             },
-                            backgroundColor: "#061431"
+                            backgroundColor: "#061431",
+                            flexDirection: 'column'
                         }}
                         hideBackdrop={true}
                         variant="persistent"
@@ -130,6 +133,29 @@ export default function App() {
                                 </ListItemButton>
                             </ListItem>
                         </List>
+                        <Divider/>
+                        <Box className="pt-20" sx={{
+                            // FIXME: how to align it at the bottom of the drawer?
+                            // display: 'flex',
+                            flexGrow: 1,
+                            flexDirection: 'column',
+                            //alignSelf: 'flex-end',
+                            alignItems: 'end',
+                            //alignContent: 'end',
+                        }}
+                             justifyContent="bottom">
+                            <List>
+                                <ListItem>
+                                    <ListItemButton component={Link} href="https://github.com/komodorio/komoplane">
+                                        <ListItemIcon>
+                                            <GHIcon/>
+                                        </ListItemIcon>
+                                        <ListItemText primary="Project Page"/>
+                                    </ListItemButton>
+                                </ListItem>
+                            </List>
+                            <UpgradeNotifier/>
+                        </Box>
                     </Drawer>
                 </ThemeProvider>
                 <Box className={"bg-gray-50"} sx={{
