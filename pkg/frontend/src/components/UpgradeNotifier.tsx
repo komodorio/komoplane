@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {AppStatus} from "../types.ts";
 import apiClient from "../api.ts";
 import {Alert, Link} from "@mui/material";
 import LinearProgress from "@mui/material/LinearProgress";
 
-export default function UpgradeNotifier(): React.ReactNode {
+export default function UpgradeNotifier() {
     const [status, setEvents] = useState<AppStatus | null>(null);
     const [error, setError] = useState<object | undefined>(undefined);
 
@@ -28,7 +28,7 @@ export default function UpgradeNotifier(): React.ReactNode {
         return (
             <Alert severity="info">
                 <Link color="inherit" href="https://github.com/komodorio/komoplane/releases">
-                    New version available: {status.LatestVer}
+                    New komoplane version available: {status.LatestVer}
                 </Link>
             </Alert>
         );
