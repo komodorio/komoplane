@@ -68,13 +68,13 @@ const nodeTypes = {
 
 const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) => {
     logger.log("Render initial", initialNodes)
+
+    // FIXME: something wrong is happening here or in the calling code, not always layouted properly
     const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(
         initialNodes,
         initialEdges,
         "RL"
     );
-
-    logger.log("Render layouted", layoutedNodes)
 
     const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
     const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
@@ -85,7 +85,7 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
         }
     }
 
-    logger.log("Render", layoutedNodes)
+    logger.log("Render")
 
     return (
         <ReactFlow
