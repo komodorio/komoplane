@@ -1,4 +1,13 @@
-import ReactFlow, {Background, ConnectionLineType, Controls, Edge, Node, Position} from 'reactflow';
+import ReactFlow, {
+    Background,
+    ConnectionLineType,
+    Controls,
+    Edge,
+    Node,
+    Position,
+    useEdgesState,
+    useNodesState
+} from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import {BaseSyntheticEvent} from "react";
@@ -67,6 +76,9 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
 
     logger.log("Render layouted", layoutedNodes)
 
+    const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
+    const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
+
     const onNodeClick = (_: BaseSyntheticEvent, element: Node | Edge) => {
         if (element.data.onClick) {
             element.data.onClick()
@@ -78,8 +90,10 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
     return (
         <ReactFlow
             nodeTypes={nodeTypes}
-            nodes={layoutedNodes}
-            edges={layoutedEdges}
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
             connectionLineType={ConnectionLineType.SmoothStep}
             nodesConnectable={false}
             onNodeClick={onNodeClick}

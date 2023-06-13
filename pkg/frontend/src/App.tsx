@@ -73,10 +73,8 @@ export default function App() {
                                     <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
                                         <Typography variant="h4" sx={{letterSpacing: "0.1rem"}}> komoplane</Typography>
                                     </Link>
-
                                 </Box>
                             </Box>
-
                         </DrawerHeader>
                         <Divider/>
                         <List>
