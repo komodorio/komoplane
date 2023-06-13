@@ -14,6 +14,7 @@ export enum NodeTypes {
 }
 
 const NOOP = () => {
+    // noop
 }
 
 export class GraphData {
@@ -102,7 +103,7 @@ export class GraphData {
     }
 
     private genOnClick(ntype: NodeTypes, res: K8sResource, isMain: boolean | undefined, navigate: NavigateFunction): () => void {
-        const [status, _] = this.getStatus(res)
+        const [status,] = this.getStatus(res)
 
         if (isMain || status == NodeStatus.NotFound) {
             return NOOP
