@@ -1,4 +1,5 @@
 import {
+    AppStatus,
     Claim,
     ClaimExtended,
     CompositeResource,
@@ -99,6 +100,12 @@ class APIClient {
         const data: ItemList<XRD> = await response.json();
         return data;
     };
+
+    getStatus = async () => {
+        const response = await this.innterFetch(`/status`);
+        const data: AppStatus = await response.json();
+        return data;
+    }
 }
 
 let baseURL = ""

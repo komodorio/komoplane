@@ -76,10 +76,6 @@ func main() {
 		}
 	}
 
-	if !opts.NoTracking {
-		log.Infof("User analytics is collected to improve the quality, disable it with --no-analytics")
-	}
-
 	log.Infof("Access web UI at: %s", address)
 
 	<-webServerDone

@@ -1,3 +1,4 @@
+import LaunchIcon from '@mui/icons-material/Launch';
 import LogoImage from "./assets/logo.svg";
 import {styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -15,6 +16,8 @@ import CompositeIcon from '@mui/icons-material/PolylineTwoTone';
 import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
 import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
+import GHIcon from '@mui/icons-material/GitHub';
+import SlackIcon from '@mui/icons-material/SupportTwoTone';
 import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
@@ -27,6 +30,7 @@ import CompositeResourcesPage from "./pages/CompositeResourcesPage.tsx";
 import CompositionsPage from "./pages/CompositionsPage.tsx";
 import XRDsPage from "./pages/XRDsPage.tsx";
 import {themeDark, themeLight} from "./theme.ts";
+import UpgradeNotifier from "./components/UpgradeNotifier.tsx";
 
 const drawerWidth = 260;
 
@@ -52,13 +56,11 @@ export default function App() {
                     <Drawer
                         sx={{
                             width: drawerWidth,
-                            flexShrink: 0,
                             zIndex: 100,
+                            backgroundColor: "#061431",
                             '& .MuiDrawer-paper': {
                                 width: drawerWidth,
-                                boxSizing: 'border-box',
                             },
-                            backgroundColor: "#061431"
                         }}
                         hideBackdrop={true}
                         variant="persistent"
@@ -66,70 +68,109 @@ export default function App() {
                         open={true}
                         PaperProps={{sx: {backgroundColor: "transparent", color: "white"}}}
                     >
-                        <DrawerHeader>
-                            <Box className="flex justify-between flex-row py-3 pb-5">
-                                <img src={LogoImage} style={{height: "2rem"}} alt="KP" className="pt-2 mr-2"/>
-                                <Box className="text-center">
-                                    <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
-                                        <Typography variant="h4" sx={{letterSpacing: "0.1rem"}}> komoplane</Typography>
-                                    </Link>
-                                </Box>
+                        <Box className="flex flex-col grow justify-between">
+                            <Box>
+                                <DrawerHeader>
+                                    <Box className="flex justify-between flex-row py-3 pb-5">
+                                        <img src={LogoImage} style={{height: "2rem"}} alt="KP" className="pt-2 mr-2"/>
+                                        <Box className="text-center">
+                                            <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
+                                                <Typography variant="h4"
+                                                            sx={{letterSpacing: "0.1rem"}}> komoplane</Typography>
+                                            </Link>
+                                        </Box>
+                                    </Box>
+                                </DrawerHeader>
+                                <Divider/>
+                                <List>
+                                    <ListItem key="Claims" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/claims">
+                                            <ListItemIcon>
+                                                <ClaimsIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Claims"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem key="Composite Resources" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/composite">
+                                            <ListItemIcon>
+                                                <CompositeIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Composite Resources"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem key="Managed Resources" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/managed">
+                                            <ListItemIcon>
+                                                <ManagedIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Managed Resources"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem key="Providers" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/providers">
+                                            <ListItemIcon>
+                                                <ProvidersIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Providers"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
+                                <Divider/>
+                                <List>
+                                    <ListItem key="Compositions" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/compositions">
+                                            <ListItemIcon>
+                                                <CompositionsIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Compositions"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem key="XRDs" disablePadding>
+                                        <ListItemButton component={RouterLink} to="/xrds">
+                                            <ListItemIcon>
+                                                <XRDsIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="XRDs"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
                             </Box>
-                        </DrawerHeader>
-                        <Divider/>
-                        <List>
-                            <ListItem key="Claims" disablePadding>
-                                <ListItemButton component={RouterLink} to="/claims">
-                                    <ListItemIcon>
-                                        <ClaimsIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Claims"/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem key="Composite Resources" disablePadding>
-                                <ListItemButton component={RouterLink} to="/composite">
-                                    <ListItemIcon>
-                                        <CompositeIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Composite Resources"/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem key="Managed Resources" disablePadding>
-                                <ListItemButton component={RouterLink} to="/managed">
-                                    <ListItemIcon>
-                                        <ManagedIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Managed Resources"/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem key="Providers" disablePadding>
-                                <ListItemButton component={RouterLink} to="/providers">
-                                    <ListItemIcon>
-                                        <ProvidersIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Providers"/>
-                                </ListItemButton>
-                            </ListItem>
-                        </List>
-                        <Divider/>
-                        <List>
-                            <ListItem key="Compositions" disablePadding>
-                                <ListItemButton component={RouterLink} to="/compositions">
-                                    <ListItemIcon>
-                                        <CompositionsIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="Compositions"/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem key="XRDs" disablePadding>
-                                <ListItemButton component={RouterLink} to="/xrds">
-                                    <ListItemIcon>
-                                        <XRDsIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary="XRDs"/>
-                                </ListItemButton>
-                            </ListItem>
-                        </List>
+                            <Box className="pt-20">
+                                <UpgradeNotifier/>
+                                <Box className="flex gap-2 border rounded m-3 p-3">
+                                    <Box className="flex flex-col">
+                                        <Link href="https://komodor.com/" className="font-bold">
+                                            <Box className="flex items-center gap-2">
+                                                More Kubernetes tooling by Komodor.com
+                                                <LaunchIcon className="w-[14px] h-[14px]"/>
+                                            </Box>
+                                        </Link>
+                                        <Typography variant="body2">
+                                            Auth & RBAC, k8s events, troubleshooting and more
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <List>
+                                    <ListItem disablePadding>
+                                        <ListItemButton component={Link} href="https://join.slack.com/t/komodorkommunity/shared_invite/zt-1lz4cme86-2zIKTRtTFnzL_UNxaUS9yw">
+                                            <ListItemIcon>
+                                                <SlackIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Slack Community"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton component={Link} href="https://github.com/komodorio/komoplane">
+                                            <ListItemIcon>
+                                                <GHIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Project Page"/>
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
+                            </Box>
+                        </Box>
                     </Drawer>
                 </ThemeProvider>
                 <Box className={"bg-gray-50"} sx={{
@@ -157,5 +198,6 @@ export default function App() {
                 </Box>
             </Box>
         </BrowserRouter>
-    );
+    )
+        ;
 }
