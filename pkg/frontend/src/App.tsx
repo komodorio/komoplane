@@ -1,3 +1,4 @@
+import LaunchIcon from '@mui/icons-material/Launch';
 import LogoImage from "./assets/logo.svg";
 import {styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -16,6 +17,7 @@ import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
 import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 import GHIcon from '@mui/icons-material/GitHub';
+import SlackIcon from '@mui/icons-material/SupportTwoTone';
 import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
@@ -136,7 +138,28 @@ export default function App() {
                             </Box>
                             <Box className="pt-20">
                                 <UpgradeNotifier/>
+                                <Box className="flex gap-2 border rounded m-3 p-3">
+                                    <Box className="flex flex-col">
+                                        <Link href="https://komodor.com/" className="font-bold">
+                                            <Box className="flex items-center gap-2">
+                                                More Kubernetes tooling by Komodor.com
+                                                <LaunchIcon className="w-[14px] h-[14px]"/>
+                                            </Box>
+                                        </Link>
+                                        <Typography variant="body2">
+                                            Auth & RBAC, k8s events, troubleshooting and more
+                                        </Typography>
+                                    </Box>
+                                </Box>
                                 <List>
+                                    <ListItem disablePadding>
+                                        <ListItemButton component={Link} href="https://join.slack.com/t/komodorkommunity/shared_invite/zt-1lz4cme86-2zIKTRtTFnzL_UNxaUS9yw">
+                                            <ListItemIcon>
+                                                <SlackIcon/>
+                                            </ListItemIcon>
+                                            <ListItemText primary="Slack Community"/>
+                                        </ListItemButton>
+                                    </ListItem>
                                     <ListItem disablePadding>
                                         <ListItemButton component={Link} href="https://github.com/komodorio/komoplane">
                                             <ListItemIcon>
