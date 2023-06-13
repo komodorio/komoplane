@@ -14,7 +14,7 @@ Download standalone binary from Releases. Use `KUBECONTEXT` env variable to poin
 
 Milestone 1: Local helm install, images in registry, user analytics
 
-help buttons to explain and link to CP learning
+help buttons in page header to explain and link to CP learning
 
 Make event type be aligned better in event list
 
