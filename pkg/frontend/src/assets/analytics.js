@@ -13,15 +13,13 @@ const BASE_ANALYTIC_MSG = {
     referrerPolicy: "no-referrer"
 }
 xhr.onload = function () {
-    if (xhr.readyState === XMLHttpRequest.DONE) {
+    if (xhr.readyState === XMLHttpRequest.DONE && xhr.responseText.startsWith("{")) {
         const status = JSON.parse(xhr.responseText);
         const version = status.CurVer
         if (status.Analytics) {
             enableDD(version)
             enableHeap(version, status.ClusterMode)
             enableSegmentBackend(version, status.ClusterMode)
-        } else {
-            console.log("Analytics is disabled in this session")
         }
     }
 }

@@ -46,8 +46,8 @@ function isNewerVersion(oldVer: string, newVer: string) {
         newVer = newVer.substring(1)
     }
 
-    const oldParts = oldVer.split(/[.\-]/)
-    const newParts = newVer.split(/[.\-]/)
+    const oldParts = oldVer.split(/[.-]/)
+    const newParts = newVer.split(/[.-]/)
 
     for (let i = 0; i < newParts.length; i++) {
         const a = ~~newParts[i] // parse int
