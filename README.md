@@ -22,9 +22,13 @@ Decide on presentation approach: info drawer or dedicated pages
 
 Detect crossplane is not installed and tell user to install it first
 
-Refactor common code around drawer display => <ListWithDrawer?/>
+Refactor common code around drawer display => <ResourceListWithDrawer?/>
 
 Refactor backend controller for cleaner arch
+
+Make Relations the first tab
+
+Make watcher-based resource tracker, to avoid re-reading all CRDs
 
 ### Claims
 
@@ -44,11 +48,6 @@ Show claim name
 Show status at provider
 
 Provider config ref available
-
-On the graph:
-  provider config
-  claim
-  XR
 
 ### Providers
 

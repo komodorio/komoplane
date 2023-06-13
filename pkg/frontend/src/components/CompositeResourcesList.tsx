@@ -97,7 +97,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
+                <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
             </InfoDrawer>
         </>
     );

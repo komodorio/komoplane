@@ -7,9 +7,13 @@ import {NavigateFunction} from "react-router-dom";
 
 export enum NodeTypes {
     Claim = "claim",
-    Composition = "composition", // TODO: do we need to display it at all? Kinda useless node, no status etc
+    Composition = "composition",
     CompositeResource = "composed",
     ManagedResource = "managed",
+    ProviderConfig = "provConfig",
+}
+
+const NOOP = () => {
 }
 
 export class GraphData {
@@ -19,6 +23,8 @@ export class GraphData {
 
     public addNode(ntype: NodeTypes, res: K8sResource, isMain: boolean, navigate: NavigateFunction): Node {
         const status = this.getStatus(res)
+        const onClick = this.genOnClick(ntype, res, isMain, navigate)
+        logger.log("OnClick", onClick == NOOP)
         const node = {
             id: (++this.id).toString(),
             type: ntype,
@@ -27,7 +33,7 @@ export class GraphData {
                 status: status[0],
                 statusMsg: status[1],
                 main: isMain,
-                onClick: this.genOnClick(ntype, res, isMain, navigate),
+                onClick: onClick == NOOP ? undefined : onClick,
             },
             position: {x: 0, y: 0},
         };
@@ -80,6 +86,8 @@ export class GraphData {
             }
         });
 
+        logger.log("status " + res.metadata.name, problems)
+
         if (problems["Found"]) {
             return [NodeStatus.NotFound, problems["Found"]]
         } else if (problems["Healthy"]) {
@@ -97,8 +105,7 @@ export class GraphData {
         const [status, _] = this.getStatus(res)
 
         if (isMain || status == NodeStatus.NotFound) {
-            return () => {
-            }
+            return NOOP
         }
 
         let url = "/"
@@ -117,8 +124,7 @@ export class GraphData {
                 break;
             default:
                 logger.warn("Unhandled node type", ntype)
-                return () => {
-                }
+                return NOOP
         }
 
         return () => {

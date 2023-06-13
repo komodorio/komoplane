@@ -1,11 +1,13 @@
 import {
     Claim,
     ClaimExtended,
-    CompositeResource, CompositeResourceExtended,
+    CompositeResource,
+    CompositeResourceExtended,
     Composition,
     ItemList,
     K8sEvent,
     ManagedResource,
+    ManagedResourceExtended,
     Provider,
     ProviderConfig,
     XRD
@@ -65,6 +67,12 @@ class APIClient {
     getManagedResourcesList = async () => {
         const response = await this.innterFetch(`/api/managed`);
         const data: ItemList<ManagedResource> = await response.json();
+        return data;
+    };
+
+    getManagedResource = async (group?: string, version?: string, kind?: string, name?: string) => {
+        const response = await this.innterFetch(`/api/managed/` + group + "/" + version + "/" + kind + "/" + name + "?full=1");
+        const data: ManagedResourceExtended = await response.json();
         return data;
     };
 
