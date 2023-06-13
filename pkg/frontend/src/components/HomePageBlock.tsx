@@ -32,10 +32,11 @@ const HomePageBlock = ({title, getter, onClick, icon}: Props) => {
         <Paper className="p-5 cursor-pointer" onClick={onClick}>
             <Box className="flex justify-between">
                 <Box>
+                    <Typography variant="h5" className="pb-3 text-gray-400">{icon}</Typography>
                     <Typography variant="h5" className="mb-5">{title}</Typography>
                     <Typography variant="subtitle2"></Typography>
                 </Box>
-                <Typography variant="h5" className="ml-5 text-gray-400" fontSize={"5rem"}>{icon} {count}</Typography>
+                <Typography variant="h5" className="ml-5 text-gray-400" fontSize={"5rem"}>{count}</Typography>
             </Box>
         </Paper>
     );

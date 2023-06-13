@@ -1,3 +1,4 @@
+import LogoImage from "./assets/logo.svg";
 import {styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -45,7 +46,7 @@ export default function App() {
     const managed = <ManagedResourcesPage/>
     return (
         <BrowserRouter>
-            <CssBaseline />
+            <CssBaseline/>
             <Box className={"flex grow"}>
                 <ThemeProvider theme={themeDark}>
                     <Drawer
@@ -66,11 +67,14 @@ export default function App() {
                         PaperProps={{sx: {backgroundColor: "transparent", color: "white"}}}
                     >
                         <DrawerHeader>
-                            <Typography variant="h4" noWrap component="div" className="text-center">
-                                <Link component={RouterLink} to="/" style={{letterSpacing: "0.3rem"}} color={"#00e990"}>komoplane</Link>
-                                <Typography variant="body2" className={"text-slate-500"} color={"#00e990"}>crossplane tool by
-                                    Komodor.com</Typography>
-                            </Typography>
+                            <Box className="flex justify-between flex-row py-3 pb-5">
+                                <img src={LogoImage} style={{height: "2rem"}} alt="KP" className="pt-2 mr-2"/>
+                                <Box className="text-center">
+                                    <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
+                                        <Typography variant="h4" sx={{letterSpacing: "0.1rem"}}> komoplane</Typography>
+                                    </Link>
+                                </Box>
+                            </Box>
                         </DrawerHeader>
                         <Divider/>
                         <List>
@@ -128,7 +132,7 @@ export default function App() {
                         </List>
                     </Drawer>
                 </ThemeProvider>
-                <Box  className={"bg-gray-50"} sx={{
+                <Box className={"bg-gray-50"} sx={{
                     flexGrow: 1,
                     height: "100vh"
                 }}>

@@ -22,9 +22,14 @@ Decide on presentation approach: info drawer or dedicated pages
 
 Detect crossplane is not installed and tell user to install it first
 
+Refactor common code around drawer display => <ListWithDrawer?/>
+
+Refactor backend controller for cleaner arch
+
 ### Claims
 
 ### XRs
+
 Turn it into table
 
 ### MRs

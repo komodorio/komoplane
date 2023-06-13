@@ -59,7 +59,7 @@ export default function XRDsList({items}: ItemListProps) {
     if (!focused.metadata.name && focusedName) {
         items?.items?.forEach((item) => {
             if (focusedName == item.metadata.name) {
-                onItemClick(item)
+                setFocused(item)
             }
         })
     }

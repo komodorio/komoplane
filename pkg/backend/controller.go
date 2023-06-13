@@ -4,6 +4,7 @@ import (
 	"context"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
+	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	uclaim "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/claim"
 	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite" // what's the difference between `composed` and `composite` there?
 	v13 "github.com/crossplane/crossplane/apis/apiextensions/v1"
@@ -40,9 +41,13 @@ type Controller struct {
 	provCRDs map[string][]*v1.CustomResourceDefinition
 }
 
-func (c *Controller) PeriodicTasks(ctx context.Context) {
-	//TODO needed?
+type ConditionedObject interface {
+	schema.ObjectKind
+	resource.Object
+	resource.Conditioned
 }
+
+type ManagedUnstructured = uxres.Unstructured // no dedicated type for it in base CP
 
 func (c *Controller) GetStatus() StatusInfo {
 	return c.StatusInfo
@@ -180,75 +185,60 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 }
 
 func (c *Controller) GetClaim(ec echo.Context) error {
-	// FIXME: refactor a lot of duplications
 	gvk := schema.GroupVersionKind{
 		Group:   ec.Param("group"),
 		Version: ec.Param("version"),
 		Kind:    ec.Param("kind"),
 	}
 
-	claim := uclaim.Unstructured{}
 	claimRef := v12.ObjectReference{Namespace: ec.Param("namespace"), Name: ec.Param("name")}
 	claimRef.SetGroupVersionKind(gvk)
-	err := c.CRDs.Get(c.ctx, &claim, &claimRef)
+
+	claim := uclaim.Unstructured{}
+	err := c.getDynamicResource(&claimRef, &claim)
 	if err != nil {
 		return err
 	}
-	claim.SetGroupVersionKind(claimRef.GroupVersionKind())
-	claim.SetNamespace(claimRef.Namespace)
-	claim.SetName(claimRef.Name)
 
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
 
 		xr := uxres.New()
-		err = c.CRDs.Get(c.ctx, xr, xrRef)
-		if err != nil {
-			condErrored := xpv1.Condition{
-				Type:               "Found",
-				Status:             "False",
-				LastTransitionTime: metav1.Now(),
-				Reason:             "FailedToGet",
-				Message:            err.Error(),
-			}
-			xr.SetConditions(condErrored)
-		}
-		xr.SetGroupVersionKind(gvk)
-		xr.SetNamespace(xrRef.Namespace)
-		xr.SetName(xrRef.Name)
+		_ = c.getDynamicResource(xrRef, xr)
+		claim.Object["compositeResource"] = xr
 
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := ManagedUnstructured{Unstructured: *uxres.New()}
-
-			if mrRef.Name == "" {
-				condNotFound := xpv1.Condition{
-					Type:               "Found",
-					Status:             "False",
-					LastTransitionTime: metav1.Now(),
-					Reason:             "NameIsEmpty",
-					Message:            "Probably, the resource were never created, and external name were not reported back",
-				}
-				mr.SetConditions(condNotFound)
-			} else {
-				err := c.CRDs.Get(c.ctx, &mr, &mrRef)
-				if err != nil {
-					return err
-				}
-			}
-
-			mr.SetGroupVersionKind(mrRef.GroupVersionKind()) // https://github.com/kubernetes/client-go/issues/308
-			mr.SetNamespace(mrRef.Namespace)
-			mr.SetName(mrRef.Name)
+			mr := ManagedUnstructured{}
+			_ = c.getDynamicResource(&mrRef, &mr)
 
 			MRs = append(MRs, &mr)
 		}
+		claim.Object["managedResources"] = MRs
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
 
 		comp := uxres.New()
-		err = c.CRDs.Get(c.ctx, comp, compRef)
+		_ = c.getDynamicResource(compRef, comp)
+		claim.Object["composition"] = comp
+
+	}
+	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
+}
+
+func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res ConditionedObject) (err error) {
+	if ref.Name == "" {
+		condNotFound := xpv1.Condition{
+			Type:               "Found",
+			Status:             "False",
+			LastTransitionTime: metav1.Now(),
+			Reason:             "NameIsEmpty",
+			Message:            "Probably, the resource were never created, and external name were not reported back",
+		}
+		res.SetConditions(condNotFound)
+	} else {
+		err = c.CRDs.Get(c.ctx, res, ref)
 		if err != nil {
 			condErrored := xpv1.Condition{
 				Type:               "Found",
@@ -257,17 +247,16 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 				Reason:             "FailedToGet",
 				Message:            err.Error(),
 			}
-			xr.SetConditions(condErrored)
+			res.SetConditions(condErrored)
 		}
-		xr.SetGroupVersionKind(gvk)
-		xr.SetNamespace(xrRef.Namespace)
-		xr.SetName(xrRef.Name)
-
-		claim.Object["managedResources"] = MRs
-		claim.Object["compositeResource"] = xr
-		claim.Object["composition"] = comp
 	}
-	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
+
+	// API does not return it, so we fill it ourselves
+	res.SetGroupVersionKind(ref.GroupVersionKind())
+	res.SetNamespace(ref.Namespace)
+	res.SetName(ref.Name)
+
+	return err
 }
 
 func (c *Controller) GetManaged(ec echo.Context) error {
@@ -303,7 +292,7 @@ func (c *Controller) allMRDs() []*v1.CustomResourceDefinition {
 	return res
 }
 
-func (c *Controller) GetComposite(ec echo.Context) error {
+func (c *Controller) GetComposites(ec echo.Context) error {
 	list := unstructured.UnstructuredList{
 		Object: nil,
 		Items:  []unstructured.Unstructured{},
@@ -368,11 +357,56 @@ func (c *Controller) GetEvents(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
-type ManagedUnstructured struct { // no dedicated type for it in base CP
-	uxres.Unstructured
+func (c *Controller) GetComposite(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{Name: ec.Param("name")}
+	ref.SetGroupVersionKind(gvk)
+
+	xr := uxres.New()
+	err := c.getDynamicResource(&ref, xr)
+	if err != nil {
+		return err
+	}
+
+	if ec.QueryParam("full") != "" {
+		// claim for it, if any
+		claimRef := xr.GetClaimReference()
+
+		if claimRef != nil {
+			claim := uxres.New()
+			_ = c.getDynamicResource(claimRef, claim)
+			xr.Object["claim"] = claim
+		}
+
+		// composition ref
+		compRef := xr.GetCompositionReference()
+		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
+
+		comp := uxres.New()
+		_ = c.getDynamicResource(compRef, comp)
+		xr.Object["composition"] = comp
+
+		// MR refs
+		MRs := []*ManagedUnstructured{}
+		for _, mrRef := range xr.GetResourceReferences() {
+			mr := ManagedUnstructured{}
+			_ = c.getDynamicResource(&mrRef, &mr)
+
+			MRs = append(MRs, &mr)
+		}
+		xr.Object["managedResources"] = MRs
+	}
+
+	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
+	_ = ns // TODO
+
 	apiV1, err := crossplane.NewAPIv1Client(cfg)
 	if err != nil {
 		return nil, err

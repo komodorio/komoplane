@@ -1,7 +1,7 @@
 import {
     Claim,
     ClaimExtended,
-    CompositeResource,
+    CompositeResource, CompositeResourceExtended,
     Composition,
     ItemList,
     K8sEvent,
@@ -71,6 +71,12 @@ class APIClient {
     getCompositeResourcesList = async () => {
         const response = await this.innterFetch(`/api/composite`);
         const data: ItemList<CompositeResource> = await response.json();
+        return data;
+    };
+
+    getCompositeResource = async (group?: string, version?: string, kind?: string, name?: string) => {
+        const response = await this.innterFetch(`/api/composite/` + group + "/" + version + "/" + kind + "/" + name + "?full=1");
+        const data: CompositeResourceExtended = await response.json();
         return data;
     };
 

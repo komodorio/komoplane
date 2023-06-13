@@ -10,8 +10,9 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {BaseSyntheticEvent, useMemo} from "react";
+import {BaseSyntheticEvent} from "react";
 import {ClaimNode, CompositionNode, MRNode, XRNode} from "./CustomNodes.tsx"
+import {logger} from "../../logger.ts";
 
 
 const dagreGraph = new dagre.graphlib.Graph({directed: true});
@@ -58,7 +59,17 @@ type GraphProps = {
     edges: Edge[];
 };
 
+const nodeTypes = {
+    claim: ClaimNode,
+    composed: XRNode,
+    managed: MRNode,
+    composition: CompositionNode,
+};
+
 const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) => {
+    logger.log("Render initial", initialNodes)
+
+    // FIXME: something wrong is happening here or in the calling code, not always layouted properly
     const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(
         initialNodes,
         initialEdges,
@@ -68,18 +79,13 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
     const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
     const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
 
-    const nodeTypes = useMemo(() => ({
-        claim: ClaimNode,
-        composed: XRNode,
-        managed: MRNode,
-        composition: CompositionNode,
-    }), []);
-
     const onNodeClick = (_: BaseSyntheticEvent, element: Node | Edge) => {
         if (element.data.onClick) {
             element.data.onClick()
         }
     }
+
+    logger.log("Render")
 
     return (
         <ReactFlow

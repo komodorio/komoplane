@@ -1,12 +1,15 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {CompositeResource, ItemList, K8sResource} from "../types.ts";
+import {CompositeResource, CompositeResourceExtended, ItemList, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 import {useState} from "react";
 import InfoTabs, {ItemContext} from "./InfoTabs.tsx";
 import ConditionChips from "./ConditionChips.tsx";
 import InfoDrawer from "./InfoDrawer.tsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {NavigateFunction, useNavigate, useParams} from "react-router-dom";
+import {GraphData, NodeTypes} from "./graph/data.ts";
+import apiClient from "../api.ts";
+import {logger} from "../logger.ts";
 
 type ItemProps = {
     item: CompositeResource;
@@ -51,7 +54,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         setFocused(item)
         setDrawerOpen(true)
         navigate(
-            "./" + item.apiVersion+"/"+item.kind+"/"+item.metadata.name,
+            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
             {state: item}
         );
     }
@@ -59,17 +62,30 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     if (!focused.metadata.name && focusedName) {
         items?.items?.forEach((item) => {
             if (focusedName == item.metadata.name) {
-                onItemClick(item)
+                setFocused(item)
             }
         })
     }
 
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
+    bridge.getGraph = (setter, setError) => {
+        const setData = (res: CompositeResourceExtended) => {
+            logger.log("recv from API", res)
+            const data = xrToGraph(res, navigate)
+            logger.log("set graph data", data.nodes)
+            setter(data)
+        }
+
+        const [group, version] = focused.apiVersion.split("/")
+        apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
+            .then((data) => setData(data))
+            .catch((err) => setError(err))
+    }
 
     const title = (<>
         {focused.metadata.name}
-        <ConditionChips status={focused.status?focused.status:{}}></ConditionChips>
+        <ConditionChips status={focused.status ? focused.status : {}}></ConditionChips>
     </>)
 
     return (
@@ -81,9 +97,35 @@ export default function CompositeResourcesList({items}: ItemListProps) {
             </Grid>
             <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
                         title={title}>
-                <InfoTabs bridge={bridge} initial="status" noRelations={true}></InfoTabs>
+                <InfoTabs bridge={bridge} initial="status"></InfoTabs>
             </InfoDrawer>
         </>
-
     );
 }
+
+function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): GraphData {
+    const data = new GraphData()
+    const xr = data.addNode(NodeTypes.CompositeResource, res, true)
+
+    if (res.claim) {
+        const claim = data.addNode(NodeTypes.Claim, res.claim, false, () => {
+            navigate("/claims/" + res.claim?.metadata.name)
+        });
+        data.addEdge(xr, claim)
+    }
+
+    const composition = data.addNode(NodeTypes.Composition, res.composition, false, () => {
+        navigate("/compositions/" + res.composition.metadata.name)
+    });
+    data.addEdge(composition, xr)
+
+    res.managedResources?.map(res => {
+        const resId = data.addNode(NodeTypes.ManagedResource, res, false, () => {
+            navigate("/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name) // FIXME: don't do if resource is missing!
+        });
+        data.addEdge(resId, xr)
+    })
+
+    return data
+}
+
