@@ -1,8 +1,9 @@
 import ReactFlow, {
-    Background,
+    Background, Connection,
     ConnectionLineType,
     Controls,
     Edge,
+    addEdge,
     Node,
     Position,
     useEdgesState,
@@ -10,7 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import {BaseSyntheticEvent} from "react";
+import {BaseSyntheticEvent, useCallback, useEffect} from "react";
 import {ClaimNode, CompositionNode, MRNode, ProviderConfigNode, XRNode} from "./CustomNodes.tsx"
 import {logger} from "../../logger.ts";
 
@@ -77,8 +78,18 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
         "RL"
     );
 
-    const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
-    const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
+    const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+
+    useEffect(() => {
+        setNodes([...layoutedNodes]);
+        setEdges([...layoutedEdges]);
+    }, [layoutedEdges, layoutedNodes, setEdges, setNodes]);
+
+    const onConnect = useCallback(
+        (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+        [setEdges]
+    );
 
     const onNodeClick = (_: BaseSyntheticEvent, element: Node | Edge) => {
         if (element.data.onClick) {
@@ -95,9 +106,10 @@ const RelationsGraph = ({nodes: initialNodes, edges: initialEdges}: GraphProps) 
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={onNodeClick}
             connectionLineType={ConnectionLineType.SmoothStep}
             nodesConnectable={false}
-            onNodeClick={onNodeClick}
             fitView
         >
             <Background color="white"/>

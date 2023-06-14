@@ -69,31 +69,31 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
 
 export function ClaimNode(data: NodeProps) {
     data.data.type = "Claim"
-    data.data.bgcolor = "#FFFFAA"
+    data.data.bgcolor = "#B6E1FF"
     return CustomNode(data)
 }
 
 export function CompositionNode(data: NodeProps) {
     data.data.type = "Composition"
-    data.data.bgcolor = "#FFAAFF"
+    data.data.bgcolor = "#B893F5"
     return CustomNode(data)
 }
 
 export function MRNode(data: NodeProps) {
     data.data.type = "Managed Resource"
-    data.data.bgcolor = "#AAFFFF"
+    data.data.bgcolor = "#90F4CE"
     return CustomNode(data)
 }
 
 export function XRNode(data: NodeProps) {
     data.data.type = "Composite Resource"
-    data.data.bgcolor = "#AAFFAA"
+    data.data.bgcolor = "#FFCE85"
     return CustomNode(data)
 }
 
 export function ProviderConfigNode(data: NodeProps) {
     data.data.type = "Provider Config"
-    data.data.bgcolor = "#CCC"
+    data.data.bgcolor = "#B6E1FF"
     return CustomNode(data)
 }
 
