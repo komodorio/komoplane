@@ -13,6 +13,7 @@ import {
     ProviderConfig,
     XRD
 } from "./types.ts";
+import {sendStatsToHeap} from "./utils.ts";
 
 class APIClient {
     constructor(
@@ -31,6 +32,7 @@ class APIClient {
     getProviderList = async () => {
         const response = await this.innterFetch(`/api/providers`);
         const data: ItemList<Provider> = await response.json();
+        sendStatsToHeap('List Providers', {count: data.items.length});
         return data;
     };
 
@@ -56,6 +58,7 @@ class APIClient {
     getClaimList = async () => {
         const response = await this.innterFetch(`/api/claims`);
         const data: ItemList<Claim> = await response.json();
+        sendStatsToHeap('List Claims', {count: data.items.length});
         return data;
     };
 
@@ -68,6 +71,7 @@ class APIClient {
     getManagedResourcesList = async () => {
         const response = await this.innterFetch(`/api/managed`);
         const data: ItemList<ManagedResource> = await response.json();
+        sendStatsToHeap('List MRs', {count: data.items.length});
         return data;
     };
 
@@ -80,6 +84,7 @@ class APIClient {
     getCompositeResourcesList = async () => {
         const response = await this.innterFetch(`/api/composite`);
         const data: ItemList<CompositeResource> = await response.json();
+        sendStatsToHeap('List XRs', {count: data.items.length});
         return data;
     };
 
@@ -92,12 +97,14 @@ class APIClient {
     getCompositionsList = async () => {
         const response = await this.innterFetch(`/api/compositions`);
         const data: ItemList<Composition> = await response.json();
+        sendStatsToHeap('List Compositions', {count: data.items.length});
         return data;
     };
 
     getXRDsList = async () => {
         const response = await this.innterFetch(`/api/xrds`);
         const data: ItemList<XRD> = await response.json();
+        sendStatsToHeap('List XRDs', {count: data.items.length});
         return data;
     };
 

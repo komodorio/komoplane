@@ -18,8 +18,8 @@ xhr.onload = function () {
         const version = status.CurVer
         if (status.Analytics) {
             enableDD(version)
-            enableHeap(version, status.ClusterMode)
-            enableSegmentBackend(version, status.ClusterMode)
+            enableHeap(version)
+            enableSegmentBackend(version)
         }
     }
 }
@@ -42,8 +42,8 @@ function enableDD(version) {
     })(window, document, 'script', 'https://www.datadoghq-browser-agent.com/datadog-rum-v4.js', 'DD_RUM')
     DD_RUM.onReady(function () {
         DD_RUM.init({
-            clientToken: 'TODO', // TODO
-            applicationId: 'TODO', // TODO
+            clientToken: 'pube66862d79b614234af152150e37c0220',
+            applicationId: '92de8094-c02c-4f64-946e-9e1a5dbe65ee',
             site: 'datadoghq.com',
             service: 'komoplane',
             version: version,
@@ -56,7 +56,7 @@ function enableDD(version) {
     })
 }
 
-function enableHeap(version, inCluster) {
+function enableHeap(version) {
     window.heap = window.heap || [], heap.load = function (e, t) {
         window.heap.appid = e, window.heap.config = t = t || {};
         let r = document.createElement("script");
@@ -69,23 +69,15 @@ function enableHeap(version, inCluster) {
             }
         }, p = ["addEventProperties", "addUserProperties", "clearEventProperties", "identify", "resetIdentity", "removeEventProperty", "setEventProperties", "track", "unsetEventProperty"], o = 0; o < p.length; o++) heap[p[o]] = n(p[o])
     };
-    heap.load("TODO"); // TODO
+    heap.load("1039037768");
     window.heap.addEventProperties({
         'version': version,
-        'installationMode': inCluster ? "cluster" : "local"
     });
 }
 
-function sendStats(name, prop) {
-    if (window.heap) {
-        window.heap.track(name, prop);
-    }
-}
-
-function enableSegmentBackend(version, ClusterMode) {
+function enableSegmentBackend(version) {
     sendToSegmentThroughAPI("komoplane loaded", {
         version,
-        'installationMode': ClusterMode ? "cluster" : "local"
     }, TRACK_EVENT_TYPE)
 }
 

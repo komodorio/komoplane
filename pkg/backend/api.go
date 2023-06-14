@@ -127,5 +127,6 @@ func configureStatic(api *echo.Echo) {
 	api.StaticFS("/assets", assets)
 
 	root := echo.MustSubFS(frontend.StaticFS, "dist")
+	api.GET("/public/analytics.js", echo.StaticFileHandler("analytics.js", root))
 	api.GET("*", echo.StaticFileHandler("index.html", root))
 }

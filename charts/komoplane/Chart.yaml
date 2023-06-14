@@ -3,7 +3,7 @@ type: application
 
 name: komoplane
 description: Komodor tool to visualize Crossplane
-# icon: TODO
+icon: https://raw.githubusercontent.com/komodorio/komoplane/main/pkg/frontend/src/assets/logo.svg
 
 version: 0.0.0
 appVersion: 0.0.0

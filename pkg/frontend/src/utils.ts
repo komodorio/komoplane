@@ -37,3 +37,15 @@ export function getAgeParse(date1: string, date2?: string): string {
     const dt2 = date2 ? DateTime.fromISO(date2) : DateTime.now()
     return getAge(dt1, dt2)
 }
+
+declare global {
+    interface Window {
+        heap: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
+}
+
+export function sendStatsToHeap(name: string, prop: object) {
+    if (window.heap!=undefined) {
+        window.heap.track(name, prop);
+    }
+}
