@@ -37,7 +37,8 @@ RUN make build
 
 # Stage - runner
 FROM alpine
-EXPOSE 8080
+
+EXPOSE 8090
 
 COPY --from=builder /build/bin/komoplane /bin/komoplane
 
