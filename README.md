@@ -27,7 +27,7 @@ from [Releases](releases). Use `KUBECONTEXT` env variable to point to different 
 
 ## Roadmap
 
-Milestone 1: Local helm install, images in registry, user analytics
+Milestone 1: Local helm install
 
 help buttons in page header to explain and link to CP learning
 

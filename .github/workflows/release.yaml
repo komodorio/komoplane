@@ -95,15 +95,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Bump versions
         run: |
           git config user.email komi@komodor.io
           git config user.name komodor-bot
           git fetch --tags
           git checkout main
-          sh ./ci/bump-versions.sh
+          sh ./.github/workflows/bump-versions.sh
           git add charts/komoplane/Chart.yaml
           git add plugin.yaml
           git commit -m "Increment chart versions [skip ci]" || echo "Already up-to-date"
