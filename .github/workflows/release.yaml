@@ -103,7 +103,6 @@ jobs:
           git checkout main
           sh ./.github/workflows/bump-versions.sh
           git add charts/komoplane/Chart.yaml
-          git add plugin.yaml
           git commit -m "Increment chart versions [skip ci]" || echo "Already up-to-date"
           git push -f || echo "Nothing to push!"
         env:
