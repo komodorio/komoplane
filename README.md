@@ -47,6 +47,8 @@ Make watcher-based resource tracker, to avoid re-reading all CRDs
 
 For providerConfig nodes, add YAML modal
 
+Standard troubleshooting problem: Secret References from various objects
+
 ### Claims
 
 Add link to XRD to graph
