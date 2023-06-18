@@ -23,62 +23,19 @@ By default, _komoplane_ works on port `8090`, you can change that via `extraArgs
 ### Running Without Helm
 
 It is possible to run _komoplane_ locally as a binary process. To do so, download standalone binary
-from [Releases](releases). Use `KUBECONTEXT` env variable to point to different context of your kubeconfig.
+from [Releases](./releases). Use `KUBECONTEXT` env variable to point to different context of your kubeconfig.
 
-## Roadmap
+## Support & Community
 
-Milestone 1: Local helm install
+We have two main channels for supporting the _komoplane_ users: 
+[Slack community](https://komodorkommunity.slack.com) for general conversations (`#komoplane` channel)
+and [GitHub issues](https://github.com/komodorio/komoplane/issues) for real bugs.
 
-help buttons in page header to explain and link to CP learning
+If you want to contribute some code to the project, consider looking at [roadmap](Roadmap.md) document with some of the ideas for improvements. Also, you may search for `TODO` and `FIXME` marks in the source code for smaller technical issues to solve. The [GitHub issues list](https://github.com/komodorio/komoplane/issues) might also have some items for potential contribution.
 
-Make event type be aligned better in event list
+## More Kubernetes Tooling
 
-Decide on presentation approach: info drawer or dedicated pages
-
-Detect crossplane is not installed and tell user to install it first
-
-Refactor common code around drawer display => <ResourceListWithDrawer?/>
-
-Refactor backend controller for cleaner arch
-
-Make Relations the first tab
-
-Make watcher-based resource tracker, to avoid re-reading all CRDs
-
-For providerConfig nodes, add YAML modal
-
-Standard troubleshooting problem: Secret References from various objects
-
-### Claims
-
-Add link to XRD to graph
-
-### XRs
-
-Add link to XRD to graph
-Turn it into table
-
-### MRs
-
-Turn it into table
-
-Show claim name
-
-Show status at provider
-
-Provider config ref available
-
-### Providers
-
-Improve provider configs display
-Somehow display provider config and controller config YAMLs
-
-### Compositions
-
-Inline list of composed resource types, or expand it on click
-Turn it into table
-
-### XRDs
-
-Filter of free-text search
-Display as table
+The _komoplane_ is an Open Source project founded by [Komodor](https://komodor.com). There are some more k8s-related tools by Komodor for you:
+ - [Helm Dashboard](https://github.com/komodorio/helm-dashboard) - a GUI-based operations with Helm charts
+ - [validkube](https://validkube.com/) - a service to validate Kubernetes manifests for security and best practices
+ - [Kubernetes Operations Platform](https://app.komodor.com/#mode=signUp) - freemium all-in-one platform to operate k8s clusters with builtin monitoring & costs analysis
