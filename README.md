@@ -1,6 +1,6 @@
 # <img src="pkg/frontend/src/assets/logo.svg" style="height: 1.5rem;" alt="logo"> komoplane
 
-[Komodor's](https://komodor.com) Crosplane Tool is a project to experiment with
+[Komodor's](https://komodor.com) Crossplane Tool is a project to experiment with
 visualizing [Crossplane](https://www.crossplane.io/) resources. The goal is to help Crossplane users to understand the
 structure of their control plane resources and speed up troubleshooting.
 
