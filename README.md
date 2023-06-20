@@ -20,10 +20,10 @@ After installing, publish port `8090` from _komoplane_ pod and open it in your w
 
 By default, _komoplane_ works on port `8090`, you can change that via `extraArgs` Helm value.
 
-### Running Without Helm
+### Running Without Installing
 
 It is possible to run _komoplane_ locally as a binary process. To do so, download standalone binary
-from [Releases](./releases). Use `KUBECONTEXT` env variable to point to different context of your kubeconfig.
+from [Releases](https://github.com/komodorio/komoplane/releases). Use `KUBECONTEXT` env variable to point to different context of your kubeconfig.
 
 ## Support & Community
 

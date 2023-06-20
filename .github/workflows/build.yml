@@ -46,6 +46,11 @@ jobs:
           args: release --snapshot --rm-dist
       - name: Test Binary is Runnable
         run: "dist/komoplane_linux_amd64_v1/komoplane --help"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: dist/
+          retention-days: 1
 
   image:
     runs-on: ubuntu-latest
