@@ -1,5 +1,5 @@
 export type AppStatus = {
-    CrossplaneInstalled: Boolean;
+    CrossplaneInstalled: boolean;
     CurVer: string;
     LatestVer: string;
     Analytics: boolean;
