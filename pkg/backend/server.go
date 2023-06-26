@@ -119,7 +119,7 @@ func checkUpgrade(d *StatusInfo) { // TODO: check it once an hour
 	} else {
 		if v1.LessThan(v2) {
 			log.Warnf("Newer version is available: %s", d.LatestVer)
-			log.Warnf("Upgrade instructions: https://github.com/komodorio/komoplane#installing")
+			log.Warnf("Upgrade instructions: https://github.com/komodorio/komoplane#installation")
 		} else {
 			log.Debugf("Got latest version from GH: %s", d.LatestVer)
 		}
