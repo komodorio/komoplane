@@ -30,7 +30,7 @@ import CompositeResourcesPage from "./pages/CompositeResourcesPage.tsx";
 import CompositionsPage from "./pages/CompositionsPage.tsx";
 import XRDsPage from "./pages/XRDsPage.tsx";
 import {themeDark, themeLight} from "./theme.ts";
-import UpgradeNotifier from "./components/UpgradeNotifier.tsx";
+import AppStatusNotifier from "./components/AppStatusNotifier.tsx";
 
 const drawerWidth = 260;
 
@@ -44,6 +44,8 @@ const DrawerHeader = styled('div')(({theme}) => ({
 }));
 
 export default function App() {
+    // TODO: extract some components from here
+
     const XRDs = <XRDsPage/>
     const compositions = <CompositionsPage/>
     const composite = <CompositeResourcesPage/>
@@ -137,7 +139,7 @@ export default function App() {
                                 </List>
                             </Box>
                             <Box className="pt-20">
-                                <UpgradeNotifier/>
+                                <AppStatusNotifier/>
                                 <Box className="flex gap-2 border rounded m-3 p-3">
                                     <Box className="flex flex-col">
                                         <Link href="https://komodor.com/" className="font-bold">

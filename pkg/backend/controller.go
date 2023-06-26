@@ -10,6 +10,7 @@ import (
 	v13 "github.com/crossplane/crossplane/apis/apiextensions/v1"
 	cpv1 "github.com/crossplane/crossplane/apis/pkg/v1"
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
+	"github.com/komodorio/komoplane/pkg/backend/utils"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 	v12 "k8s.io/api/core/v1"
@@ -25,9 +26,10 @@ import (
 )
 
 type StatusInfo struct {
-	CurVer    string
-	LatestVer string
-	Analytics bool
+	CurVer              string
+	LatestVer           string
+	Analytics           bool
+	CrossplaneInstalled bool
 }
 
 type Controller struct {
@@ -62,11 +64,18 @@ func (m *ManagedUnstructured) GetProviderConfigReference() *xpv1.Reference {
 }
 
 func (m *ManagedUnstructured) SetProviderConfigReference(p *xpv1.Reference) {
-	//TODO implement me
-	panic("implement me")
+	panic("should not be called, report this to app maintainers")
 }
 
 func (c *Controller) GetStatus() StatusInfo {
+	name := utils.Plural(cpv1.ProviderKind) + "." + cpv1.Group
+	crd, err := c.apiExt.CustomResourceDefinitions().Get(c.ctx, name, metav1.GetOptions{})
+	if err != nil {
+		log.Warnf("Failed to get provider CRD, Crossplane is not installed: %s", err)
+	}
+
+	c.StatusInfo.CrossplaneInstalled = crd != nil && err == nil
+
 	return c.StatusInfo
 }
 
@@ -115,7 +124,6 @@ func (c *Controller) GetProviderConfigs(ec echo.Context) error {
 	}
 
 	return ec.JSONPretty(http.StatusOK, res, "  ")
-
 }
 
 func (c *Controller) GetProviderConfigsInner(provName string) (*unstructured.UnstructuredList, error) {

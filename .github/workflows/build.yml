@@ -8,6 +8,10 @@ on:
     branches:
       - "*"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -94,8 +98,6 @@ jobs:
           CHART_LOCATION: ./charts/komoplane
           CHART_VALUES: ./charts/komoplane/values.yaml
 
-      - name: make dir for frontend results
-        run: mkdir pkg/frontend/dist && touch pkg/frontend/dist/.gitkeep
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
