@@ -48,8 +48,22 @@ type ConditionedObject interface {
 	resource.Conditioned
 }
 
-type ManagedUnstructured struct { // no dedicated type for it in base CP
+type ManagedUnstructured struct { // no dedicated type for it in base CP, just resource.Managed interface
 	uxres.Unstructured
+}
+
+func NewManagedUnstructured() *ManagedUnstructured {
+	res := ManagedUnstructured{
+		Unstructured: *uxres.New(),
+	}
+
+	res.Object["spec"] = map[string]interface{}{
+		"providerConfigRef": map[string]interface{}{
+			"name": "",
+		},
+	}
+
+	return &res
 }
 
 func (m *ManagedUnstructured) GetProviderConfigReference() *xpv1.Reference {
@@ -234,8 +248,8 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 	claimRef := v12.ObjectReference{Namespace: ec.Param("namespace"), Name: ec.Param("name")}
 	claimRef.SetGroupVersionKind(gvk)
 
-	claim := uclaim.Unstructured{}
-	err := c.getDynamicResource(&claimRef, &claim)
+	claim := uclaim.New()
+	err := c.getDynamicResource(&claimRef, claim)
 	if err != nil {
 		return err
 	}
@@ -249,10 +263,10 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := ManagedUnstructured{}
-			_ = c.getDynamicResource(&mrRef, &mr)
+			mr := NewManagedUnstructured()
+			_ = c.getDynamicResource(&mrRef, mr)
 
-			MRs = append(MRs, &mr)
+			MRs = append(MRs, mr)
 		}
 		claim.Object["managedResources"] = MRs
 
@@ -295,6 +309,13 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 	res.SetGroupVersionKind(ref.GroupVersionKind())
 	res.SetNamespace(ref.Namespace)
 	res.SetName(ref.Name)
+
+	// we need to guarantee for frontend that "metadata" is in structure
+	if r, ok := res.(*uxres.Unstructured); ok {
+		if _, ok := r.Object["metadata"]; !ok {
+			r.Object["metadata"] = map[string]interface{}{}
+		}
+	}
 
 	return err
 }
@@ -346,8 +367,8 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 	ref := v12.ObjectReference{Name: ec.Param("name")}
 	ref.SetGroupVersionKind(gvk)
 
-	xr := ManagedUnstructured{}
-	err := c.getDynamicResource(&ref, &xr)
+	xr := NewManagedUnstructured()
+	err := c.getDynamicResource(&ref, xr)
 	if err != nil {
 		return err
 	}
@@ -493,10 +514,10 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 		// MR refs
 		MRs := []*ManagedUnstructured{}
 		for _, mrRef := range xr.GetResourceReferences() {
-			mr := ManagedUnstructured{}
-			_ = c.getDynamicResource(&mrRef, &mr)
+			mr := NewManagedUnstructured()
+			_ = c.getDynamicResource(&mrRef, mr)
 
-			MRs = append(MRs, &mr)
+			MRs = append(MRs, mr)
 		}
 		xr.Object["managedResources"] = MRs
 	}
