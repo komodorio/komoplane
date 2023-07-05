@@ -1,5 +1,5 @@
-Thank you for installing Helm Dashboard.
-Helm Dashboard can be accessed:
+Thank you for installing Komoplane.
+Application can be accessed:
   * Within your cluster, at the following DNS name at port {{ .Values.service.port }}:
 
     {{ template "app.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
@@ -12,5 +12,5 @@ Helm Dashboard can be accessed:
     kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8090:$CONTAINER_PORT
 
 Visit our repo at:
-https://github.com/komodorio/helm-dashboard
+https://github.com/komodorio/komoplane
 

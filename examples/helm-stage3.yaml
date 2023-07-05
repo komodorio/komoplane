@@ -55,7 +55,7 @@ spec:
             chart:
               repository: https://helm-charts.komodor.io
               name: k8s-watcher
-              version: 1.14.0
+              version: 1.15.0
             namespace: komodor
             values:
               createNamespace: false

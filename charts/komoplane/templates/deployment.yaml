@@ -42,7 +42,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: DEBUG
-              value: {{- ternary " 1" "" .Values.komoplane.debug }}
+              value: {{- ternary " '1'" "" .Values.komoplane.debug }}
           ports:
             - name: http
               containerPort: 8090

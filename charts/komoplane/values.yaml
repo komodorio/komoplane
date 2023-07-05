@@ -31,7 +31,7 @@ komoplane:
 
 
 
-## @param.updateStrategy.type Set up update strategy for helm-dashboard installation.
+## @param.updateStrategy.type Set up update strategy for installation.
 ## Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods is destroyed first.
 ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 ## Example:
