@@ -50,11 +50,11 @@ spec:
           livenessProbe:
             httpGet:
               path: /status
-              port: http
+              port: 8090
           readinessProbe:
             httpGet:
               path: /status
-              port: http
+              port: 8090
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
