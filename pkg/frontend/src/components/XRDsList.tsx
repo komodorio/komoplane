@@ -23,7 +23,7 @@ function ListItem({item, onItemClick}: ItemProps) {
                         <Typography variant="h6">{item.metadata.name}</Typography>
                         <Typography variant="body1">Group: {item.spec.group}</Typography>
                         <Typography
-                            variant="body1">Names: {item.spec.names.kind} / {item.spec.claimNames.kind}</Typography>
+                            variant="body1">Names: {item.spec.names.kind} / {item.spec.claimNames?.kind}</Typography>
                         <ConditionChips status={item.status}></ConditionChips>
                     </CardContent>
                 </CardActionArea>

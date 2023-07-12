@@ -222,6 +222,10 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 	}
 
 	for _, xrd := range xrds.Items {
+		if xrd.Spec.ClaimNames == nil { // the XRD allows it to be omitted
+			continue
+		}
+
 		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
 			Group:   xrd.Spec.Group,
 			Version: xrd.Spec.Versions[0].Name,

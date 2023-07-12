@@ -1,0 +1,274 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xeks.aws.repay.io
+spec:
+  connectionSecretKeys:
+    - kubeconfig
+  group: aws.repay.io
+  names:
+    kind: XEKS
+    plural: xeks
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: ID of this Cluster that other objects will use to refer to it.
+                parameters:
+                  type: object
+                  description: EKS configuration parameters.
+                  properties:
+                    subnetIds:
+                      type: array
+                      items:
+                        type: string
+                    securityGroupIds:
+                      type: array
+                      items:
+                        type: string
+                    nodes:
+                      type: object
+                      description: EKS node configuration parameters.
+                      properties:
+                        count:
+                          type: integer
+                          description: Desired node count, from 1 to 100.
+                        size:
+                          type: string
+                          description: Size of node.
+                          enum:
+                            - small
+                            - medium
+                            - large
+                      required:
+                        - count
+                        - size
+                  required:
+                    - nodes
+                    - subnetIds
+                    - securityGroupIds
+              required:
+                - parameters
+            status:
+              description: A Status represents the observed state
+              properties:
+                eks:
+                  description: Freeform field containing status information for eks
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              type: object
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xeks.aws.repay.io
+  labels:
+    provider: aws
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: aws.repay.io/v1alpha1
+    kind: XEKS
+  resources:
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Role
+        metadata:
+          labels:
+            role: controlplane
+        spec:
+          forProvider:
+            assumeRolePolicy: |
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "eks.amazonaws.com"
+                            ]
+                        },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }
+                ]
+              }
+      name: controlplaneRole
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          forProvider:
+            policyArn: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+            roleSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: controlplane
+      name: clusterRolePolicyAttachment
+    - base:
+        apiVersion: eks.aws.upbound.io/v1beta1
+        kind: Cluster
+        spec:
+          forProvider:
+            region: us-west-2
+            roleArnSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: controlplane
+            vpcConfig:
+              - endpointPrivateAccess: true
+                endpointPublicAccess: true
+            version: "1.23"
+      name: kubernetesCluster
+      patches:
+        # Change to spec id
+        - fromFieldPath: spec.parameters.securityGroupIds
+          toFieldPath: spec.forProvider.vpcConfig[0].securityGroupIds
+        - fromFieldPath: spec.parameters.subnetIds
+          toFieldPath: spec.forProvider.vpcConfig[0].subnetIds
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.identity[0].oidc[0].issuer
+          toFieldPath: status.eks.oidc
+          policy:
+            fromFieldPath: Optional
+    - base:
+        apiVersion: eks.aws.upbound.io/v1beta1
+        kind: ClusterAuth
+        spec:
+          forProvider:
+            region: us-west-2
+            clusterNameSelector:
+              matchControllerRef: true
+      name: kubernetesClusterAuth
+      patches:
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
+        - fromFieldPath: metadata.uid
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-ekscluster"
+      connectionDetails:
+        - fromConnectionSecretKey: kubeconfig
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Role
+        metadata:
+          labels:
+            role: nodegroup
+        spec:
+          forProvider:
+            assumeRolePolicy: |
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "ec2.amazonaws.com"
+                            ]
+                        },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }
+                ]
+              }
+      name: nodegroupRole
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          forProvider:
+            policyArn: arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+            roleSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: nodegroup
+      name: workerNodeRolePolicyAttachment
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          forProvider:
+            policyArn: arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+            roleSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: nodegroup
+      name: cniRolePolicyAttachment
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          forProvider:
+            policyArn: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+            roleSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: nodegroup
+      name: containerRegistryRolePolicyAttachment
+    - base:
+        apiVersion: eks.aws.upbound.io/v1beta1
+        kind: NodeGroup
+        spec:
+          forProvider:
+            region: us-west-2
+            clusterNameSelector:
+              matchControllerRef: true
+            nodeRoleArnSelector:
+              matchControllerRef: true
+              matchLabels:
+                role: nodegroup
+            subnetIdSelector:
+              matchLabels:
+                access: public
+            scalingConfig:
+              - minSize: 1
+                maxSize: 100
+                desiredSize: 1
+            instanceTypes:
+              - t3.medium
+      name: nodeGroupPublic
+      patches:
+        - fromFieldPath: spec.parameters.nodes.count
+          toFieldPath: spec.forProvider.scalingConfig[0].desiredSize
+        - fromFieldPath: spec.parameters.nodes.size
+          toFieldPath: spec.forProvider.instanceTypes[0]
+          transforms:
+            - type: map
+              map:
+                small: t3.small
+                medium: t3.medium
+                large: t3.large
+        - fromFieldPath: spec.id
+          toFieldPath: spec.forProvider.subnetIdSelector.matchLabels[aws.net.starter.org/network-id]
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: OpenIDConnectProvider
+        spec:
+          forProvider:
+            clientIdList:
+              - sts.amazonaws.com
+            thumbprintList:
+              - "9e99a48a9960b14926bb7f3b02e22da2b0ab7280"
+      name: oidcProvider
+      patches:
+        - fromFieldPath: status.eks.oidc
+          toFieldPath: spec.forProvider.url
+          policy:
+            fromFieldPath: Required

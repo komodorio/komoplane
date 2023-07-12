@@ -130,7 +130,7 @@ export type Version = {
 export type XRD = K8sResource & {
     spec: {
         group: string
-        claimNames: Names
+        claimNames?: Names
         names: Names
         versions: Version[]
     }
