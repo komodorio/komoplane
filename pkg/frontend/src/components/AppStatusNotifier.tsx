@@ -24,14 +24,19 @@ export default function AppStatusNotifier() {
         return (<LinearProgress/>);
     }
 
-    let upgradeStatus = (<></>)
+    let versionStatus = (<Typography variant="body2" sx={{fontSize: "0.75rem"}} className="pl-4 pt-2 text-gray-500">komoplane version: {status.CurVer}</Typography>)
+
+    let upgradeStatus = (<>{versionStatus}</>)
     if (isNewerVersion(status.CurVer, status.LatestVer)) {
         upgradeStatus = (
-            <Alert severity="info">
-                <Link color="inherit" href="https://github.com/komodorio/komoplane/releases">
-                    New komoplane version available: {status.LatestVer}
-                </Link>
-            </Alert>
+            <>
+                {versionStatus}
+                <Alert severity="info">
+                    <Link color="inherit" href="https://github.com/komodorio/komoplane/releases">
+                        New komoplane version available: {status.LatestVer}
+                    </Link>
+                </Alert>
+            </>
         );
     }
 
