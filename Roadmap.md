@@ -20,6 +20,8 @@ For providerConfig nodes, add YAML modal
 
 Standard troubleshooting problem: Secret References from various objects
 
+Make left main menu items highlight current item
+
 ## Claims
 
 Add link to XRD to graph
