@@ -62,8 +62,8 @@ spec:
               apiKey: please specify
               watcher:
                 clusterName: CPManagedCluster
-          #providerConfigRef:
-          #  name: helm-provider
+          providerConfigRef:
+            name: helm-provider-pc
       patches:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.watcherVer
