@@ -33,7 +33,7 @@ ADD Makefile ./
 ADD ./pkg/backend ./pkg/backend
 ADD ./pkg/frontend/fs.go ./pkg/frontend
 
-RUN make build
+RUN make build_go
 
 # Stage - runner
 FROM alpine
