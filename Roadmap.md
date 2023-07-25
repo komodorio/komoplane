@@ -22,9 +22,13 @@ Standard troubleshooting problem: Secret References from various objects
 
 Make left main menu items highlight current item
 
+Make sure compositions of compositions are displayed properly
+
 ## Claims
 
 Add link to XRD to graph
+
+For unhealthy claim, get to the potential root cause and propagate it to the Claim (Victor)
 
 ## XRs
 
@@ -45,6 +49,7 @@ Provider config ref available
 
 Improve provider configs display
 Somehow display provider config and controller config YAMLs
+Via additional button, display all resources that reference this provider. Can be long API call, but valuable.
 
 ## Compositions
 
