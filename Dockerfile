@@ -10,10 +10,15 @@ WORKDIR /build/pkg/frontend
 RUN npm i && npm run build
 
 # Stage - builder
-FROM golang as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang as builder
 
-ENV GOOS=linux
-ENV GOARCH=amd64
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+
+ENV GOOS=${TARGETOS:-linux}
+ENV GOARCH=${TARGETARCH:-amd64}
 ENV CGO_ENABLED=0
 
 WORKDIR /build
@@ -36,7 +41,10 @@ ADD ./pkg/frontend/fs.go ./pkg/frontend
 RUN make build_go
 
 # Stage - runner
-FROM alpine
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 EXPOSE 8090
 
