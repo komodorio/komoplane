@@ -1,5 +1,5 @@
 import LaunchIcon from '@mui/icons-material/Launch';
-import LogoImage from "./assets/logo.svg";
+import LogoImage from "./assets/logo_white_text.svg";
 import {styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -74,13 +74,10 @@ export default function App() {
                             <Box>
                                 <DrawerHeader>
                                     <Box className="flex justify-between flex-row py-3 pb-5">
-                                        <img src={LogoImage} style={{height: "2rem"}} alt="KP" className="pt-2 mr-2"/>
-                                        <Box className="text-center">
-                                            <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
-                                                <Typography variant="h4"
-                                                            sx={{letterSpacing: "0.1rem"}}> komoplane</Typography>
-                                            </Link>
-                                        </Box>
+                                        <Link component={RouterLink} to="/" color={"#ffffff"} underline="none">
+                                            <img src={LogoImage} style={{height: "3.5rem"}} alt="Komoplane"
+                                                 className="pt-2"/>
+                                        </Link>
                                     </Box>
                                 </DrawerHeader>
                                 <Divider/>
@@ -155,7 +152,8 @@ export default function App() {
                                 </Box>
                                 <List>
                                     <ListItem disablePadding>
-                                        <ListItemButton component={Link} href="https://join.slack.com/t/komodorkommunity/shared_invite/zt-1lz4cme86-2zIKTRtTFnzL_UNxaUS9yw">
+                                        <ListItemButton component={Link}
+                                                        href="https://join.slack.com/t/komodorkommunity/shared_invite/zt-1lz4cme86-2zIKTRtTFnzL_UNxaUS9yw">
                                             <ListItemIcon>
                                                 <SlackIcon/>
                                             </ListItemIcon>
