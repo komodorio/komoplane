@@ -24,6 +24,10 @@ Make left main menu items highlight current item
 
 Make sure compositions of compositions are displayed properly
 
+When we "open" resource (from diagram), it redirects to corresponding section and desorients user. Needs to stay in-place. Probably whole navigation has to be re-thought because of this.
+
+For MR, show resource kind in graph.
+
 ## Claims
 
 Add link to XRD to graph
