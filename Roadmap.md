@@ -28,6 +28,8 @@ When we "open" resource (from diagram), it redirects to corresponding section an
 
 For MR, show resource kind in graph.
 
+ArgoCD has the ability to load UI extensions. It would be amazing to have komoplane-style inspection of the crossplane resources in argocd: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/ui-extensions/, there is one that does backend stuff as well: https://github.com/argoproj-labs/rollout-extension (by Blake Barnett)
+
 ## Claims
 
 Add link to XRD to graph
