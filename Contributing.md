@@ -2,7 +2,7 @@
 
 ## Finding What to Contribute
 
-[Roadmap](Roadmap.md) document contains some notes and ideas on what can be done to improve the project.
+[Roadmap](Roadmap.md) document contains some notes and ideas on what can be done to improve the project. Those may be not very clear, that's how OSS ideas start. Raise the question in Slack about particular item that attracked your attention to get more explanation.
 
 ## Setting Up For Local Development
 
