@@ -6,7 +6,7 @@
 
 ## Setting Up For Local Development
 
-You will need Golang 1.20+ and NodeJS 18+.
+You will need Golang 1.20+ and NodeJS 18+. Also, you will need a working Kubernetes cluster with Crossplane Helm chart installed into it. It is advisable to apply example Crossplane objects from `examples` folder. 
 
 First you need to build frontend (the API backend won't compile without that). To do so, run `npm run build` inside `pkg/frontend` directory.
 
