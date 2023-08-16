@@ -18,7 +18,7 @@ type ItemProps = {
 
 function ListItem({item, onItemClick}: ItemProps) {
     return (
-        <Grid item xs={12} md={12} key={item.metadata.name} onClick={() => {
+        <Grid item xs={12} md={12} key={item.apiVersion + item.kind + item.metadata.name} onClick={() => {
             onItemClick(item)
         }}>
             <Card variant="outlined" className="cursor-pointer">
@@ -26,8 +26,8 @@ function ListItem({item, onItemClick}: ItemProps) {
                     <Typography variant="h6">{item.metadata.name}</Typography>
                     <Typography variant="body1">Kind: {item.kind}</Typography>
                     <Typography variant="body1">Group: {item.apiVersion}</Typography>
-                    <Typography variant="body1">Composition: {item.spec.compositionRef.name}</Typography>
-                    <Typography variant="body1">Composed resources: {item.spec.resourceRefs.length}</Typography>
+                    <Typography variant="body1">Composition: {item.spec.compositionRef?.name}</Typography>
+                    <Typography variant="body1">Composed resources: {item.spec.resourceRefs?.length}</Typography>
                     <ReadySynced status={item.status}></ReadySynced>
                 </CardContent>
             </Card>

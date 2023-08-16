@@ -3,6 +3,8 @@ package crossplane
 import (
 	"context"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
+	"github.com/komodorio/komoplane/pkg/backend/utils"
+	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -16,7 +18,8 @@ type CRDInterface interface {
 }
 
 type crdClient struct {
-	cfg *rest.Config
+	cfg   *rest.Config
+	ExtV1 *ExtensionsV1Client
 }
 
 func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.ObjectReference) error {
@@ -27,6 +30,11 @@ func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.Obj
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
 
+	plural, err := c.getPluralKind(ctx, ref)
+	if err != nil {
+		return err
+	}
+
 	client, err := rest.RESTClientFor(&config)
 	if err != nil {
 		return err
@@ -35,7 +43,7 @@ func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.Obj
 	err = client.
 		Get().
 		NamespaceIfScoped(ref.Namespace, ref.Namespace != "").Name(ref.Name).
-		Resource(ref.Kind + "s"). // TODO: better way to pluralize?
+		Resource(plural).
 		Do(ctx).
 		Into(result)
 
@@ -64,8 +72,25 @@ func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*uns
 	return &result, err
 }
 
-func NewCRDsClient(cfg *rest.Config) CRDInterface {
+func (c *crdClient) getPluralKind(ctx context.Context, ref *v1.ObjectReference) (string, error) {
+	xrds, err := c.ExtV1.XRDs().List(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	for _, xrd := range xrds.Items {
+		if xrd.Spec.Names.Kind == ref.Kind && xrd.Spec.Group == ref.GroupVersionKind().Group {
+			return xrd.Spec.Names.Plural, nil
+		}
+	}
+
+	log.Debugf("Could not find plural for kind '%s', defaulted to -s suffix", ref.Kind)
+	return utils.Plural(ref.Kind), nil // poor man's fallback
+}
+
+func NewCRDsClient(cfg *rest.Config, ext *ExtensionsV1Client) CRDInterface {
 	return &crdClient{
-		cfg: cfg,
+		cfg:   cfg,
+		ExtV1: ext,
 	}
 }

@@ -2,7 +2,11 @@
 
 ## Finding What to Contribute
 
-[Roadmap](Roadmap.md) document contains some notes and ideas on what can be done to improve the project. Those may be not very clear, that's how OSS ideas start. Raise the question in Slack about particular item that attracked your attention to get more explanation.
+[Roadmap](Roadmap.md) document contains some notes and ideas on what can be done to improve the project. Those may be not very clear, that's how OSS ideas start.
+
+Another good source of small tasks is to search through code for `TODO` and `FIXME` comments.
+
+Raise the question in Slack about particular item that attracked your attention to get more explanation.
 
 ## Setting Up For Local Development
 
@@ -13,3 +17,5 @@ First you need to build frontend (the API backend won't compile without that). T
 To build API backend, run `go build -o bin/komoplane .` in the project root.
 
 For frontend development, start API backend with command `bin/komoplane`, then run `npm run dev` inside `pkg/frontend`. Open the suggested URL in your browser.
+
+You can then restart/debug backend without restarting frontend.
