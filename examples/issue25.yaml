@@ -1,0 +1,25 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: aks.foo.com
+spec:
+  group: foo.com
+  names:
+    kind: Aks
+    listKind: AksList
+    plural: aks
+    singular: aks
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+---
+apiVersion: foo.com/v1alpha1
+kind: Aks # Direct XR-style
+metadata:
+  name: reproduce-issue-25
+spec: {}
