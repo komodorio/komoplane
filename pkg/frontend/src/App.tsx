@@ -18,7 +18,7 @@ import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 import GHIcon from '@mui/icons-material/GitHub';
 import SlackIcon from '@mui/icons-material/SupportTwoTone';
-import {BrowserRouter, Link as RouterLink, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Link as RouterLink, Route, Routes, useLocation} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
 import {CssBaseline, Link, ThemeProvider} from "@mui/material";
@@ -45,13 +45,18 @@ const DrawerHeader = styled('div')(({theme}) => ({
 
 export default function App() {
     // TODO: extract some components from here
-
+    const location = useLocation();
     const XRDs = <XRDsPage/>
     const compositions = <CompositionsPage/>
     const composite = <CompositeResourcesPage/>
     const managed = <ManagedResourcesPage/>
+
+    const isLinkActive = (to: string) => {
+        return location.pathname === to;
+      };
+
     return (
-        <BrowserRouter>
+        <>
             <CssBaseline/>
             <Box className={"flex grow"}>
                 <ThemeProvider theme={themeDark}>
@@ -83,7 +88,7 @@ export default function App() {
                                 <Divider/>
                                 <List>
                                     <ListItem key="Claims" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/claims">
+                                        <ListItemButton component={RouterLink} to="/claims" sx={{ backgroundColor: isLinkActive('/claims') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <ClaimsIcon/>
                                             </ListItemIcon>
@@ -91,7 +96,7 @@ export default function App() {
                                         </ListItemButton>
                                     </ListItem>
                                     <ListItem key="Composite Resources" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/composite">
+                                        <ListItemButton component={RouterLink} to="/composite" sx={{ backgroundColor: isLinkActive('/composite') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <CompositeIcon/>
                                             </ListItemIcon>
@@ -99,7 +104,7 @@ export default function App() {
                                         </ListItemButton>
                                     </ListItem>
                                     <ListItem key="Managed Resources" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/managed">
+                                        <ListItemButton component={RouterLink} to="/managed" sx={{ backgroundColor: isLinkActive('/managed') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <ManagedIcon/>
                                             </ListItemIcon>
@@ -107,7 +112,7 @@ export default function App() {
                                         </ListItemButton>
                                     </ListItem>
                                     <ListItem key="Providers" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/providers">
+                                        <ListItemButton component={RouterLink} to="/providers" sx={{ backgroundColor: isLinkActive('/providers') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <ProvidersIcon/>
                                             </ListItemIcon>
@@ -118,7 +123,7 @@ export default function App() {
                                 <Divider/>
                                 <List>
                                     <ListItem key="Compositions" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/compositions">
+                                        <ListItemButton component={RouterLink} to="/compositions" sx={{ backgroundColor: isLinkActive('/compositions') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <CompositionsIcon/>
                                             </ListItemIcon>
@@ -126,7 +131,7 @@ export default function App() {
                                         </ListItemButton>
                                     </ListItem>
                                     <ListItem key="XRDs" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/xrds">
+                                        <ListItemButton component={RouterLink} to="/xrds" sx={{ backgroundColor: isLinkActive('/xrds') ? '#312e67' : 'transparent' }}>
                                             <ListItemIcon>
                                                 <XRDsIcon/>
                                             </ListItemIcon>
@@ -197,7 +202,7 @@ export default function App() {
                     </ThemeProvider>
                 </Box>
             </Box>
-        </BrowserRouter>
+        </>
     )
         ;
 }
