@@ -509,11 +509,12 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 		// composition ref
 		compRef := xr.GetCompositionReference()
-		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
-
-		comp := uxres.New()
-		_ = c.getDynamicResource(compRef, comp)
-		xr.Object["composition"] = comp
+		if compRef != nil {
+			compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
+			comp := uxres.New()
+			_ = c.getDynamicResource(compRef, comp)
+			xr.Object["composition"] = comp
+		}
 
 		// MR refs
 		MRs := []*ManagedUnstructured{}
@@ -558,7 +559,7 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		ExtV1:  ext,
 		Events: evt,
 		apiExt: apiExt,
-		CRDs:   crossplane.NewCRDsClient(cfg),
+		CRDs:   crossplane.NewCRDsClient(cfg, ext),
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},

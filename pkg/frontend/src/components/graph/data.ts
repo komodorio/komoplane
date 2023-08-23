@@ -31,7 +31,7 @@ export class GraphData {
             id: (++this.id).toString(),
             type: ntype,
             data: {
-                label: res.metadata.name,
+                label: res?.metadata.name,
                 apiVersion: res?.apiVersion,
                 kind: res?.kind,
                 compositionName: compositionName,
@@ -83,6 +83,10 @@ export class GraphData {
 
     private getStatus(res: K8sResource): [NodeStatus, string] {
         logger.log("get status from", res)
+        if (!res) {
+            return [NodeStatus.NotFound, "Not Specified"]
+        }
+
         const problems: { [key: string]: string } = {}
 
         res.status?.conditions?.forEach((element) => {
