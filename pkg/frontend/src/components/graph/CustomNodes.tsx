@@ -60,7 +60,8 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
                             title={data.apiVersion}>{data.kind}</Typography>
             </Box>
             <Box className="px-3 py-1">
-                <Typography variant="h6" sx={data.main ? {fontWeight: 'bold'} : {}}>
+                <Typography variant="h6" sx={data.main ? {fontWeight: 'bold'} : {}}
+                            title={data.compositionName ? data.label : ""}>
                     {data.compositionName ? data.compositionName : data.label}
                 </Typography>
                 <NodeStatusLine data={data}/>
