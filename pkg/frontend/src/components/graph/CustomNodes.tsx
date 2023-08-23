@@ -49,16 +49,21 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
     return (
         <Box className="border rounded border-gray-600" sx={{
             backgroundColor: data.bgcolor,
-            maxWidth: 300,
+            maxWidth: 350,
             borderWidth: data.main ? 3 : null,
             cursor: data.onClick ? "pointer" : "grab"
         }}>
-            <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20 "
-            >
+            <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20"
+                 sx={{display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                 <Typography fontSize="x-small" className="uppercase text-xs">{data.type}</Typography>
+                <Typography fontSize="x-small" className="text-xs" sx={{marginLeft: "0.5rem"}}
+                            title={data.apiVersion}>{data.kind}</Typography>
             </Box>
             <Box className="px-3 py-1">
-                <Typography variant="h6" sx={data.main?{ fontWeight: 'bold' }:{}}>{data.label}</Typography>
+                <Typography variant="h6" sx={data.main ? {fontWeight: 'bold'} : {}}
+                            title={data.compositionName ? data.label : ""}>
+                    {data.compositionName ? data.compositionName : data.label}
+                </Typography>
                 <NodeStatusLine data={data}/>
             </Box>
             <Handle type="target" position={targetPosition ? targetPosition : Position.Top}/>

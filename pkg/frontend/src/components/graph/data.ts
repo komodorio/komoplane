@@ -26,11 +26,15 @@ export class GraphData {
         const status = this.getStatus(res)
         const onClick = this.genOnClick(ntype, res, isMain, navigate)
         logger.log("OnClick", onClick == NOOP)
+        const compositionName = res?.metadata.annotations ? res.metadata.annotations["crossplane.io/composition-resource-name"] : null
         const node = {
             id: (++this.id).toString(),
             type: ntype,
             data: {
                 label: res?.metadata.name,
+                apiVersion: res?.apiVersion,
+                kind: res?.kind,
+                compositionName: compositionName,
                 status: status[0],
                 statusMsg: status[1],
                 main: isMain,

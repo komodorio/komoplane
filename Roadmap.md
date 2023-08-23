@@ -1,34 +1,25 @@
 # Roadmap
 
-help buttons in page header to explain and link to CP learning
-
-Make event type be aligned better in event list
-
 Decide on presentation approach: info drawer or dedicated pages
-
-Detect crossplane is not installed and tell user to install it first
 
 Refactor common code around drawer display => <ResourceListWithDrawer?/>
 
-Refactor backend controller for cleaner arch
+Make Relations the first tab in drawer (if we keep drawer)
 
-Make Relations the first tab
-
-Make watcher-based resource tracker, to avoid re-reading all CRDs
-
-For providerConfig nodes, add YAML modal
+For providerConfig nodes in graph, add YAML modal/drawer
 
 Standard troubleshooting problem: Secret References from various objects
 
-Make left main menu items highlight current item
-
 Make sure compositions of compositions are displayed properly
 
-When we "open" resource (from diagram), it redirects to corresponding section and desorients user. Needs to stay in-place. Probably whole navigation has to be re-thought because of this.
+When we "open" resource (from diagram), it redirects to corresponding section and desorients user. Needs to stay
+in-place. Probably whole navigation has to be re-thought because of this.
 
-For MR, show resource kind in graph.
+ArgoCD has the ability to load UI extensions. It would be amazing to have komoplane-style inspection of the crossplane
+resources in argocd: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/ui-extensions/, there is one
+that does backend stuff as well: https://github.com/argoproj-labs/rollout-extension (by Blake Barnett)
 
-ArgoCD has the ability to load UI extensions. It would be amazing to have komoplane-style inspection of the crossplane resources in argocd: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/ui-extensions/, there is one that does backend stuff as well: https://github.com/argoproj-labs/rollout-extension (by Blake Barnett)
+For k8s-MRs, display actual k8s resources in graph
 
 ## Claims
 
@@ -66,3 +57,8 @@ Turn it into table
 
 Filter of free-text search
 Display as table
+
+## Backend
+
+Refactor backend controller for cleaner arch
+Make watcher-based resource tracker in backend, to avoid re-reading all CRDs
