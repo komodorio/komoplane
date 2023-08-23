@@ -85,7 +85,7 @@ export default function ClaimPage() {
                     <Grid item xs={12} md={6}>
                         <Paper className="p-4">
                             <Typography variant="h6">Status</Typography>
-                            <ConditionList conditions={claim.status.conditions}></ConditionList>
+                            <ConditionList conditions={claim.status?.conditions}></ConditionList>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={12}>
