@@ -59,7 +59,7 @@ export default function App() {
         ...(isLinkActive(path)) && {
             backgroundColor:"#ffffff14",
             fontWeight: 700,
-            borderLeft: 0.25,
+            borderLeft: 2,
             borderLeftColor: "#1347ff"
         }
     });
