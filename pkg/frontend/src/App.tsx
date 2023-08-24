@@ -60,6 +60,7 @@ export default function App() {
             backgroundColor:"#ffffff14",
             fontWeight: 700,
             borderLeft: 0.25,
+            borderLeftColor: "#1347ff"
         }
     });
     
