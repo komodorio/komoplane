@@ -14,7 +14,7 @@ You will need Golang 1.20+ and NodeJS 18+. Also, you will need a working Kuberne
 
 First you need to build frontend (the API backend won't compile without that). To do so, run `npm run build` inside `pkg/frontend` directory.
 
-To build API backend, run `go build -o bin/komoplane .` in the project root.
+To build API backend, run `go build -o bin/komoplane .` in the project root. Alternatively, you can download and run API backend from latest release.
 
 For frontend development, start API backend with command `bin/komoplane`, then run `npm run dev` inside `pkg/frontend`. Open the suggested URL in your browser.
 
