@@ -33,6 +33,8 @@ and [GitHub issues](https://github.com/komodorio/komoplane/issues) for real bugs
 
 If you want to contribute some code to the project, consider looking at [roadmap](Roadmap.md) document with some of the ideas for improvements. Also, you may search for `TODO` and `FIXME` marks in the source code for smaller technical issues to solve. The [GitHub issues list](https://github.com/komodorio/komoplane/issues) might also have some items for potential contribution.
 
+[Contributing doc](Contributing.md) contains instructions on how to setup dev environment.
+
 ## More Kubernetes Tooling
 
 The _komoplane_ is an Open Source project founded by [Komodor](https://komodor.com). There are some more k8s-related tools by Komodor for you:
