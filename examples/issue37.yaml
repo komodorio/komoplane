@@ -1,0 +1,210 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: rdss.databaserds.company.com
+spec:
+  group: databaserds.company.com
+  names:
+    kind: RDS
+    plural: rdss
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                location:
+                  type: string
+                  oneOf:
+                    - pattern: '^EU$'
+                    - pattern: '^US$'
+                dbName:
+                  type: string
+                allocatedStorage:
+                  type: integer
+                dbSubnetGroupName:
+                  type: string
+                dbSubnetGroupNameRef:
+                  type: string
+                dbSubnetGroupNameSelector:
+                  type: object
+                instanceClass:
+                  type: string
+                engine:
+                  type: string
+                engineVersion:
+                  type: string
+                publiclyAccessible:
+                  type: boolean
+                skipFinalSnapshot:
+                  type: boolean
+                storageEncrypted:
+                  type: boolean
+                storageType:
+                  type: string
+                autoGeneratePassword:
+                  type: boolean
+                username:
+                  type: string
+              required:
+                - location
+                - allocatedStorage
+                #- dbSubnetGroupName
+                - dbName
+                - instanceClass
+                - publiclyAccessible
+      served: true
+      referenceable: true
+  claimNames:
+    kind: RDSClaim
+    plural: rdsclaim
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: rds-database
+spec:
+  resources:
+    - name: subnetRDS
+      base:
+        apiVersion: rds.aws.upbound.io/v1beta1
+        kind: SubnetGroup
+        metadata:
+          name: crossplane-mmm-subnetgr1
+          labels:
+            crossplaneSubnetgroup: myCrossPlaneSubnetGroup
+          annotations:
+            crossplane.io/external-name: subgr-osearchm317555
+        spec:
+          writeConnectionSecretToRef:
+            namespace: crossplane-system
+            name: subnetgroup-connection-secret
+          providerConfigRef:
+            name: aws-provider-config
+          forProvider:
+            region: eu-west-1
+            subnetIds:
+              - subnet-080ad669df9969dd2
+              - subnet-0f9f5197718cef400
+              - subnet-026b60e757c368d29
+            tags:
+              Name: RDS Subnet group managed by Crossplane
+      patches:
+        - fromFieldPath: "metadata.uid"
+          toFieldPath: "metadata.annotations.crossplane.io/external-name"
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-xplanesubgroup"
+        - fromFieldPath: "metadata.uid"
+          toFieldPath: "spec.writeConnectionSecretToRef.name"
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-connection-secret"
+    - name: rdsDB
+      base:
+        apiVersion: rds.aws.upbound.io/v1beta1
+        kind: Instance
+        metadata:
+          name: crossplane-rds-database
+        spec:
+          providerConfigRef:
+            name: aws-provider-config
+          writeConnectionSecretToRef:
+            namespace: crossplane-system
+            name: crossplane-rds-instance-connection-secret
+          forProvider:
+            region: "eu-west-1"
+            dbName: myrdsdbcrossplane7
+            allocatedStorage: 10
+            dbSubnetGroupNameSelector:
+              matchLabels:
+                crossplaneSubnetgroup: myCrossPlaneSubnetGroup
+            instanceClass: "db.t3.small"
+            engine: postgres
+            engineVersion: "15.3"
+            username: adminuser
+            autoGeneratePassword: true
+            passwordSecretRef:
+              namespace: crossplane-system
+              key: password
+            publiclyAccessible: false
+            skipFinalSnapshot: true
+            storageEncrypted: true
+            storageType: gp2
+      patches:
+        - fromFieldPath: "metadata.uid"
+          toFieldPath: "spec.writeConnectionSecretToRef.name"
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-postgresql"
+        - fromFieldPath: "metadata.uid"
+          toFieldPath: "spec.forProvider.passwordSecretRef.name"
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-input"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.location"
+          toFieldPath: "spec.forProvider.region"
+          transforms:
+            - type: map
+              map:
+                EU: "eu-west-1"
+                US: "us-east-2"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.allocatedStorage"
+          toFieldPath: "spec.forProvider.allocatedStorage"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.dbName"
+          toFieldPath: "spec.forProvider.dbName"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.instanceClass"
+          toFieldPath: "spec.forProvider.instanceClass"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.engine"
+          toFieldPath: "spec.forProvider.engine"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.engineVersion"
+          toFieldPath: "spec.forProvider.engineVersion"
+        - type: FromCompositeFieldPath
+          fromFieldPath: "spec.storageType"
+          toFieldPath: "spec.forProvider.storageType"
+      readinessChecks:
+        - type: None
+      connectionDetails:
+        - fromFieldPath: "status.atProvider.endpoint"
+          name: endpoint
+        - fromFieldPath: "status.atProvider.address"
+          name: host
+        - fromFieldPath: "spec.forProvider.username"
+          name: username
+        - fromConnectionSecretKey: "attribute.password"
+          name: password
+  compositeTypeRef:
+    apiVersion: databaserds.company.com/v1alpha1
+    kind: RDS
+---
+apiVersion: databaserds.company.com/v1alpha1
+kind: RDSClaim
+metadata:
+  name: osearchm317555
+spec:
+  location: "EU"
+  allocatedStorage: 10
+  dbName: osearchm31755
+  instanceClass: "db.t3.micro"
+  engine: postgres
+  engineVersion: "15.3"
+  username: adminuser
+  autoGeneratePassword: true
+  publiclyAccessible: false
+  skipFinalSnapshot: true
+  storageEncrypted: true
+  storageType: gp2 #gp3 is 20GB and UP
