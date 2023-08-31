@@ -79,6 +79,10 @@ func (c *crdClient) getPluralKind(ctx context.Context, ref *v1.ObjectReference) 
 	}
 
 	for _, xrd := range xrds.Items {
+		if xrd.Spec.ClaimNames != nil && xrd.Spec.ClaimNames.Kind == ref.Kind && xrd.Spec.Group == ref.GroupVersionKind().Group {
+			return xrd.Spec.ClaimNames.Plural, nil
+		}
+
 		if xrd.Spec.Names.Kind == ref.Kind && xrd.Spec.Group == ref.GroupVersionKind().Group {
 			return xrd.Spec.Names.Plural, nil
 		}
