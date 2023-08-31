@@ -286,6 +286,8 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 }
 
 func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res ConditionedObject) (err error) {
+	res.SetAnnotations(map[string]string{})
+
 	if ref.Name == "" {
 		condNotFound := xpv1.Condition{
 			Type:               "Found",
@@ -313,13 +315,6 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 	res.SetGroupVersionKind(ref.GroupVersionKind())
 	res.SetNamespace(ref.Namespace)
 	res.SetName(ref.Name)
-
-	// we need to guarantee for frontend that "metadata" is in structure
-	if r, ok := res.(*uxres.Unstructured); ok {
-		if _, ok := r.Object["metadata"]; !ok {
-			r.Object["metadata"] = map[string]interface{}{}
-		}
-	}
 
 	return err
 }
