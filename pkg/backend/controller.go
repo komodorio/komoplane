@@ -81,7 +81,7 @@ func (m *ManagedUnstructured) GetProviderConfigReference() *xpv1.Reference {
 	return nil
 }
 
-func (m *ManagedUnstructured) SetProviderConfigReference(p *xpv1.Reference) {
+func (m *ManagedUnstructured) SetProviderConfigReference(_ *xpv1.Reference) {
 	panic("should not be called, report this to app maintainers")
 }
 
@@ -220,27 +220,14 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 		Items:  []unstructured.Unstructured{},
 	}
 
-	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	err := c.fillXRDList(list, func(spec v13.CompositeResourceDefinitionSpec) *string {
+		if spec.ClaimNames == nil { // the XRD allows it to be omitted
+			return nil
+		}
+		return &spec.ClaimNames.Plural
+	})
 	if err != nil {
 		return err
-	}
-
-	for _, xrd := range xrds.Items {
-		if xrd.Spec.ClaimNames == nil { // the XRD allows it to be omitted
-			continue
-		}
-
-		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
-			Group:   xrd.Spec.Group,
-			Version: xrd.Spec.Versions[0].Name,
-			Kind:    xrd.Spec.ClaimNames.Plural,
-		}
-		res, err := c.CRDs.List(c.ctx, gvk)
-		if err != nil {
-			return err
-		}
-
-		list.Items = append(list.Items, res.Items...)
 	}
 
 	return ec.JSONPretty(http.StatusOK, list, "  ")
@@ -415,23 +402,11 @@ func (c *Controller) GetComposites(ec echo.Context) error {
 		Items:  []unstructured.Unstructured{},
 	}
 
-	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	err := c.fillXRDList(list, func(spec v13.CompositeResourceDefinitionSpec) *string {
+		return &spec.Names.Plural
+	})
 	if err != nil {
 		return err
-	}
-
-	for _, xrd := range xrds.Items {
-		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceTypeRef is more logical here
-			Group:   xrd.Spec.Group,
-			Version: xrd.Spec.Versions[0].Name,
-			Kind:    xrd.Spec.Names.Plural,
-		}
-		res, err := c.CRDs.List(c.ctx, gvk)
-		if err != nil {
-			return err
-		}
-
-		list.Items = append(list.Items, res.Items...)
 	}
 
 	return ec.JSONPretty(http.StatusOK, list, "  ")
@@ -516,6 +491,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 }
 
 func (c *Controller) fillManagedResources(xr *uxres.Unstructured) {
+
 	MRs := []*ManagedUnstructured{}
 	for _, mrRef := range xr.GetResourceReferences() {
 		mr := NewManagedUnstructured()
@@ -527,6 +503,35 @@ func (c *Controller) fillManagedResources(xr *uxres.Unstructured) {
 		MRs = append(MRs, mr)
 	}
 	xr.Object["managedResources"] = MRs
+}
+
+type FieldGetter = func(spec v13.CompositeResourceDefinitionSpec) *string // pointer str to signal skip
+
+func (c *Controller) fillXRDList(list unstructured.UnstructuredList, getKind FieldGetter) error {
+	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, xrd := range xrds.Items {
+		kind := getKind(xrd.Spec)
+		if kind == nil { // signal to skip it, has no corresponding kind name
+			continue
+		}
+
+		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
+			Group:   xrd.Spec.Group,
+			Version: xrd.Spec.Versions[0].Name,
+			Kind:    *kind,
+		}
+		res, err := c.CRDs.List(c.ctx, gvk)
+		if err != nil {
+			return err
+		}
+
+		list.Items = append(list.Items, res.Items...)
+	}
+	return nil
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
