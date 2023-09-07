@@ -1,5 +1,5 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {CompositeResource, CompositeResourceExtended, ItemList, K8sResource} from "../types.ts";
+import {CompositeResource, CompositeResourceExtended, ItemList, K8sReference, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 import {useState} from "react";
@@ -28,7 +28,7 @@ function ListItem({item, onItemClick}: ItemProps) {
                     <Typography variant="body1">Group: {item.apiVersion}</Typography>
                     <Typography variant="body1">Composition: {item.spec.compositionRef?.name}</Typography>
                     <Typography variant="body1">Composed resources: {item.spec.resourceRefs?.length}</Typography>
-                    <ReadySynced status={item.status}></ReadySynced>
+                    <ReadySynced status={item.status ? item.status : {}}></ReadySynced>
                 </CardContent>
             </Card>
         </Grid>
@@ -115,11 +115,28 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
     const composition = data.addNode(NodeTypes.Composition, res.composition, false, navigate);
     data.addEdge(composition, xr)
 
-    res.managedResources?.map(res => {
-        const resId = data.addNode(NodeTypes.ManagedResource, res, false, navigate);
+    res.managedResources?.map(resource => {
+        let resId;
+
+        if (res.managedResourcesXRs.some(ref => xrMatch(ref, resource))) {
+            resId = data.addNode(NodeTypes.CompositeResource, resource, false, navigate);
+        } else if (res.managedResourcesClaims.some(ref => claimMatch(ref, resource))) {
+            console.log("HERE", resource, res.managedResourcesXRs)
+            debugger
+            resId = data.addNode(NodeTypes.Claim, resource, false, navigate);
+        } else {
+            resId = data.addNode(NodeTypes.ManagedResource, resource, false, navigate);
+        }
         data.addEdge(resId, xr)
     })
 
     return data
 }
 
+function xrMatch(ref: K8sReference, resource: K8sResource) {
+    return ref.kind == resource.kind && ref.apiVersion == resource.apiVersion && ref.name == resource.metadata.name
+}
+
+function claimMatch(ref: K8sReference, resource: K8sResource) {
+    return xrMatch(ref, resource) && ref.namespace == resource.metadata.namespace;
+}

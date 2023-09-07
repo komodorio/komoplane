@@ -35,7 +35,7 @@ spec:
         kind: XHelmDashboard
         spec:
           version: abc
-    - base:
+    - base: # TODO: This one does not work, possibly https://github.com/crossplane/crossplane/issues/1911
         name: claim
         apiVersion: xrd.komodor.com/v1alpha1
         kind: HelmDashboard

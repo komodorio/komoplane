@@ -31,12 +31,15 @@ export type Status = {
 
 export type Reference = {
     name: string
+    namespace: string
 }
 
 export type TypeReference = {
     kind: string
     apiVersion: string
 }
+
+export type K8sReference = Reference & TypeReference
 
 export type K8sResource = {
     kind: string
@@ -97,11 +100,13 @@ export type CompositeResource = K8sResource & {
         compositionRef: Reference
         resourceRefs: Reference[]
     }
-    status: Status
+    status?: Status
 }
 
 export type CompositeResourceExtended = CompositeResource & {
     managedResources: ManagedResource[]
+    managedResourcesXRs: K8sReference[]
+    managedResourcesClaims: K8sReference[]
     composition: Composition
     claim?: Claim
 }
