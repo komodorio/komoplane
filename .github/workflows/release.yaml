@@ -37,6 +37,7 @@ jobs:
         with:
           cache: 'npm'
           cache-dependency-path: pkg/frontend/package-lock.json
+          node-version: "20.5" # TODO: remove when they fix the regression https://github.com/nodejs/node/pull/49500
       - name: NPM install
         run: npm i
         working-directory: ./pkg/frontend
