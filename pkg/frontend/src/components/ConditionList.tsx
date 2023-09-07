@@ -21,7 +21,7 @@ function ConditionListItem({condition}: ConditionListItemProps) {
                                     className={condition.status == "True" ? "text-green-700" : "text-red-700"}>
                             {condition.status == "True" ? "" : "Not "}{condition.type}
                         </Typography>
-                        <Typography>{condition.reason}</Typography>
+                        <Typography>{condition.reason}{condition.message ? (": " + condition.message) : ""}</Typography>
                     </Grid>
                     <Grid item><Typography title={condition.lastTransitionTime}>{age} ago</Typography></Grid>
                 </Grid>
