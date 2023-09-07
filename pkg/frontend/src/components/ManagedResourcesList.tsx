@@ -27,8 +27,8 @@ function ListItem({item, onItemClick}: ItemProps) {
                         <Typography variant="h6">{item.metadata.name}</Typography>
                         <Typography variant="body1">Kind: {item.kind}</Typography>
                         <Typography variant="body1">Group: {item.apiVersion}</Typography>
-                        <Typography variant="body1">Provider Config: {item.spec.providerConfigRef.name}</Typography>
-                        <ReadySynced status={item.status}></ReadySynced>
+                        <Typography variant="body1">Provider Config: {item.spec.providerConfigRef?.name}</Typography>
+                        <ReadySynced status={item.status?item.status:{}}></ReadySynced>
                     </CardContent>
                 </CardActionArea>
             </Card>

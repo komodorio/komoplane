@@ -21,6 +21,7 @@ export type Condition = {
     "status": string,
     "lastTransitionTime": string,
     "reason": string
+    message?: string;
 }
 
 export type Status = {
@@ -80,9 +81,9 @@ export type ClaimExtended = Claim & {
 
 export type ManagedResource = K8sResource & {
     spec: {
-        providerConfigRef: Reference
+        providerConfigRef?: Reference
     }
-    status: Status
+    status?: Status
 }
 
 export type ManagedResourceExtended = ManagedResource & {

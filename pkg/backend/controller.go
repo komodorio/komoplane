@@ -70,11 +70,15 @@ func (m *ManagedUnstructured) GetProviderConfigReference() *xpv1.Reference {
 	// TODO: find a way to organize code better
 	// TODO: check field existence
 	spec := m.Object["spec"].(map[string]interface{})
-	ref := spec["providerConfigRef"].(map[string]interface{})
 
-	return &xpv1.Reference{
-		Name: ref["name"].(string),
+	if ref, found := spec["providerConfigRef"]; found {
+		return &xpv1.Reference{
+			Name: ref.(map[string]interface{})["name"].(string),
+		}
 	}
+
+	log.Warnf("Did not find providerConfigRef in managed resource '%v'", m.GetName())
+	return nil
 }
 
 func (m *ManagedUnstructured) SetProviderConfigReference(p *xpv1.Reference) {
