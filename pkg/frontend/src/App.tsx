@@ -73,8 +73,8 @@ export default function App() {
                         sx={{
                             width: drawerWidth,
                             zIndex: 100,
-                            backgroundColor: "#061431",
                             '& .MuiDrawer-paper': {
+                                backgroundColor: "#061431",
                                 width: drawerWidth,
                             },
                         }}
