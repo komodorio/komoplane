@@ -502,31 +502,38 @@ func (c *Controller) fillManagedResources(xr *uxres.Unstructured) error {
 		return err
 	}
 
+	XRs := []v12.ObjectReference{}
+	claims := []v12.ObjectReference{}
 	MRs := []*ManagedUnstructured{}
 	for _, mrRef := range xr.GetResourceReferences() {
-		for _, xrd := range xrds.Items {
-			// TODO: is it right to match to latest version and not iterate over versions?
-			if xrd.Spec.Group+"/"+xrd.Spec.Versions[0].Name == mrRef.APIVersion {
-				if xrd.Spec.Names.Kind == mrRef.Kind {
-					log.Debugf("")
-
-				}
-
-				if xrd.Spec.ClaimNames != nil && xrd.Spec.ClaimNames.Kind == mrRef.Kind {
-					log.Debugf("")
-				}
-			}
-		}
-
 		mr := NewManagedUnstructured()
 		err := c.getDynamicResource(&mrRef, mr)
 		if err != nil {
 			log.Debugf("Did not find dynamic resource %v", mrRef)
 		}
 
+		if mr.GetName() != "" { // skip those not found
+			for _, xrd := range xrds.Items {
+				// TODO: is it right to match to latest version and not iterate over versions?
+				if xrd.Spec.Group+"/"+xrd.Spec.Versions[0].Name == mrRef.APIVersion {
+					if xrd.Spec.Names.Kind == mrRef.Kind {
+						XRs = append(XRs, mrRef)
+						break
+					}
+
+					if xrd.Spec.ClaimNames != nil && xrd.Spec.ClaimNames.Kind == mrRef.Kind {
+						claims = append(claims, mrRef)
+						break
+					}
+				}
+			}
+		}
+
 		MRs = append(MRs, mr)
 	}
 	xr.Object["managedResources"] = MRs
+	xr.Object["managedResourcesXRs"] = XRs
+	xr.Object["managedResourcesClaims"] = claims
 	return nil
 }
 

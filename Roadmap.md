@@ -10,8 +10,6 @@ For providerConfig nodes in graph, add YAML modal/drawer
 
 Standard troubleshooting problem: Secret References from various objects
 
-Make sure compositions of compositions are displayed properly
-
 When we "open" resource (from diagram), it redirects to corresponding section and desorients user. Needs to stay
 in-place. Probably whole navigation has to be re-thought because of this.
 
