@@ -269,14 +269,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 		_ = c.getDynamicResource(xrRef, xr)
 		claim.Object["compositeResource"] = xr
 
-		MRs := []*ManagedUnstructured{}
-		for _, mrRef := range xr.GetResourceReferences() {
-			mr := NewManagedUnstructured()
-			_ = c.getDynamicResource(&mrRef, mr)
-
-			MRs = append(MRs, mr)
-		}
-		claim.Object["managedResources"] = MRs
+		c.fillManagedResources(xr)
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
@@ -516,17 +509,24 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 		}
 
 		// MR refs
-		MRs := []*ManagedUnstructured{}
-		for _, mrRef := range xr.GetResourceReferences() {
-			mr := NewManagedUnstructured()
-			_ = c.getDynamicResource(&mrRef, mr)
-
-			MRs = append(MRs, mr)
-		}
-		xr.Object["managedResources"] = MRs
+		c.fillManagedResources(xr)
 	}
 
 	return ec.JSONPretty(http.StatusOK, xr, "  ")
+}
+
+func (c *Controller) fillManagedResources(xr *uxres.Unstructured) {
+	MRs := []*ManagedUnstructured{}
+	for _, mrRef := range xr.GetResourceReferences() {
+		mr := NewManagedUnstructured()
+		err := c.getDynamicResource(&mrRef, mr)
+		if err != nil {
+			log.Debugf("Did not find dynamic resource %v", mrRef)
+		}
+
+		MRs = append(MRs, mr)
+	}
+	xr.Object["managedResources"] = MRs
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {

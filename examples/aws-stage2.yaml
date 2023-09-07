@@ -1,0 +1,27 @@
+---
+apiVersion: secrets.crossplane.io/v1alpha1
+kind: StoreConfig
+metadata:
+  name: in-cluster
+spec:
+  type: Kubernetes
+  defaultScope: crossplane-system
+---
+# This is the storeconfig for aws provider
+apiVersion: aws.crossplane.io/v1alpha1
+kind: StoreConfig
+metadata:
+  name: vault
+spec:
+  type: Vault
+  defaultScope: crossplane-system # indicates secrets are created under secret/crossplane-system
+  vault:
+    server: http://ENDPOINT:8200 # update this before use. e.g. vault.vault-system:8200 for in-cluster vault configuration
+    mountPath: secret/
+    version: v2
+    auth:
+      method: Token
+      token:
+        source: Filesystem
+        fs:
+          path: /vault/secrets/token # This is the vault token injected by the vault.hashicorp.com/agent-inject-token annotation

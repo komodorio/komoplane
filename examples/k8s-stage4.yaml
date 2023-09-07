@@ -1,0 +1,50 @@
+# should reproduce "composition of compositions situation
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcompproxies.xrd.komodor.com
+spec:
+  group: xrd.komodor.com
+  names:
+    kind: XCompProxy
+    plural: xcompproxies
+  claimNames:
+    kind: CompProxy
+    plural: compproxies
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: hd-proxy-composition
+spec:
+  compositeTypeRef:
+    apiVersion: xrd.komodor.com/v1alpha1
+    kind: XCompProxy
+  resources:
+    - base:
+        name: direct
+        apiVersion: xrd.komodor.com/v1alpha1
+        kind: XHelmDashboard
+        spec:
+          version: abc
+    - base:
+        name: claim
+        apiVersion: xrd.komodor.com/v1alpha1
+        kind: HelmDashboard
+        spec:
+          version: abc
+
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: CompProxy
+metadata:
+  name: test-proxy-comp
+spec: { }

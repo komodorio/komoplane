@@ -67,11 +67,17 @@ spec:
             namespace: TBD
             name: TBD
       patches:
-
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: XHelmDashboard
+metadata:
+  name: test-hd-direct
+spec:
+  version: abc
 ---
 apiVersion: xrd.komodor.com/v1alpha1
 kind: HelmDashboard
 metadata:
-  name: test-hd
+  name: test-hd-claim
 spec:
   version: abc
