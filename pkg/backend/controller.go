@@ -220,7 +220,7 @@ func (c *Controller) GetClaims(ec echo.Context) error {
 		Items:  []unstructured.Unstructured{},
 	}
 
-	err := c.fillXRDList(list, func(spec v13.CompositeResourceDefinitionSpec) *string {
+	err := c.fillXRDList(&list, func(spec v13.CompositeResourceDefinitionSpec) *string {
 		if spec.ClaimNames == nil { // the XRD allows it to be omitted
 			return nil
 		}
@@ -256,7 +256,10 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 		_ = c.getDynamicResource(xrRef, xr)
 		claim.Object["compositeResource"] = xr
 
-		c.fillManagedResources(xr)
+		err := c.fillManagedResources(xr)
+		if err != nil {
+			return err
+		}
 
 		compRef := claim.GetCompositionReference()
 		compRef.SetGroupVersionKind(v13.CompositionGroupVersionKind)
@@ -402,7 +405,7 @@ func (c *Controller) GetComposites(ec echo.Context) error {
 		Items:  []unstructured.Unstructured{},
 	}
 
-	err := c.fillXRDList(list, func(spec v13.CompositeResourceDefinitionSpec) *string {
+	err := c.fillXRDList(&list, func(spec v13.CompositeResourceDefinitionSpec) *string {
 		return &spec.Names.Plural
 	})
 	if err != nil {
@@ -484,16 +487,37 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 		}
 
 		// MR refs
-		c.fillManagedResources(xr)
+		err := c.fillManagedResources(xr)
+		if err != nil {
+			return err
+		}
 	}
 
 	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
 
-func (c *Controller) fillManagedResources(xr *uxres.Unstructured) {
+func (c *Controller) fillManagedResources(xr *uxres.Unstructured) error {
+	xrds, err := c.ExtV1.XRDs().List(c.ctx)
+	if err != nil {
+		return err
+	}
 
 	MRs := []*ManagedUnstructured{}
 	for _, mrRef := range xr.GetResourceReferences() {
+		for _, xrd := range xrds.Items {
+			// TODO: is it right to match to latest version and not iterate over versions?
+			if xrd.Spec.Group+"/"+xrd.Spec.Versions[0].Name == mrRef.APIVersion {
+				if xrd.Spec.Names.Kind == mrRef.Kind {
+					log.Debugf("")
+
+				}
+
+				if xrd.Spec.ClaimNames != nil && xrd.Spec.ClaimNames.Kind == mrRef.Kind {
+					log.Debugf("")
+				}
+			}
+		}
+
 		mr := NewManagedUnstructured()
 		err := c.getDynamicResource(&mrRef, mr)
 		if err != nil {
@@ -503,11 +527,12 @@ func (c *Controller) fillManagedResources(xr *uxres.Unstructured) {
 		MRs = append(MRs, mr)
 	}
 	xr.Object["managedResources"] = MRs
+	return nil
 }
 
 type FieldGetter = func(spec v13.CompositeResourceDefinitionSpec) *string // pointer str to signal skip
 
-func (c *Controller) fillXRDList(list unstructured.UnstructuredList, getKind FieldGetter) error {
+func (c *Controller) fillXRDList(list *unstructured.UnstructuredList, getKind FieldGetter) error {
 	xrds, err := c.ExtV1.XRDs().List(c.ctx)
 	if err != nil {
 		return err
