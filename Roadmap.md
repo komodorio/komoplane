@@ -4,8 +4,6 @@ Decide on presentation approach: info drawer or dedicated pages
 
 Refactor common code around drawer display => <ResourceListWithDrawer?/>
 
-Make Relations the first tab in drawer (if we keep drawer)
-
 For providerConfig nodes in graph, add YAML modal/drawer
 
 Standard troubleshooting problem: Secret References from various objects
