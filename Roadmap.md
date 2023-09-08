@@ -11,13 +11,11 @@ Standard troubleshooting problem: Secret References from various objects
 When we "open" resource (from diagram), it redirects to corresponding section and desorients user. Needs to stay
 in-place. Probably whole navigation has to be re-thought because of this.
 
+For any list view, have a filter for status and name, maybe other fields.
+
 ArgoCD has the ability to load UI extensions. It would be amazing to have komoplane-style inspection of the crossplane
 resources in argocd: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/ui-extensions/, there is one
 that does backend stuff as well: https://github.com/argoproj-labs/rollout-extension (by Blake Barnett)
-
-For any list view, have a filter for status and name, maybe other fields.
-
-For k8s-MRs, display actual k8s resources in graph.
 
 ## Claims
 
