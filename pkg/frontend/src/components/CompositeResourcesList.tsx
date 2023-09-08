@@ -42,45 +42,49 @@ type ItemListProps = {
 export default function CompositeResourcesList({items}: ItemListProps) {
     const {name: focusedName} = useParams();
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
-    const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
+    const nullFocused = {metadata: {name: ""}, kind: "", apiVersion: ""};
+    const [focused, setFocused] = useState<K8sResource>(nullFocused);
     const navigate = useNavigate();
 
     const onClose = () => {
         setDrawerOpen(false)
-        navigate("/composite", {state: focused})
+        setFocused(nullFocused)
+        navigate("/composite")
     }
 
     const onItemClick = (item: K8sResource) => {
         setFocused(item)
         setDrawerOpen(true)
         navigate(
-            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
-            {state: item}
+            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name
         );
     }
 
-    if (!focused.metadata.name && focusedName) {
+    if (focusedName && focused.metadata.name != focusedName) {
         items?.items?.forEach((item) => {
             if (focusedName == item.metadata.name) {
+                logger.log("== SET FOCUSED", item)
                 setFocused(item)
             }
         })
     }
 
     const bridge = new ItemContext()
-    bridge.setCurrent(focused)
-    bridge.getGraph = (setter, setError) => {
-        const setData = (res: CompositeResourceExtended) => {
-            logger.log("recv from API", res)
-            const data = xrToGraph(res, navigate)
-            logger.log("set graph data", data.nodes)
-            setter(data)
-        }
+    if (isDrawerOpen) {
+        bridge.setCurrent(focused)
+        bridge.getGraph = (setter, setError) => {
+            const setData = (res: CompositeResourceExtended) => {
+                logger.log("recv from API", res)
+                const data = xrToGraph(res, navigate)
+                logger.log("set graph data", data.nodes)
+                setter(data)
+            }
 
-        const [group, version] = focused.apiVersion.split("/")
-        apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
-            .then((data) => setData(data))
-            .catch((err) => setError(err))
+            const [group, version] = focused.apiVersion.split("/")
+            apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
+                .then((data) => setData(data))
+                .catch((err) => setError(err))
+        }
     }
 
     const title = (<>
@@ -95,8 +99,8 @@ export default function CompositeResourcesList({items}: ItemListProps) {
                     <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
                 ))}
             </Grid>
-            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
-                        title={title}>
+            <InfoDrawer key={focused.metadata.name}
+                        isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource" title={title}>
                 <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
             </InfoDrawer>
         </>

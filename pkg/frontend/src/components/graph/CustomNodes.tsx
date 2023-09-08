@@ -7,7 +7,6 @@ import {
     ReportProblem as IconNotReady,
     SyncDisabled as IconNoSync,
 } from "@mui/icons-material";
-import {logger} from "../../logger.ts";
 
 export enum NodeStatus {
     Ok = "Ok",
@@ -45,7 +44,6 @@ function NodeStatusLine({data}: { data: { status: string, statusMsg: string } })
 }
 
 function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
-    logger.log("Custom node render", data.onClick ? "pointer" : "grab")
     return (
         <Box className="border rounded border-gray-600" sx={{
             backgroundColor: data.bgcolor,
