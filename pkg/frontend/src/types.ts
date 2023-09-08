@@ -109,6 +109,7 @@ export type CompositeResourceExtended = CompositeResource & {
     managedResourcesClaims: K8sReference[]
     composition: Composition
     claim?: Claim
+    parentXR?: CompositeResource
 }
 
 export type Composition = K8sResource & {

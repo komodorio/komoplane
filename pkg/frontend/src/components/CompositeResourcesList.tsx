@@ -116,6 +116,11 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
         data.addEdge(xr, claim)
     }
 
+    if (res.parentXR) {
+        const parentXR = data.addNode(NodeTypes.CompositeResource, res.parentXR, false, navigate);
+        data.addEdge(xr, parentXR)
+    }
+
     const composition = data.addNode(NodeTypes.Composition, res.composition, false, navigate);
     data.addEdge(composition, xr)
 

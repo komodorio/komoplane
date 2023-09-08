@@ -48,7 +48,7 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
         <Box className="border rounded border-gray-600" sx={{
             backgroundColor: data.bgcolor,
             maxWidth: 350,
-            borderWidth: data.main ? 3 : null,
+            borderWidth: data.main ? 4 : null,
             cursor: data.onClick ? "pointer" : "grab"
         }}>
             <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20"
