@@ -121,8 +121,7 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
         if (res.managedResourcesXRs.some(ref => xrMatch(ref, resource))) {
             resId = data.addNode(NodeTypes.CompositeResource, resource, false, navigate);
         } else if (res.managedResourcesClaims.some(ref => claimMatch(ref, resource))) {
-            console.log("HERE", resource, res.managedResourcesXRs)
-            debugger
+            // TODO: possibly never happens?
             resId = data.addNode(NodeTypes.Claim, resource, false, navigate);
         } else {
             resId = data.addNode(NodeTypes.ManagedResource, resource, false, navigate);
