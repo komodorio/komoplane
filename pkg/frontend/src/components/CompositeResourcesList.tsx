@@ -1,5 +1,5 @@
 import {Card, CardContent, Grid} from '@mui/material';
-import {CompositeResource, CompositeResourceExtended, ItemList, K8sResource} from "../types.ts";
+import {CompositeResource, CompositeResourceExtended, ItemList, K8sReference, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
 import {useState} from "react";
@@ -28,7 +28,7 @@ function ListItem({item, onItemClick}: ItemProps) {
                     <Typography variant="body1">Group: {item.apiVersion}</Typography>
                     <Typography variant="body1">Composition: {item.spec.compositionRef?.name}</Typography>
                     <Typography variant="body1">Composed resources: {item.spec.resourceRefs?.length}</Typography>
-                    <ReadySynced status={item.status}></ReadySynced>
+                    <ReadySynced status={item.status ? item.status : {}}></ReadySynced>
                 </CardContent>
             </Card>
         </Grid>
@@ -42,45 +42,49 @@ type ItemListProps = {
 export default function CompositeResourcesList({items}: ItemListProps) {
     const {name: focusedName} = useParams();
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
-    const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
+    const nullFocused = {metadata: {name: ""}, kind: "", apiVersion: ""};
+    const [focused, setFocused] = useState<K8sResource>(nullFocused);
     const navigate = useNavigate();
 
     const onClose = () => {
         setDrawerOpen(false)
-        navigate("/composite", {state: focused})
+        setFocused(nullFocused)
+        navigate("/composite")
     }
 
     const onItemClick = (item: K8sResource) => {
         setFocused(item)
         setDrawerOpen(true)
         navigate(
-            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
-            {state: item}
+            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name
         );
     }
 
-    if (!focused.metadata.name && focusedName) {
+    if (focusedName && focused.metadata.name != focusedName) {
         items?.items?.forEach((item) => {
             if (focusedName == item.metadata.name) {
+                logger.log("== SET FOCUSED", item)
                 setFocused(item)
             }
         })
     }
 
     const bridge = new ItemContext()
-    bridge.setCurrent(focused)
-    bridge.getGraph = (setter, setError) => {
-        const setData = (res: CompositeResourceExtended) => {
-            logger.log("recv from API", res)
-            const data = xrToGraph(res, navigate)
-            logger.log("set graph data", data.nodes)
-            setter(data)
-        }
+    if (isDrawerOpen) {
+        bridge.setCurrent(focused)
+        bridge.getGraph = (setter, setError) => {
+            const setData = (res: CompositeResourceExtended) => {
+                logger.log("recv from API", res)
+                const data = xrToGraph(res, navigate)
+                logger.log("set graph data", data.nodes)
+                setter(data)
+            }
 
-        const [group, version] = focused.apiVersion.split("/")
-        apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
-            .then((data) => setData(data))
-            .catch((err) => setError(err))
+            const [group, version] = focused.apiVersion.split("/")
+            apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
+                .then((data) => setData(data))
+                .catch((err) => setError(err))
+        }
     }
 
     const title = (<>
@@ -95,8 +99,8 @@ export default function CompositeResourcesList({items}: ItemListProps) {
                     <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
                 ))}
             </Grid>
-            <InfoDrawer isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource"
-                        title={title}>
+            <InfoDrawer key={focused.metadata.name}
+                        isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource" title={title}>
                 <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
             </InfoDrawer>
         </>
@@ -112,14 +116,35 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
         data.addEdge(xr, claim)
     }
 
+    if (res.parentXR) {
+        const parentXR = data.addNode(NodeTypes.CompositeResource, res.parentXR, false, navigate);
+        data.addEdge(xr, parentXR)
+    }
+
     const composition = data.addNode(NodeTypes.Composition, res.composition, false, navigate);
     data.addEdge(composition, xr)
 
-    res.managedResources?.map(res => {
-        const resId = data.addNode(NodeTypes.ManagedResource, res, false, navigate);
+    res.managedResources?.map(resource => {
+        let resId;
+
+        if (res.managedResourcesXRs.some(ref => xrMatch(ref, resource))) {
+            resId = data.addNode(NodeTypes.CompositeResource, resource, false, navigate);
+        } else if (res.managedResourcesClaims.some(ref => claimMatch(ref, resource))) {
+            // TODO: possibly never happens?
+            resId = data.addNode(NodeTypes.Claim, resource, false, navigate);
+        } else {
+            resId = data.addNode(NodeTypes.ManagedResource, resource, false, navigate);
+        }
         data.addEdge(resId, xr)
     })
 
     return data
 }
 
+function xrMatch(ref: K8sReference, resource: K8sResource) {
+    return ref.kind == resource.kind && ref.apiVersion == resource.apiVersion && ref.name == resource.metadata.name
+}
+
+function claimMatch(ref: K8sReference, resource: K8sResource) {
+    return xrMatch(ref, resource) && ref.namespace == resource.metadata.namespace;
+}

@@ -16,13 +16,13 @@ import {ClaimNode, CompositionNode, MRNode, ProviderConfigNode, XRNode} from "./
 import {logger} from "../../logger.ts";
 
 
-const dagreGraph = new dagre.graphlib.Graph({directed: true});
-dagreGraph.setDefaultEdgeLabel(() => ({}));
-
 const nodeWidth = 300;
 const nodeHeight = 50;
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
+    const dagreGraph = new dagre.graphlib.Graph({directed: true});
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+
     const isHorizontal = direction === 'LR' || direction === "RL";
     dagreGraph.setGraph({rankdir: direction});
 

@@ -7,7 +7,6 @@ import {
     ReportProblem as IconNotReady,
     SyncDisabled as IconNoSync,
 } from "@mui/icons-material";
-import {logger} from "../../logger.ts";
 
 export enum NodeStatus {
     Ok = "Ok",
@@ -45,12 +44,11 @@ function NodeStatusLine({data}: { data: { status: string, statusMsg: string } })
 }
 
 function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
-    logger.log("Custom node render", data.onClick ? "pointer" : "grab")
     return (
         <Box className="border rounded border-gray-600" sx={{
             backgroundColor: data.bgcolor,
             maxWidth: 350,
-            borderWidth: data.main ? 3 : null,
+            borderWidth: data.main ? 4 : null,
             cursor: data.onClick ? "pointer" : "grab"
         }}>
             <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20"

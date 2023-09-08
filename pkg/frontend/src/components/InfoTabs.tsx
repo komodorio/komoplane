@@ -64,6 +64,10 @@ const InfoTabs = ({bridge, initial, noStatus, noEvents, noRelations}: ItemProps)
     const [graphData, setGraphData] = useState<GraphData | null>(null);
     const [error, setError] = useState<object | null>(null);
 
+    if (initial != currentTabIndex) {
+        setCurrentTabIndex(initial)
+    }
+
     const handleTabChange = (_: object, tabIndex: string) => {
         window.location.hash = tabIndex
         setCurrentTabIndex(tabIndex);

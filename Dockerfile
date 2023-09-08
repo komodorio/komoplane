@@ -1,5 +1,6 @@
 # Stage - frontend
-FROM node:latest as frontend
+# TODO: remove version pin when they fix the regression https://github.com/nodejs/node/pull/49500
+FROM node:20.5 as frontend
 
 WORKDIR /build
 

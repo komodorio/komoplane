@@ -10,15 +10,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ManagedIcon from '@mui/icons-material/HubTwoTone';
-import ClaimsIcon from '@mui/icons-material/PanToolTwoTone';
-import CompositeIcon from '@mui/icons-material/PolylineTwoTone';
-import XRDsIcon from '@mui/icons-material/SchemaTwoTone';
-import CompositionsIcon from '@mui/icons-material/AccountTreeTwoTone';
-import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 import GHIcon from '@mui/icons-material/GitHub';
 import SlackIcon from '@mui/icons-material/SupportTwoTone';
-import {Link as RouterLink, Route, Routes, useLocation} from "react-router-dom";
+import {Link as RouterLink, Route, Routes} from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import ProvidersPage from "./pages/ProvidersPage.tsx";
 import {CssBaseline, Link, ThemeProvider} from "@mui/material";
@@ -31,6 +25,7 @@ import CompositionsPage from "./pages/CompositionsPage.tsx";
 import XRDsPage from "./pages/XRDsPage.tsx";
 import {themeDark, themeLight} from "./theme.ts";
 import AppStatusNotifier from "./components/AppStatusNotifier.tsx";
+import MainMenu from "./components/MainMenu.tsx";
 
 const drawerWidth = 260;
 
@@ -45,25 +40,11 @@ const DrawerHeader = styled('div')(({theme}) => ({
 
 export default function App() {
     // TODO: extract some components from here
-    const location = useLocation();
     const XRDs = <XRDsPage/>
     const compositions = <CompositionsPage/>
     const composite = <CompositeResourcesPage/>
     const managed = <ManagedResourcesPage/>
 
-    const isLinkActive = (to: string) => {
-        return location.pathname === to;
-      };
-
-    const styleHighLight = (path: string) => ({  
-        ...(isLinkActive(path)) && {
-            backgroundColor:"#ffffff14",
-            fontWeight: 700,
-            borderLeft: 2,
-            borderLeftColor: "#1347ff"
-        }
-    });
-    
     return (
         <>
             <CssBaseline/>
@@ -95,59 +76,7 @@ export default function App() {
                                     </Box>
                                 </DrawerHeader>
                                 <Divider/>
-                                <List>
-                                    <ListItem key="Claims" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/claims" sx={styleHighLight("/claims")}>
-                                            <ListItemIcon>
-                                                <ClaimsIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Claims"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    <ListItem key="Composite Resources" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/composite" sx={styleHighLight("/composite")}>
-                                            <ListItemIcon>
-                                                <CompositeIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Composite Resources"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    <ListItem key="Managed Resources" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/managed" sx={styleHighLight("/managed")}>
-                                            <ListItemIcon>
-                                                <ManagedIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Managed Resources"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    <ListItem key="Providers" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/providers" sx={styleHighLight("/providers")}>
-                                            <ListItemIcon>
-                                                <ProvidersIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Providers"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                </List>
-                                <Divider/>
-                                <List>
-                                    <ListItem key="Compositions" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/compositions" sx={styleHighLight("/compositions")}>
-                                            <ListItemIcon>
-                                                <CompositionsIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="Compositions"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                    <ListItem key="XRDs" disablePadding>
-                                        <ListItemButton component={RouterLink} to="/xrds" sx={styleHighLight("/xrds")}>
-                                            <ListItemIcon>
-                                                <XRDsIcon/>
-                                            </ListItemIcon>
-                                            <ListItemText primary="XRDs"/>
-                                        </ListItemButton>
-                                    </ListItem>
-                                </List>
+                                <MainMenu/>
                             </Box>
                             <Box className="pt-20">
                                 <AppStatusNotifier/>

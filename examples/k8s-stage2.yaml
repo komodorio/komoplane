@@ -6,7 +6,7 @@ metadata:
 spec:
   credentials:
     source: InjectedIdentity
-  credentialsSecretRef:
+  #credentialsSecretRef:
 ---
 apiVersion: kubernetes.crossplane.io/v1alpha1
 kind: Object
