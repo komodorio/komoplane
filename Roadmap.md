@@ -57,6 +57,6 @@ Filter of free-text search
 Display as table
 
 ## Backend
-
 Refactor backend controller for cleaner arch
+Solve problem of expensive MRs loading
 Make watcher-based resource tracker in backend, to avoid re-reading all CRDs

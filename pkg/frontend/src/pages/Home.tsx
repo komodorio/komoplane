@@ -8,6 +8,9 @@ import ClaimsIcon from '@mui/icons-material/PanToolTwoTone';
 import ManagedIcon from '@mui/icons-material/HubTwoTone';
 import ProvidersIcon from '@mui/icons-material/GridViewTwoTone';
 import PageBody from "../components/PageBody.tsx";
+import XRDsIcon from "@mui/icons-material/SchemaTwoTone";
+import CompositionsIcon from "@mui/icons-material/AccountTreeTwoTone";
+import CompositeIcon from "@mui/icons-material/PolylineTwoTone";
 
 function Home() {
     const navigate = useNavigate();
@@ -28,6 +31,11 @@ function Home() {
                         }} icon={<ClaimsIcon fontSize={"large"}/>}/>
                     </Grid>
                     <Grid item md={4}>
+                        <HomePageBlock title="Composite Resources" getter={apiClient.getCompositeResourcesList} onClick={() => {
+                            navigate("composite")
+                        }} icon={<CompositeIcon fontSize={"large"}/>}/>
+                    </Grid>
+                    <Grid item md={4}>
                         <HomePageBlock title="Managed Resources" getter={apiClient.getManagedResourcesList}
                                        onClick={() => {
                                            navigate("managed")
@@ -37,6 +45,17 @@ function Home() {
                         <HomePageBlock title="Providers" getter={apiClient.getProviderList} onClick={() => {
                             navigate("providers")
                         }} icon={<ProvidersIcon fontSize={"large"}/>}/>
+                    </Grid>
+                    <Grid item md={4}>
+                        <HomePageBlock title="Compositions" getter={apiClient.getCompositionsList}
+                                       onClick={() => {
+                                           navigate("compositions")
+                                       }} icon={<CompositionsIcon fontSize={"large"}/>}/>
+                    </Grid>
+                    <Grid item md={4}>
+                        <HomePageBlock title="XRDs" getter={apiClient.getXRDsList} onClick={() => {
+                            navigate("xrds")
+                        }} icon={<XRDsIcon fontSize={"large"}/>}/>
                     </Grid>
                 </Grid>
             </PageBody>
