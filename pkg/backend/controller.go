@@ -18,6 +18,7 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -46,6 +47,11 @@ type ConditionedObject interface {
 	schema.ObjectKind
 	resource.Object
 	resource.Conditioned
+}
+
+type UnstructuredWithCompositionRef interface {
+	runtime.Unstructured
+	resource.CompositionReferencer
 }
 
 type ManagedUnstructured struct { // no dedicated type for it in base CP, just resource.Managed interface
@@ -265,15 +271,19 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 			return err
 		}
 
-		compRef := claim.GetCompositionReference()
-		compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
-
-		comp := uxres.New()
-		_ = c.getDynamicResource(compRef, comp)
-		claim.Object["composition"] = comp
-
+		c.fillCompositionByRef(claim)
 	}
 	return ec.JSONPretty(http.StatusOK, claim.Object, "  ")
+}
+
+func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
+	compRef := obj.GetCompositionReference()
+	if compRef != nil {
+		compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
+		comp := uxres.New()
+		_ = c.getDynamicResource(compRef, comp)
+		obj.UnstructuredContent()["composition"] = comp
+	}
 }
 
 func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res ConditionedObject) (err error) {
@@ -500,14 +510,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 			}
 		}
 
-		// composition ref
-		compRef := xr.GetCompositionReference()
-		if compRef != nil {
-			compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
-			comp := uxres.New()
-			_ = c.getDynamicResource(compRef, comp)
-			xr.Object["composition"] = comp
-		}
+		c.fillCompositionByRef(xr)
 
 		// MR refs
 		err = c.fillManagedResources(ec, xr)
