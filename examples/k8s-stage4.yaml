@@ -76,3 +76,9 @@ kind: CompProxy2
 metadata:
   name: test-proxy-comp2
 spec: { }
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: XCompProxy2
+metadata:
+  name: test-proxy-comp2-direct
+spec: { }
