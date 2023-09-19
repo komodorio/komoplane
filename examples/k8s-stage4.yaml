@@ -48,3 +48,31 @@ kind: CompProxy
 metadata:
   name: test-proxy-comp
 spec: { }
+
+
+--- # reproduces issue with composition missing on claim
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xcompproxies2.xrd.komodor.com
+spec:
+  group: xrd.komodor.com
+  names:
+    kind: XCompProxy2
+    plural: xcompproxies2
+  claimNames:
+    kind: CompProxy2
+    plural: compproxies2
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: CompProxy2
+metadata:
+  name: test-proxy-comp2
+spec: { }

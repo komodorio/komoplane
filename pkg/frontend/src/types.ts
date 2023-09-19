@@ -69,7 +69,7 @@ export type ProviderConfig = K8sResource
 
 export type Claim = K8sResource & {
     spec: {
-        compositionRef: Reference
+        compositionRef?: Reference
         resourceRef: Reference
     }
     status: Status
