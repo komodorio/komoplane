@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -9,6 +10,7 @@ import (
 	uxres "github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composite" // what's the difference between `composed` and `composite` there?
 	cpext "github.com/crossplane/crossplane/apis/apiextensions/v1"
 	cpv1 "github.com/crossplane/crossplane/apis/pkg/v1"
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
 	"github.com/labstack/echo/v4"
@@ -24,6 +26,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"net/http"
 	"os"
+	"time"
 )
 
 type StatusInfo struct {
@@ -41,6 +44,7 @@ type Controller struct {
 	CRDs       crossplane.CRDInterface
 	ctx        context.Context
 	apiExt     *apiextensionsv1.ApiextensionsV1Client
+	mrdCache   *ttlcache.Cache[bool, []*v1.CustomResourceDefinition] // TODO: extract this into separate entity
 }
 
 type ConditionedObject interface {
@@ -57,6 +61,8 @@ type UnstructuredWithCompositionRef interface {
 type ManagedUnstructured struct { // no dedicated type for it in base CP, just resource.Managed interface
 	uxres.Unstructured
 }
+
+type CRDMap = map[string][]*v1.CustomResourceDefinition
 
 func NewManagedUnstructured() *ManagedUnstructured {
 	res := ManagedUnstructured{
@@ -182,7 +188,7 @@ func (c *Controller) GetProviderConfigsInner(ec echo.Context, provName string) (
 	return &list, nil
 }
 
-func (c *Controller) LoadCRDs(ec echo.Context) (map[string][]*v1.CustomResourceDefinition, error) {
+func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 	// FIXME: a misplaced method! Should be in some data layer class
 	// FIXME: quite expensive method to call
 	if ec.Get("LoadCRDs") != nil {
@@ -201,7 +207,7 @@ func (c *Controller) LoadCRDs(ec echo.Context) (map[string][]*v1.CustomResourceD
 		return nil, err
 	}
 
-	provCRDs := map[string][]*v1.CustomResourceDefinition{}
+	provCRDs := CRDMap{}
 
 	for _, crd := range crdList.Items {
 		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
@@ -320,19 +326,31 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 	return err
 }
 
-func (c *Controller) GetManageds(ec echo.Context) error {
-	provCRDs, err := c.LoadCRDs(ec)
-	if err != nil {
-		return err
-	}
+func (c *Controller) GetManageds(ec echo.Context) (err error) {
+	start := time.Now()
 
-	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
-	for _, mrd := range c.allMRDs(provCRDs) {
-		if mrd.Spec.Names.Kind == cpk8s.ProviderConfigKind || mrd.Spec.Names.Kind == cpk8s.ProviderConfigUsageKind {
-			log.Debugf("Skipping %s/%s from listing of all MRs", mrd.Spec.Group, mrd.Spec.Names.Kind)
-			continue
+	var MRDs []*v1.CustomResourceDefinition
+	cacheItem := c.mrdCache.Get(true)
+	if cacheItem == nil {
+		// the assumption here is that the new kinds of MRs are rarely introduced
+		log.Debugf("Missed cache for MRDs, reloading...")
+		provCRDs, err := c.LoadCRDs(ec)
+		if err != nil {
+			return err
 		}
 
+		MRDs = c.allMRDs(provCRDs)
+		c.mrdCache.Set(true, MRDs, ttlcache.DefaultTTL)
+	} else {
+		log.Debugf("Cache hit for MRDs")
+		MRDs = cacheItem.Value()
+	}
+
+	fmt.Printf("LoadCRDs: %v\n", time.Now().Sub(start))
+	start = time.Now()
+
+	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
+	for _, mrd := range MRDs {
 		gvk := schema.GroupVersionKind{
 			Group:   mrd.Spec.Group,
 			Version: mrd.Spec.Versions[0].Name,
@@ -346,13 +364,22 @@ func (c *Controller) GetManageds(ec echo.Context) error {
 
 		res.Items = append(res.Items, items.Items...)
 	}
+	fmt.Printf("Process: %v", time.Now().Sub(start))
+
 	return ec.JSONPretty(http.StatusOK, res, "  ")
 }
 
-func (c *Controller) allMRDs(provCRDs map[string][]*v1.CustomResourceDefinition) []*v1.CustomResourceDefinition {
+func (c *Controller) allMRDs(provCRDs CRDMap) []*v1.CustomResourceDefinition {
 	res := []*v1.CustomResourceDefinition{}
 	for _, crds := range provCRDs {
-		res = append(res, crds...)
+		for _, mrd := range crds {
+			if mrd.Spec.Names.Kind == cpk8s.ProviderConfigKind || mrd.Spec.Names.Kind == cpk8s.ProviderConfigUsageKind {
+				log.Debugf("Skipping %s/%s from listing of all MRs", mrd.Spec.Group, mrd.Spec.Names.Kind)
+				continue
+			}
+
+			res = append(res, mrd)
+		}
 	}
 
 	return res
@@ -656,7 +683,13 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},
+
+		mrdCache: ttlcache.New[bool, []*v1.CustomResourceDefinition](
+			ttlcache.WithTTL[bool, []*v1.CustomResourceDefinition](5 * time.Minute),
+		),
 	}
+
+	go controller.mrdCache.Start() // starts automatic expired item deletion
 
 	return &controller, nil
 }
