@@ -2,7 +2,6 @@ package backend
 
 import (
 	"context"
-	"fmt"
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -326,28 +325,11 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 	return err
 }
 
-func (c *Controller) GetManageds(ec echo.Context) (err error) {
-	start := time.Now()
-
-	var MRDs []*v1.CustomResourceDefinition
-	cacheItem := c.mrdCache.Get(true)
-	if cacheItem == nil {
-		// the assumption here is that the new kinds of MRs are rarely introduced
-		log.Debugf("Missed cache for MRDs, reloading...")
-		provCRDs, err := c.LoadCRDs(ec)
-		if err != nil {
-			return err
-		}
-
-		MRDs = c.allMRDs(provCRDs)
-		c.mrdCache.Set(true, MRDs, ttlcache.DefaultTTL)
-	} else {
-		log.Debugf("Cache hit for MRDs")
-		MRDs = cacheItem.Value()
+func (c *Controller) GetManageds(ec echo.Context) error {
+	MRDs, err := c.getCachedMRDs(ec)
+	if err != nil {
+		return err
 	}
-
-	fmt.Printf("LoadCRDs: %v\n", time.Now().Sub(start))
-	start = time.Now()
 
 	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
 	for _, mrd := range MRDs {
@@ -364,9 +346,28 @@ func (c *Controller) GetManageds(ec echo.Context) (err error) {
 
 		res.Items = append(res.Items, items.Items...)
 	}
-	fmt.Printf("Process: %v", time.Now().Sub(start))
 
 	return ec.JSONPretty(http.StatusOK, res, "  ")
+}
+
+func (c *Controller) getCachedMRDs(ec echo.Context) ([]*v1.CustomResourceDefinition, error) {
+	var MRDs []*v1.CustomResourceDefinition
+	cacheItem := c.mrdCache.Get(true)
+	if cacheItem == nil {
+		// the assumption here is that the new kinds of MRs are rarely introduced
+		log.Debugf("Missed cache for MRDs, reloading...")
+		provCRDs, err := c.LoadCRDs(ec)
+		if err != nil {
+			return nil, err
+		}
+
+		MRDs = c.allMRDs(provCRDs)
+		c.mrdCache.Set(true, MRDs, ttlcache.DefaultTTL)
+	} else {
+		log.Debugf("Cache hit for MRDs")
+		MRDs = cacheItem.Value()
+	}
+	return MRDs, nil
 }
 
 func (c *Controller) allMRDs(provCRDs CRDMap) []*v1.CustomResourceDefinition {
@@ -673,6 +674,8 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		return nil, err
 	}
 
+	mrdCacheTTL := durationFromEnv("KP_MRD_CACHE_TTL", 5*time.Minute)
+
 	controller := Controller{
 		ctx:    ctx,
 		APIv1:  apiV1,
@@ -685,13 +688,24 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		},
 
 		mrdCache: ttlcache.New[bool, []*v1.CustomResourceDefinition](
-			ttlcache.WithTTL[bool, []*v1.CustomResourceDefinition](5 * time.Minute),
+			ttlcache.WithTTL[bool, []*v1.CustomResourceDefinition](mrdCacheTTL),
 		),
 	}
 
 	go controller.mrdCache.Start() // starts automatic expired item deletion
 
 	return &controller, nil
+}
+
+func durationFromEnv(key string, durDefault time.Duration) time.Duration {
+	dur := durDefault
+	envVar := os.Getenv(key)
+	dur, err := time.ParseDuration(envVar)
+	if err != nil {
+		log.Warnf("Failed to parse %s: %v", key, err)
+		dur = durDefault
+	}
+	return dur
 }
 
 func getK8sConfig() (*rest.Config, error) {
