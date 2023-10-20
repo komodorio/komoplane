@@ -714,12 +714,11 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 }
 
 func durationFromEnv(key string, durDefault time.Duration) time.Duration {
-	dur := durDefault
 	envVar := os.Getenv(key)
 	dur, err := time.ParseDuration(envVar)
 	if err != nil {
 		log.Warnf("Failed to parse %s: %v", key, err)
-		dur = durDefault
+		return durDefault
 	}
 	return dur
 }
