@@ -46,6 +46,10 @@ spec:
           env:
             - name: DEBUG
               value: {{- ternary " '1'" "" .Values.komoplane.debug }}
+            - name: KP_MR_CACHE_TTL
+              value: {{ .Values.komoplane.mrCacheTTL | default "1m" }}
+            - name: KP_MRD_CACHE_TTL
+              value: {{ .Values.komoplane.mrdCacheTTL | default "5m" }}
           ports:
             - name: http
               containerPort: 8090

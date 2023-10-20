@@ -1,3 +1,9 @@
+komoplane:
+  # Flag for setting environment to debug mode
+  debug: false
+  mrCacheTTL: 1m # cache list of MRs for this time
+  mrdCacheTTL: 5m # cache list of MRDs for this time
+
 replicaCount: 1
 
 image:
@@ -6,7 +12,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets: []
+imagePullSecrets: [ ]
 nameOverride: ""
 fullnameOverride: ""
 
@@ -25,11 +31,6 @@ resources:
     cpu: 1
     memory: 1Gi
 
-komoplane:
-  # Flag for setting environment to debug mode
-  debug: false
-
-
 
 ## @param.updateStrategy.type Set up update strategy for installation.
 ## Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods is destroyed first.
@@ -45,10 +46,10 @@ updateStrategy:
   type: RollingUpdate
 
 
-podLabels: {}
-podAnnotations: {}
+podLabels: { }
+podAnnotations: { }
 
-podSecurityContext: 
+podSecurityContext:
   fsGroup: 2000
 
 securityContext:
@@ -57,7 +58,7 @@ securityContext:
   runAsUser: 1000
   capabilities:
     drop:
-    - ALL  
+      - ALL
 
 service:
   type: ClusterIP
@@ -66,13 +67,13 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations: { }
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls: [ ]
 
 autoscaling:
   enabled: false
@@ -80,12 +81,12 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
 
-nodeSelector: {}
+nodeSelector: { }
 
 extraArgs:
   - --bind=0.0.0.0
 
-tolerations: []
+tolerations: [ ]
 
-affinity: {}
+affinity: { }
 

@@ -44,6 +44,7 @@ type Controller struct {
 	ctx        context.Context
 	apiExt     *apiextensionsv1.ApiextensionsV1Client
 	mrdCache   *ttlcache.Cache[bool, []*v1.CustomResourceDefinition] // TODO: extract this into separate entity
+	mrCache    *ttlcache.Cache[bool, *unstructured.UnstructuredList]
 }
 
 type ConditionedObject interface {
@@ -326,25 +327,33 @@ func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res Conditione
 }
 
 func (c *Controller) GetManageds(ec echo.Context) error {
-	MRDs, err := c.getCachedMRDs(ec)
-	if err != nil {
-		return err
-	}
-
 	res := &unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
-	for _, mrd := range MRDs {
-		gvk := schema.GroupVersionKind{
-			Group:   mrd.Spec.Group,
-			Version: mrd.Spec.Versions[0].Name,
-			Kind:    mrd.Spec.Names.Plural,
-		}
-		items, err := c.CRDs.List(c.ctx, gvk)
+	cacheItem := c.mrCache.Get(true)
+	if cacheItem == nil {
+		log.Debugf("Missed cache for MRs, reloading...")
+		MRDs, err := c.getCachedMRDs(ec)
 		if err != nil {
-			log.Warnf("Failed to list CRD: %v: %v", mrd.GroupVersionKind(), err)
-			continue
+			return err
 		}
 
-		res.Items = append(res.Items, items.Items...)
+		for _, mrd := range MRDs {
+			gvk := schema.GroupVersionKind{
+				Group:   mrd.Spec.Group,
+				Version: mrd.Spec.Versions[0].Name,
+				Kind:    mrd.Spec.Names.Plural,
+			}
+			items, err := c.CRDs.List(c.ctx, gvk)
+			if err != nil {
+				log.Warnf("Failed to list CRD: %v: %v", mrd.GroupVersionKind(), err)
+				continue
+			}
+
+			res.Items = append(res.Items, items.Items...)
+		}
+		c.mrCache.Set(true, res, ttlcache.DefaultTTL)
+	} else {
+		log.Debugf("Cache hit for MRs")
+		res = cacheItem.Value()
 	}
 
 	return ec.JSONPretty(http.StatusOK, res, "  ")
@@ -675,6 +684,7 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 	}
 
 	mrdCacheTTL := durationFromEnv("KP_MRD_CACHE_TTL", 5*time.Minute)
+	mrCacheTTL := durationFromEnv("KP_MR_CACHE_TTL", 1*time.Minute)
 
 	controller := Controller{
 		ctx:    ctx,
@@ -687,12 +697,18 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 			CurVer: version,
 		},
 
-		mrdCache: ttlcache.New[bool, []*v1.CustomResourceDefinition](
+		mrdCache: ttlcache.New(
 			ttlcache.WithTTL[bool, []*v1.CustomResourceDefinition](mrdCacheTTL),
+			ttlcache.WithDisableTouchOnHit[bool, []*v1.CustomResourceDefinition](),
+		),
+		mrCache: ttlcache.New(
+			ttlcache.WithTTL[bool, *unstructured.UnstructuredList](mrCacheTTL),
+			ttlcache.WithDisableTouchOnHit[bool, *unstructured.UnstructuredList](),
 		),
 	}
 
 	go controller.mrdCache.Start() // starts automatic expired item deletion
+	go controller.mrCache.Start()  // starts automatic expired item deletion
 
 	return &controller, nil
 }
