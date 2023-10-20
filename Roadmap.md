@@ -17,6 +17,8 @@ ArgoCD has the ability to load UI extensions. It would be amazing to have komopl
 resources in argocd: https://argo-cd.readthedocs.io/en/latest/developer-guide/extensions/ui-extensions/, there is one
 that does backend stuff as well: https://github.com/argoproj-labs/rollout-extension (by Blake Barnett)
 
+For big XRs and claims (~50 resources), the graph is too small to view 
+
 ## Claims
 
 Add link to XRD to graph

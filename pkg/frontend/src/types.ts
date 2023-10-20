@@ -115,7 +115,7 @@ export type CompositeResourceExtended = CompositeResource & {
 export type Composition = K8sResource & {
     spec: {
         compositeTypeRef: TypeReference
-        resources: {
+        resources?: {
             name: string
             base: K8sResource
             patches: object[] // TODO

@@ -38,6 +38,12 @@ type ProviderListProps = {
 };
 
 export default function ProviderList({providers}: ProviderListProps) {
+    if (!providers || !providers.items.length) {
+        return (
+            <Typography variant="h6">No items</Typography>
+        )
+    }
+
     return (
         <Grid container spacing={2}>
             {providers?.items?.map((provider: Provider) => (

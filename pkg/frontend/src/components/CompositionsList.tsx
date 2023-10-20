@@ -22,7 +22,7 @@ function ListItem({item, onItemClick}: ItemProps) {
                         <Typography variant="h6">{item.metadata.name}</Typography>
                         <Typography variant="body1">Composite Kind: {item.spec.compositeTypeRef.kind}</Typography>
                         <Typography variant="body1">Composite Group: {item.spec.compositeTypeRef.apiVersion}</Typography>
-                        <Typography variant="body1">{item.spec.resources.length} resources composed</Typography>
+                        <Typography variant="body1">{item.spec.resources?.length} resources composed</Typography>
                     </CardContent>
                 </CardActionArea>
             </Card>
@@ -64,6 +64,12 @@ export default function CompositionsList({items}: ItemListProps) {
 
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
+
+    if (!items || !items.items.length) {
+        return (
+            <Typography variant="h6">No items</Typography>
+        )
+    }
 
     return (
         <>

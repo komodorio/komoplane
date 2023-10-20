@@ -89,6 +89,12 @@ export default function ManagedResourcesList({items}: ItemListProps) {
         <ConditionChips status={focused.status ? focused.status : {}}></ConditionChips>
     </>)
 
+    if (!items || !items.items.length) {
+        return (
+            <Typography variant="h6">No items</Typography>
+        )
+    }
+
     return (
         <>
             <Grid container spacing={2}>

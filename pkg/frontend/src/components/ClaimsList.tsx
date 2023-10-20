@@ -39,6 +39,12 @@ type ItemListProps = {
 };
 
 export default function ClaimsList({items}: ItemListProps) {
+    if (!items || !items.items.length) {
+        return (
+            <Typography variant="h6">No items</Typography>
+        )
+    }
+
     return (
         <Grid container spacing={2}>
             {items?.items?.map((item: Claim) => (

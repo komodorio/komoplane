@@ -67,6 +67,12 @@ export default function XRDsList({items}: ItemListProps) {
     const bridge = new ItemContext()
     bridge.setCurrent(focused)
 
+    if (!items || !items.items.length) {
+        return (
+            <Typography variant="h6">No items</Typography>
+        )
+    }
+
     return (
         <>
             <Grid container spacing={2}>
