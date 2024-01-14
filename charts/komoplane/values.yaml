@@ -63,6 +63,7 @@ securityContext:
 service:
   type: ClusterIP
   port: 8090
+  annotations: { }
 
 ingress:
   enabled: false
