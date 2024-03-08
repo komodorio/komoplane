@@ -2,6 +2,10 @@ package backend
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"time"
+
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
@@ -21,11 +25,9 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"net/http"
-	"os"
-	"time"
 )
 
 type StatusInfo struct {
