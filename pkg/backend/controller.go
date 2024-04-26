@@ -17,6 +17,7 @@ import (
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
 	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -608,9 +609,20 @@ func (c *Controller) fillXRDList(ec echo.Context, list *unstructured.Unstructure
 			continue
 		}
 
+		versionName := ""
+		for _, v := range xrd.Spec.Versions {
+			if v.Served {
+				versionName = v.Name
+			}
+		}
+
+		if versionName == "" {
+			return errors.Errorf("No active versions for %s", xrd.Spec.Names.Plural)
+		}
+
 		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
 			Group:   xrd.Spec.Group,
-			Version: xrd.Spec.Versions[0].Name,
+			Version: versionName,
 			Kind:    *kind,
 		}
 		res, err := c.CRDs.List(c.ctx, gvk)
