@@ -37,7 +37,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.22"
       - name: Unit tests
         run: |
           go test -v -race ./... -covermode=atomic -coverprofile=coverage.out # Run all the tests with the race detector enabled
@@ -115,7 +115,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.22"
       - name: Static analysis
         run: |
           go vet ./... # go vet is the official Go static analyzer
