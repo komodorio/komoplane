@@ -12,6 +12,8 @@ func Plural(resName string) string { // TODO: is this the best way to obtain end
 		return noun[:len(noun)-1] + "ves"
 	} else if strings.HasSuffix(noun, "fe") {
 		return noun[:len(noun)-2] + "ves"
+	} else if strings.HasSuffix(noun, "o") {
+		return noun + "es"
 	} else {
 		return noun + "s"
 	}
