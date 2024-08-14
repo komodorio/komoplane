@@ -47,7 +47,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
-          args: release --snapshot --rm-dist
+          args: release --snapshot --clean
       - name: Test Binary is Runnable
         run: "dist/komoplane_linux_amd64_v1/komoplane --help"
       - uses: actions/upload-artifact@v3
