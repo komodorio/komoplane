@@ -1,4 +1,5 @@
-import {Card, CardContent, Grid} from '@mui/material';
+import {Box, Alert, Stack, List, Card, CardContent, Grid, Accordion, AccordionSummary, AccordionDetails} from '@mui/material';
+import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material';
 import {CompositeResource, CompositeResourceExtended, ItemList, K8sReference, K8sResource} from "../types.ts";
 import Typography from "@mui/material/Typography";
 import ReadySynced from "./ReadySynced.tsx";
@@ -98,13 +99,86 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         )
     }
 
+    // Define Grouped Items
+    const groupedItems: { [itemIndex: string]: CompositeResource[] } = {};
+    items.items.forEach((item) => {
+        const itemIndex = item.kind
+        if (!groupedItems[itemIndex]) {
+            groupedItems[itemIndex] = [];
+        }
+        groupedItems[itemIndex].push(item);
+    });
+
+    // Accordion State
+    const [expandedItems, setExpandedItems] = useState<{[itemIndex: string]: boolean}>({});
+    const handleAccordionChange = (itemIndex: string) => {
+        setExpandedItems((prevState) => ({
+            ...prevState,
+            [itemIndex]: !prevState[itemIndex],
+        }));
+    };
+
     return (
         <>
-            <Grid container spacing={2}>
-                {items?.items?.map((item: CompositeResource) => (
-                    <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
-                ))}
-            </Grid>
+            {Object.entries(groupedItems).map(([itemIndex, items]) => (    
+                <Stack key={itemIndex} className="m-1">
+                    <Accordion key={itemIndex} expanded={expandedItems[itemIndex] || false} 
+                        onChange={() => handleAccordionChange(itemIndex)}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                        <Stack sx={{mt: 0.5}} direction="row" spacing={1}>
+                            <Typography variant="h6">{itemIndex}</Typography>
+                                <Box sx={{mx: 0.5}}>
+                                    <Alert sx={{py: 0, 
+                                            '& > *': {
+                                                py: '4px !important',
+                                            },}} 
+                                        severity="success">
+                                        Ready: {items.filter((item) => item.status?.conditions?.find((condition) => 
+                                            condition.status === "True" && condition.type === "Ready")).length}
+                                    </Alert>
+                                </Box>
+                                {
+                                items.filter((item) => !item.status?.conditions?.find((condition) =>
+                                    condition.status === "True" && condition.type === "Ready")).length > 0 ? (
+                                    <Box sx={{mx: 0.5}}>
+                                        <Alert sx={{py: 0, 
+                                                '& > *': {
+                                                    py: '4px !important', 
+                                                },}} 
+                                            severity="error" color="warning">
+                                            Not Ready: {items.filter((item) => !item.status?.conditions?.find((condition) =>
+                                                condition.status === "True" && condition.type === "Ready")).length}
+                                        </Alert>
+                                    </Box>
+                                    ) : null
+                                }
+                                {
+                                items.filter((item) => !item.status?.conditions?.find((condition) =>
+                                    condition.status === "True" && condition.type === "Synced")).length > 0 ? (
+                                    <Box sx={{mx: 0.5}}>
+                                        <Alert sx={{py: 0, 
+                                                '& > *': {
+                                                    py: '4px !important', 
+                                                },}} 
+                                            severity="info" color="info">
+                                            Not Synced: {items.filter((item) => !item.status?.conditions?.find((condition) =>
+                                                condition.status === "True" && condition.type === "Sync")).length}
+                                        </Alert>
+                                    </Box>
+                                    ) : null
+                                }
+                        </Stack>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <List>
+                            {items.map((item: CompositeResource) => (
+                                <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
+                            ))}
+                        </List>
+                    </AccordionDetails>
+                    </Accordion>
+                </Stack>
+            ))}
             <InfoDrawer key={focused.metadata.name}
                         isOpen={isDrawerOpen} onClose={onClose} type="Composite Resource" title={title}>
                 <InfoTabs bridge={bridge} initial="relations"></InfoTabs>
