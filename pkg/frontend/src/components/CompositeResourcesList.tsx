@@ -45,6 +45,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
     const nullFocused = {metadata: {name: ""}, kind: "", apiVersion: ""};
     const [focused, setFocused] = useState<K8sResource>(nullFocused);
+    const [expandedItems, setExpandedItems] = useState<{[itemIndex: string]: boolean}>({});
     const navigate = useNavigate();
 
     const onClose = () => {
@@ -110,7 +111,6 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     });
 
     // Accordion State
-    const [expandedItems, setExpandedItems] = useState<{[itemIndex: string]: boolean}>({});
     const handleAccordionChange = (itemIndex: string) => {
         setExpandedItems((prevState) => ({
             ...prevState,
