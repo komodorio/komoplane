@@ -1,0 +1,45 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: example-komodorset-composition
+spec:
+  compositeTypeRef:
+    apiVersion: xrd.komodor.com/v1alpha1
+    kind: XKomodorChartSet
+  resources:
+    - name: khd-instance
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          providerConfigRef:
+            name: helm-provider-pc
+          forProvider:
+            chart:
+              repository: https://helm-charts.komodor.io
+              name: helm-dashboard
+              version: 0.1.10
+            namespace: komodor
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.hdashboardVer
+          toFieldPath: spec.forProvider.chart.version
+
+    - name: komoplane-instance
+      base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: Release
+        spec:
+          providerConfigRef:
+            name: helm-provider-pc
+          forProvider:
+            chart:
+              repository: https://helm-charts.komodor.io
+              name: komoplane
+              version: 0.1.5
+            namespace: komodor
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.komoplaneVer
+          toFieldPath: spec.forProvider.chart.version

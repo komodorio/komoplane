@@ -1,0 +1,19 @@
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: KomodorChartSet # Claim-style
+metadata:
+  namespace: default
+  name: my-test-set2
+spec:
+  hdashboardVer: 0.1.10
+  komoplaneVer: 0.1.5
+
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: KomodorChartSet # Claim-style
+metadata:
+  namespace: workshop-provider-helm
+  name: my-test-set3
+spec:
+  hdashboardVer: 0.1.9
+  komoplaneVer: 0.1.3 # would not exist, causing troubleshooting

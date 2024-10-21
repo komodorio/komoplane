@@ -37,10 +37,6 @@ metadata:
   name: provider-helm-cc
 spec:
   serviceAccountName: provider-helm-sa
-
-
-
-
 ---
 apiVersion: pkg.crossplane.io/v1
 kind: Provider

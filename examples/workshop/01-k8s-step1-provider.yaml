@@ -1,0 +1,9 @@
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-kubernetes
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.15.0
+  controllerConfigRef:
+    name: providers-cc # gives it in-cluster write access to create namespaces and other resources

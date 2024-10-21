@@ -1,0 +1,8 @@
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: Mega
+metadata:
+  namespace: default
+  name: mega-composition-instance1
+spec:
+  namespace: test1

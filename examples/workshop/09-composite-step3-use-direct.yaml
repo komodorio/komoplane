@@ -1,0 +1,8 @@
+---
+apiVersion: xrd.komodor.com/v1alpha1
+kind: XKomodorChartSet # Direct XR-style
+metadata:
+  name: my-test-set1
+spec:
+  hdashboardVer: 0.1.8
+  komoplaneVer: 0.1.4

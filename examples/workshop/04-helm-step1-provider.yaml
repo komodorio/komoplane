@@ -1,0 +1,9 @@
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-helm
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.19.0
+  controllerConfigRef:
+    name: providers-cc # gives it in-cluster write access to create namespaces and other resources

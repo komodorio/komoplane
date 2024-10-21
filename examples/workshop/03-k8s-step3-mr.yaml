@@ -1,0 +1,54 @@
+---
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  name: ns-for-jobs
+spec:
+  providerConfigRef:
+    name: k8s-provider-pc
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: workshop-provider-k8s
+
+---
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  name: stray-pod
+spec:
+  providerConfigRef:
+    name: k8s-provider-pc
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        namespace: workshop-provider-k8s
+        name: pod-orphan-or-stray
+      spec:
+        restartPolicy: Always
+        containers:
+          - name: demo-dates
+            image: busybox:latest
+            imagePullPolicy: IfNotPresent
+            command:
+              - /bin/sh
+              - -c
+              - ping -w 60 -i 5 localhost && exit $((RANDOM % 2))
+
+
+# Generic template for K8s Managed Resource:
+# ---
+# apiVersion: kubernetes.crossplane.io/v1alpha2
+# kind: Object
+# metadata:
+#  name: <MR name>
+# spec:
+#   providerConfigRef:
+#    name: k8s-provider-pc
+#   forProvider:
+#    manifest:
+#      <any k8s resource manifest goes here>
