@@ -135,4 +135,9 @@ jobs:
       - name: NPM lint
         run: npm run lint
         working-directory: ./pkg/frontend
+      - name: Helm Template Check For Sanity
+        uses: igabaydulin/helm-check-action@0.2.1
+        env:
+          CHART_LOCATION: ./charts/helm-dashboard
+          CHART_VALUES: ./charts/helm-dashboard/values.yaml
 
