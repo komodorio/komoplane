@@ -141,7 +141,7 @@ jobs:
           CHART_LOCATION: ./charts/komoplane
           CHART_VALUES: ./charts/komoplane/values.yaml
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@2.6.1
+        uses: helm/chart-testing-action@v2.6.1
       - name: Run chart-testing (lint)
         run: ct lint
 
