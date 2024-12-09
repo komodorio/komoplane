@@ -4,8 +4,10 @@ type: application
 name: komoplane
 description: Komodor tool to visualize Crossplane
 icon: https://raw.githubusercontent.com/komodorio/komoplane/main/pkg/frontend/src/assets/logo.svg
+maintainers:
+  - name: Komodor Team
 
 version: 0.1.5
-appVersion: "0.1.5" 
+appVersion: "0.1.5"
 
 # docker build . -t komodorio/komoplane:unstable && kind load docker-image komodorio/komoplane:unstable && helm upgrade --install komoplane charts/komoplane --set image.tag=unstable

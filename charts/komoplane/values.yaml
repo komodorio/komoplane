@@ -1,8 +1,8 @@
 komoplane:
   # Flag for setting environment to debug mode
   debug: false
-  mrCacheTTL: 1m # cache list of MRs for this time
-  mrdCacheTTL: 5m # cache list of MRDs for this time
+  mrCacheTTL: 1m  # cache list of MRs for this time
+  mrdCacheTTL: 5m  # cache list of MRDs for this time
 
 replicaCount: 1
 
@@ -12,7 +12,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-imagePullSecrets: [ ]
+imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
@@ -22,8 +22,8 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-  annotations: { }
-  labels: { }
+  annotations: {}
+  labels: {}
 
 resources:
   requests:
@@ -48,8 +48,8 @@ updateStrategy:
   type: RollingUpdate
 
 
-podLabels: { }
-podAnnotations: { }
+podLabels: {}
+podAnnotations: {}
 
 podSecurityContext:
   fsGroup: 2000
@@ -65,20 +65,20 @@ securityContext:
 service:
   type: ClusterIP
   port: 8090
-  annotations: { }
-  labels: { }
+  annotations: {}
+  labels: {}
 
 ingress:
   enabled: false
   className: ""
-  annotations: { }
-  labels: { }
+  annotations: {}
+  labels: {}
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: [ ]
+  tls: []
 
 autoscaling:
   enabled: false
@@ -86,12 +86,11 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
 
-nodeSelector: { }
+nodeSelector: {}
 
 extraArgs:
   - --bind=0.0.0.0
 
-tolerations: [ ]
+tolerations: []
 
-affinity: { }
-
+affinity: {}
