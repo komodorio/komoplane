@@ -50,7 +50,7 @@ jobs:
           args: release --snapshot --clean
       - name: Test Binary is Runnable
         run: "dist/komoplane_linux_amd64_v1/komoplane --help"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: binaries
           path: dist/
@@ -99,7 +99,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Helm Template Check For Sanity
-        uses: igabaydulin/helm-check-action@0.2.0
+        uses: igabaydulin/helm-check-action@0.2.1
         env:
           CHART_LOCATION: ./charts/komoplane
           CHART_VALUES: ./charts/komoplane/values.yaml
