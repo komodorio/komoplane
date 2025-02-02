@@ -10,4 +10,3 @@ maintainers:
 version: 0.1.6
 appVersion: "0.1.6" 
 
-# docker build . -t komodorio/komoplane:unstable && kind load docker-image komodorio/komoplane:unstable && helm upgrade --install komoplane charts/komoplane --set image.tag=unstable

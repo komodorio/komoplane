@@ -72,6 +72,7 @@ spec:
         - type: FromCompositeFieldPath
           fromFieldPath: spec.namespace
           toFieldPath: spec.forProvider.namespace
+
     - name: composition-of-compositions
       base:
         apiVersion: xrd.komodor.com/v1alpha1

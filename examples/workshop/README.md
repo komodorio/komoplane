@@ -41,7 +41,7 @@ Installs empty Custom Control Plane.
 ```bash
 helm repo add crossplane-stable https://charts.crossplane.io/stable
 helm repo update
-helm upgrade --install --create-namespace -n crossplane-system crossplane crossplane/crossplane
+helm upgrade --install --create-namespace -n crossplane-system crossplane-stable crossplane/crossplane
 ```
 
 Preparation step applying [00-pre-setup-sa.yaml](00-pre-setup-sa.yaml).

@@ -16,4 +16,4 @@ metadata:
   name: my-test-set3
 spec:
   hdashboardVer: 0.1.9
-  komoplaneVer: 0.1.3 # would not exist, causing troubleshooting
+  komoplaneVer: 0.1.4 # would not exist, causing troubleshooting
