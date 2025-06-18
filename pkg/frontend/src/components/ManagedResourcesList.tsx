@@ -41,8 +41,8 @@ type ItemListProps = {
 };
 
 export default function ManagedResourcesList({items}: ItemListProps) {
-    const {name: focusedName} = useParams();
-    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
+    const {group: fGroup, version: fVersion, kind: fKind, name: fName} = useParams();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(fName != undefined);
     const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
     const navigate = useNavigate();
 
@@ -60,9 +60,11 @@ export default function ManagedResourcesList({items}: ItemListProps) {
         );
     }
 
-    if (!focused.metadata.name && focusedName) {
+    let fApiVersion = fGroup + "/" + fVersion;
+
+    if (!focused.metadata.name && fName) {
         items?.items?.forEach((item) => {
-            if (focusedName == item.metadata.name) {
+            if (item.metadata.name == fName && item.apiVersion == fApiVersion && item.kind == fKind) {
                 setFocused(item)
             }
         })
