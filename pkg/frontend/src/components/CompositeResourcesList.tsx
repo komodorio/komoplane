@@ -41,8 +41,8 @@ type ItemListProps = {
 };
 
 export default function CompositeResourcesList({items}: ItemListProps) {
-    const {name: focusedName} = useParams();
-    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(focusedName != undefined);
+    const {group: fGroup, version: fVersion, kind: fKind, name: fName} = useParams();
+    const [isDrawerOpen, setDrawerOpen] = useState<boolean>(fName != undefined);
     const nullFocused = {metadata: {name: ""}, kind: "", apiVersion: ""};
     const [focused, setFocused] = useState<K8sResource>(nullFocused);
     const [expandedItems, setExpandedItems] = useState<{[itemIndex: string]: boolean}>({});
@@ -62,9 +62,11 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         );
     }
 
-    if (focusedName && focused.metadata.name != focusedName) {
+    let fApiVersion = fGroup + "/" + fVersion;
+
+    if (fName && focused.metadata.name != fName) {
         items?.items?.forEach((item) => {
-            if (focusedName == item.metadata.name) {
+            if (item.metadata.name == fName && item.apiVersion == fApiVersion && item.kind == fKind) {
                 logger.log("== SET FOCUSED", item)
                 setFocused(item)
             }
