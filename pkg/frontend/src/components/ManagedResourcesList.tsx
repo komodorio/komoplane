@@ -60,7 +60,7 @@ export default function ManagedResourcesList({items}: ItemListProps) {
         );
     }
 
-    let fApiVersion = fGroup + "/" + fVersion;
+    const fApiVersion = fGroup + "/" + fVersion;
 
     if (!focused.metadata.name && fName) {
         items?.items?.forEach((item) => {

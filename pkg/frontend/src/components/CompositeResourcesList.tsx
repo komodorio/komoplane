@@ -62,7 +62,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
         );
     }
 
-    let fApiVersion = fGroup + "/" + fVersion;
+    const fApiVersion = fGroup + "/" + fVersion;
 
     if (fName && focused.metadata.name != fName) {
         items?.items?.forEach((item) => {
