@@ -1,0 +1,83 @@
+Komoplane Test Report
+Generated on: Wed  3 Sep 2025 14:29:19 BST
+==========================
+
+Backend Test Coverage:
+github.com/komodorio/komoplane/main.go:32:					main				0.0%
+github.com/komodorio/komoplane/main.go:85:					parseFlags			0.0%
+github.com/komodorio/komoplane/main.go:111:					setupLogging			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:13:				NewRouter			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:51:				slowness			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:67:				devNoCORS			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:74:				errSet500			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:85:				configureRoutes			0.0%
+github.com/komodorio/komoplane/pkg/backend/api.go:124:				configureStatic			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:70:			NewManagedUnstructured		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:84:			GetProviderConfigReference	0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:99:			SetProviderConfigReference	0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:103:			GetStatus			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:115:			GetProviders			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:124:			GetProvider			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:133:			GetProviderEvents		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:153:			GetProviderConfigs		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:162:			GetProviderConfigsInner		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:194:			LoadCRDs			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:236:			GetClaims			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:255:			GetClaim			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:288:			fillCompositionByRef		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:298:			getDynamicResource		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:332:			GetManageds			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:365:			getCachedMRDs			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:385:			allMRDs				0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:401:			GetManaged			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:456:			GetComposites			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:472:			GetCompositions			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:481:			GetXRDs				0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:490:			GetEvents			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:509:			GetComposite			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:565:			fillManagedResources		0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:600:			fillXRDList			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:645:			matchXR				0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:661:			cachedListXRDs			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:677:			NewController			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:730:			durationFromEnv			0.0%
+github.com/komodorio/komoplane/pkg/backend/controller.go:740:			getK8sConfig			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/apiV1.go:19:		NewAPIv1Client			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/apiV1.go:34:		Providers			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/composition.go:19:	List				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/composition.go:30:	Get				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/crds.go:26:		Get				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/crds.go:54:		List				90.9%
+github.com/komodorio/komoplane/pkg/backend/crossplane/crds.go:77:		getPluralKind			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/crds.go:97:		NewCRDsClient			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/events.go:21:		List				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/events.go:39:		NewEventsClient			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/extV1.go:19:		NewEXTv1Client			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/extV1.go:34:		XRDs				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/extV1.go:39:		Compositions			0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/providers.go:19:		List				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/providers.go:30:		Get				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/xrds.go:19:		List				0.0%
+github.com/komodorio/komoplane/pkg/backend/crossplane/xrds.go:30:		Get				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:13:			NewPrefixedFS			0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:26:			Open				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:36:			Close				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:40:			Read				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:44:			Seek				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:48:			Readdir				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:52:			Stat				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:59:			Name				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:63:			Size				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:67:			Mode				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:71:			ModTime				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:75:			IsDir				0.0%
+github.com/komodorio/komoplane/pkg/backend/fs_helper.go:79:			Sys				0.0%
+github.com/komodorio/komoplane/pkg/backend/server.go:25:			StartServer			0.0%
+github.com/komodorio/komoplane/pkg/backend/server.go:56:			startBackgroundServer		0.0%
+github.com/komodorio/komoplane/pkg/backend/server.go:84:			checkUpgrade			0.0%
+github.com/komodorio/komoplane/pkg/backend/utils/utils.go:5:			Plural				100.0%
+total:										(statements)			3.6%
+
+Frontend test coverage report available at: tests/coverage/lcov-report/index.html
+
+Test execution completed successfully

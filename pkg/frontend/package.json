@@ -23,7 +23,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
-    "react-syntax-highlighter": "^15.5.0",
+    "react-syntax-highlighter": "^15.6.6",
     "reactflow": "^11.7.2",
     "yaml": "^2.3.1"
   },
@@ -36,7 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react": "^4.0.0",
-    "@vitest/ui": "^0.34.0",
+    "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -47,6 +47,6 @@
     "typescript": "^5.0.2",
     "vite": "^4.5.3",
     "vite-plugin-rewrite-all": "^1.0.1",
-    "vitest": "^0.34.0"
+    "vitest": "^3.2.4"
   }
 }
