@@ -2,6 +2,7 @@ package crossplane
 
 import (
 	"context"
+
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
 	log "github.com/sirupsen/logrus"
@@ -65,6 +66,7 @@ func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*uns
 	result := unstructured.UnstructuredList{}
 	err = client.
 		Get().
+		Namespace("").  // Empty namespace means list across all namespaces
 		Resource(gvk.Kind).
 		Do(ctx).
 		Into(&result)

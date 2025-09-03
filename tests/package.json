@@ -1,0 +1,57 @@
+{
+  "name": "komoplane-tests",
+  "version": "1.0.0",
+  "description": "Test suite for komoplane",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:frontend": "jest tests/frontend",
+    "test:backend": "cd ../.. && go test ./tests/backend/...",
+    "test:main": "cd ../.. && go test ./tests/main/...",
+    "test:all": "npm run test:backend && npm run test:main && npm run test:frontend"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^18.15.0",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "luxon": "^3.7.1",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/frontend/*.test.ts",
+      "**/frontend/*.test.tsx"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/../pkg/frontend/src/$1"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/setupTests.ts"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": ["ts-jest", {
+        "useESM": false
+      }]
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(luxon)/)"
+    ],
+    "collectCoverageFrom": [
+      "../pkg/frontend/src/**/*.{ts,tsx}",
+      "!../pkg/frontend/src/**/*.d.ts",
+      "!../pkg/frontend/src/vite-env.d.ts"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ]
+  }
+}
