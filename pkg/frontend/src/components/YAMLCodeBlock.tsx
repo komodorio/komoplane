@@ -5,12 +5,12 @@ import {K8sResource} from "../types.ts";
 import Box from "@mui/material/Box";
 
 const YAMLCodeBlock = ({obj}: { obj: K8sResource }) => {
-    if (obj.metadata.managedFields) {
+    if (obj?.metadata?.managedFields) {
         obj.metadata.managedFields = undefined
     }
 
     const lastApplied="kubectl.kubernetes.io/last-applied-configuration"
-    if (obj.metadata.annotations && obj.metadata.annotations[lastApplied]) {
+    if (obj?.metadata?.annotations && obj.metadata.annotations[lastApplied]) {
          delete obj.metadata.annotations[lastApplied]
     }
 

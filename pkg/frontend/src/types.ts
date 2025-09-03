@@ -13,6 +13,7 @@ export type Metadata = {
     managedFields?: object[];
     name: string
     namespace?: string
+    uid?: string
     annotations?: { [key: string]: string; }
 }
 

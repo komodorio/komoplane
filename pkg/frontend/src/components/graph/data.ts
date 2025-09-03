@@ -26,12 +26,12 @@ export class GraphData {
         const status = this.getStatus(res)
         const onClick = this.genOnClick(ntype, res, isMain, navigate)
         logger.log("OnClick", onClick == NOOP)
-        const compositionName = res?.metadata.annotations ? res.metadata.annotations["crossplane.io/composition-resource-name"] : null
+        const compositionName = res?.metadata?.annotations ? res.metadata.annotations["crossplane.io/composition-resource-name"] : null
         const node = {
             id: (++this.id).toString(),
             type: ntype,
             data: {
-                label: res?.metadata.name,
+                label: res?.metadata?.name,
                 apiVersion: res?.apiVersion,
                 kind: res?.kind,
                 compositionName: compositionName,
@@ -95,7 +95,7 @@ export class GraphData {
             }
         });
 
-        logger.log("status " + res.metadata.name, problems)
+        logger.log("status " + (res.metadata?.name || "unknown"), problems)
 
         if (problems["Found"]) {
             return [NodeStatus.NotFound, problems["Found"]]
@@ -113,13 +113,16 @@ export class GraphData {
     private genOnClick(ntype: NodeTypes, res: K8sResource, isMain: boolean | undefined, navigate: NavigateFunction): () => void {
         const [status,] = this.getStatus(res)
 
-        if (isMain || status == NodeStatus.NotFound) {
+        if (isMain || status == NodeStatus.NotFound || !res?.metadata?.name) {
             return NOOP
         }
 
         let url = "/"
         switch (ntype) {
             case NodeTypes.Claim:
+                if (!res.metadata.namespace) {
+                    return NOOP
+                }
                 url = "/claims/" + res.apiVersion + '/' + res.kind + '/' + res.metadata.namespace + '/' + res.metadata.name
                 break;
             case NodeTypes.Composition:
@@ -129,7 +132,11 @@ export class GraphData {
                 url = "/composite/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
                 break;
             case NodeTypes.ManagedResource:
-                url = "/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                if (res.metadata.namespace) {
+                    url = "/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.namespace + "/" + res.metadata.name
+                } else {
+                    url = "/managed/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                }
                 break;
             default:
                 logger.warn("Unhandled node type", ntype)

@@ -13,7 +13,7 @@ function EventListItem({event}: EventListItemProps) {
     const age = getAgeParse(event.lastTimestamp)
     const interval = getAgeParse(event.lastTimestamp, event.firstTimestamp)
     return (
-        <Grid item xs={12} md={12} key={event.metadata.name}>
+        <Grid item xs={12} md={12} key={event?.metadata?.name || event?.metadata?.uid || Math.random()}>
             <Card variant="outlined" className="p-2">
                 <Grid container justifyContent="space-between">
                     <Grid item>
@@ -64,7 +64,7 @@ export default function Events({src}: EventsListProps) {
     return (
         <Grid container spacing={2}>
             {events.items.map((event: K8sEvent) => (
-                <EventListItem event={event} key={event.metadata.name}/>
+                <EventListItem event={event} key={event?.metadata?.name || event?.metadata?.uid || Math.random()}/>
             ))}
 
         </Grid>
