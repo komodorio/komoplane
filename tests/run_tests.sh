@@ -124,6 +124,34 @@ run_utils_tests() {
     fi
 }
 
+# Run integration tests
+run_integration_tests() {
+    print_status "Running integration tests..."
+    
+    # Save current directory
+    original_dir=$(pwd)
+    
+    # Go to tests directory
+    cd "$(dirname "$0")"
+    
+    # Check if integration test exists
+    if [ -f "integration_test.go" ]; then
+        if go test integration_test.go -v; then
+            print_status "Integration tests passed"
+            cd "$original_dir"
+            return 0
+        else
+            print_error "Integration tests failed"
+            cd "$original_dir"
+            return 1
+        fi
+    else
+        print_status "No integration tests found, skipping..."
+        cd "$original_dir"
+        return 0
+    fi
+}
+
 # Run TypeScript frontend tests
 run_frontend_tests() {
     print_status "Running TypeScript frontend tests..."
@@ -263,6 +291,10 @@ main() {
         fi
         
         if ! run_utils_tests; then
+            tests_failed=true
+        fi
+        
+        if ! run_integration_tests; then
             tests_failed=true
         fi
     fi
