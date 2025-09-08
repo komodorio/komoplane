@@ -18,7 +18,6 @@ import (
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
 	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -46,6 +45,7 @@ type Controller struct {
 	ExtV1      crossplane.ExtensionsV1
 	Events     crossplane.EventsInterface
 	CRDs       crossplane.CRDInterface
+	XRDs       crossplane.XRDInterface // Version-aware XRD client
 	ctx        context.Context
 	apiExt     *apiextensionsv1.ApiextensionsV1Client
 	mrdCache   *ttlcache.Cache[bool, []*v1.CustomResourceDefinition] // TODO: extract this into separate entity
@@ -179,7 +179,7 @@ func (c *Controller) GetProviderConfigsInner(ec echo.Context, provName string) (
 				gvk := schema.GroupVersionKind{
 					Group:   crd.Spec.Group,
 					Version: crd.Spec.Versions[0].Name,
-					Kind:    crd.Spec.Names.Plural,
+					Kind:    crd.Spec.Names.Plural, // Use plural for resource listing
 				}
 				res, err := c.CRDs.List(c.ctx, gvk)
 				if err != nil {
@@ -774,6 +774,7 @@ func (c *Controller) GetComposites(ec echo.Context) error {
 	}
 
 	err := c.fillXRDList(ec, &list, func(spec cpext.CompositeResourceDefinitionSpec) *string {
+		log.Debugf("GetComposites: XRD plural name: %s", spec.Names.Plural)
 		return &spec.Names.Plural
 	})
 	if err != nil {
@@ -857,46 +858,28 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	xr := uxres.New()
 	err := c.getDynamicResource(&ref, xr)
 
-	// If the resource is not found and we might be dealing with a namespaced resource,
-	// try to find it by checking all namespaces or using a default namespace
+	// If the resource is not found, try to find it in common namespaces
+	// Most composite resources are namespaced in practice
 	if err != nil {
-		// Check if this might be a namespaced resource by looking at the XRD
-		xrds, xrdErr := c.cachedListXRDs(ec)
-		if xrdErr == nil {
-			for _, xrd := range xrds.Items {
-				// Check if this XRD matches our resource type
-				if xrd.Spec.Group == gvk.Group {
-					for _, version := range xrd.Spec.Versions {
-						if version.Name == gvk.Version && xrd.Spec.Names.Kind == gvk.Kind {
-							// Check if the resource is namespaced
-							if scope, found := xrd.Annotations["komoplane.io/v2-scope"]; found && scope == "Namespaced" {
-								// Try common namespaces including the one we discovered
-								namespacesToTry := []string{"vela-app-dev", "default", "crossplane-system", "upbound-system", "kube-system", "vela-system", "flux-system", "argocd", "argo-cd"}
-								resourceFound := false
-								for _, ns := range namespacesToTry {
-									ref.Namespace = ns
-									log.Debugf("Retrying composite resource lookup with namespace: %s", ref.Namespace)
-									err = c.getDynamicResource(&ref, xr)
-									if err == nil {
-										log.Debugf("Found composite resource in namespace: %s", ref.Namespace)
-										resourceFound = true
-										break
-									}
-								}
-								// If still not found, try without namespace (original behavior)
-								if !resourceFound {
-									ref.Namespace = ""
-								}
-							}
-						}
-					}
-				}
+		log.Debugf("Resource not found without namespace, trying common namespaces for %s", ref.Name)
+		namespacesToTry := []string{"vela-app-dev", "default", "crossplane-system", "upbound-system", "kube-system", "vela-system", "flux-system", "argocd", "argo-cd"}
+		
+		originalError := err
+		for _, ns := range namespacesToTry {
+			ref.Namespace = ns
+			log.Debugf("Retrying composite resource lookup with namespace: %s", ref.Namespace)
+			err = c.getDynamicResource(&ref, xr)
+			if err == nil {
+				log.Debugf("Found composite resource in namespace: %s", ref.Namespace)
+				break
 			}
 		}
-
-		// If still error, return it
+		
+		// If still not found in any namespace, restore original state and return the error
 		if err != nil {
-			return err
+			ref.Namespace = ""
+			log.Debugf("Resource not found in any common namespace, returning original error")
+			return originalError
 		}
 	}
 
@@ -992,6 +975,30 @@ func (c *Controller) fillManagedResources(ec echo.Context, xr *uxres.Unstructure
 	return nil
 }
 
+func (c *Controller) GetCompositeNamespaced(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{
+		Name:      ec.Param("name"),
+		Namespace: ec.Param("namespace"),
+	}
+	ref.SetGroupVersionKind(gvk)
+
+	log.Debugf("GetCompositeNamespaced: Looking for resource %s/%s with GVK %s", ref.Namespace, ref.Name, gvk)
+
+	xr := uxres.New()
+	err := c.getDynamicResource(&ref, xr)
+	if err != nil {
+		return err
+	}
+
+	c.fillCompositionByRef(xr)
+	return ec.JSONPretty(http.StatusOK, xr, "  ")
+}
+
 type FieldGetter = func(spec cpext.CompositeResourceDefinitionSpec) *string // pointer str to signal skip
 
 func (c *Controller) fillXRDList(ec echo.Context, list *unstructured.UnstructuredList, getKind FieldGetter) error {
@@ -1005,28 +1012,31 @@ func (c *Controller) fillXRDList(ec echo.Context, list *unstructured.Unstructure
 		if kind == nil { // signal to skip it, has no corresponding kind name
 			continue
 		}
+		log.Debugf("fillXRDList: Processing XRD %s with kind value: %s", xrd.Name, *kind)
 
-		versionName := ""
-		for _, v := range xrd.Spec.Versions {
-			if v.Served {
-				versionName = v.Name
-			}
-		}
-
+		// Find the best version to use - prefer storage version, then served versions
+		versionName := c.selectBestVersion(xrd.Spec.Versions)
 		if versionName == "" {
-			return errors.Errorf("No active versions for %s", xrd.Spec.Names.Plural)
+			log.Warnf("No suitable version found for XRD %s, skipping", xrd.Name)
+			continue
 		}
 
-		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
+		gvk := schema.GroupVersionKind{
 			Group:   xrd.Spec.Group,
 			Version: versionName,
-			Kind:    *kind,
+			Kind:    *kind, // This should be the resource name (plural) for the CRDs.List call
 		}
+		log.Debugf("Listing composite resources with GVK: %v (XRD: %s)", gvk, xrd.Name)
+		
+		// Try to list resources, but don't fail the entire operation if one XRD fails
 		res, err := c.CRDs.List(c.ctx, gvk)
 		if err != nil {
-			return err
+			log.Warnf("Failed to list composite resources for XRD %s with GVK %v: %v", xrd.Name, gvk, err)
+			// Continue processing other XRDs instead of failing
+			continue
 		}
 
+		log.Debugf("Successfully listed %d composite resources for XRD %s", len(res.Items), xrd.Name)
 		list.Items = append(list.Items, res.Items...)
 	}
 	return nil
@@ -1059,7 +1069,8 @@ func (c *Controller) cachedListXRDs(ec echo.Context) (items *cpext.CompositeReso
 	cacheKey := "XRDs"
 	cached := ec.Get(cacheKey) // this would save couple of calls
 	if cached == nil {
-		items, err = c.ExtV1.XRDs().List(c.ctx)
+		// Use version-aware XRD client for backwards compatibility
+		items, err = c.XRDs.List(c.ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -1069,6 +1080,50 @@ func (c *Controller) cachedListXRDs(ec echo.Context) (items *cpext.CompositeReso
 	}
 
 	return items, nil
+}
+
+// selectBestVersion chooses the most appropriate version from XRD versions
+// Prefers: newest served version > any served version
+func (c *Controller) selectBestVersion(versions []cpext.CompositeResourceDefinitionVersion) string {
+	var newestServed, anyServed string
+	
+	for _, v := range versions {
+		if !v.Served {
+			continue
+		}
+		
+		anyServed = v.Name
+		
+		// Consider this the "newest" if we don't have one yet or this has a higher version
+		if newestServed == "" || c.compareVersions(v.Name, newestServed) > 0 {
+			newestServed = v.Name
+		}
+	}
+	
+	// Return in order of preference
+	if newestServed != "" {
+		log.Debugf("Selected newest served version: %s", newestServed)
+		return newestServed
+	}
+	if anyServed != "" {
+		log.Debugf("Selected any served version: %s", anyServed)
+		return anyServed
+	}
+	
+	return ""
+}
+
+// compareVersions compares two version strings, returns > 0 if v1 > v2
+func (c *Controller) compareVersions(v1, v2 string) int {
+	// Simple version comparison - can be enhanced with proper semver if needed
+	// For now, just do string comparison which works for most Kubernetes versions
+	if v1 > v2 {
+		return 1
+	}
+	if v1 < v2 {
+		return -1
+	}
+	return 0
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
@@ -1094,6 +1149,12 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		return nil, err
 	}
 
+	// Create version-aware XRD client for backwards compatibility
+	versionAwareXRDs, err := crossplane.NewVersionAwareXRDWrapper(cfg, ext.XRDs())
+	if err != nil {
+		return nil, err
+	}
+
 	mrdCacheTTL := durationFromEnv("KP_MRD_CACHE_TTL", 5*time.Minute)
 	mrCacheTTL := durationFromEnv("KP_MR_CACHE_TTL", 1*time.Minute)
 
@@ -1103,7 +1164,8 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		ExtV1:  ext,
 		Events: evt,
 		apiExt: apiExt,
-		CRDs:   crossplane.NewCRDsClient(cfg, ext),
+		CRDs:   crossplane.NewVersionAwareCRDsClient(cfg, ext, versionAwareXRDs),
+		XRDs:   versionAwareXRDs,
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},

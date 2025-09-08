@@ -76,6 +76,51 @@ func (c *VersionAwareXRDClient) discoverSupportedVersions() error {
 }
 
 // ListXRDsAllVersions attempts to list XRDs from all supported versions and merge results
+// ListXRDsPreferredVersion lists XRDs using the preferred API version to avoid duplicates
+func (c *VersionAwareXRDClient) ListXRDsPreferredVersion(ctx context.Context) (*v1.CompositeResourceDefinitionList, error) {
+	if len(c.supportedVersions) == 0 {
+		return nil, fmt.Errorf("no supported XRD API versions found")
+	}
+
+	// Use the first supported version (preferred)
+	preferredVersion := c.supportedVersions[0]
+	log.Infof("Attempting to use preferred XRD API version: %s", preferredVersion)
+
+	result := &v1.CompositeResourceDefinitionList{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apiextensions.crossplane.io/v1",
+			Kind:       "CompositeResourceDefinitionList",
+		},
+	}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "apiextensions.crossplane.io",
+		Version:  preferredVersion,
+		Resource: "compositeresourcedefinitions",
+	}
+
+	unstructuredList, err := c.dynamicClient.Resource(gvr).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Warnf("Failed to list XRDs with preferred version %s: %v", preferredVersion, err)
+		log.Infof("Falling back to ListXRDsAllVersions due to preferred version failure")
+		return c.ListXRDsAllVersions(ctx)
+	}
+
+	log.Infof("Successfully listed %d XRDs using preferred version %s", len(unstructuredList.Items), preferredVersion)
+
+	// Convert unstructured to v1 XRDs
+	for _, item := range unstructuredList.Items {
+		xrd, err := c.convertToV1XRD(&item, preferredVersion)
+		if err != nil {
+			log.Warnf("Failed to convert XRD %s: %v", item.GetName(), err)
+			continue
+		}
+		result.Items = append(result.Items, *xrd)
+	}
+
+	return result, nil
+}
+
 func (c *VersionAwareXRDClient) ListXRDsAllVersions(ctx context.Context) (*v1.CompositeResourceDefinitionList, error) {
 	result := &v1.CompositeResourceDefinitionList{
 		TypeMeta: metav1.TypeMeta{
@@ -189,8 +234,8 @@ type versionAwareXRDClientWrapper struct {
 
 // List implements XRDInterface by using the version-aware client
 func (w *versionAwareXRDClientWrapper) List(ctx context.Context) (*v1.CompositeResourceDefinitionList, error) {
-	// Try the version-aware client first
-	result, err := w.versionAware.ListXRDsAllVersions(ctx)
+	// Try the version-aware client first with preferred version only
+	result, err := w.versionAware.ListXRDsPreferredVersion(ctx)
 	if err != nil {
 		log.Warnf("Version-aware XRD client failed, falling back to original client: %v", err)
 		return w.fallback.List(ctx)
@@ -207,4 +252,18 @@ func (w *versionAwareXRDClientWrapper) Get(ctx context.Context, name string) (*v
 		return w.fallback.Get(ctx, name)
 	}
 	return result, nil
+}
+
+// NewVersionAwareXRDWrapper creates a version-aware wrapper that falls back to the original client
+func NewVersionAwareXRDWrapper(config *rest.Config, fallback XRDInterface) (XRDInterface, error) {
+	versionAware, err := NewVersionAwareXRDClient(config)
+	if err != nil {
+		log.Warnf("Failed to create version-aware XRD client, using fallback only: %v", err)
+		return fallback, nil
+	}
+
+	return &versionAwareXRDClientWrapper{
+		versionAware: versionAware,
+		fallback:     fallback,
+	}, nil
 }
