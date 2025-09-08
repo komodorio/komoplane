@@ -17,10 +17,10 @@ import (
 
 // V2CompatibleXRDClient handles both v1 and v2 API versions of CompositeResourceDefinitions
 type V2CompatibleXRDClient struct {
-	config          *rest.Config
-	dynamicClient   dynamic.Interface
-	discoveryClient discovery.DiscoveryInterface
-	preferredVersion string
+	config            *rest.Config
+	dynamicClient     dynamic.Interface
+	discoveryClient   discovery.DiscoveryInterface
+	preferredVersion  string
 	supportedVersions []string
 }
 
@@ -66,7 +66,7 @@ func (c *V2CompatibleXRDClient) discoverSupportedVersions() error {
 			log.Infof("Found Crossplane apiextensions group")
 			versions := make([]string, 0, len(group.Versions))
 			hasV2 := false
-			
+
 			for _, version := range group.Versions {
 				versions = append(versions, version.Version)
 				log.Infof("Discovered XRD API version: %s", version.Version)
@@ -74,9 +74,9 @@ func (c *V2CompatibleXRDClient) discoverSupportedVersions() error {
 					hasV2 = true
 				}
 			}
-			
+
 			c.supportedVersions = versions
-			
+
 			// Prefer v2 if available, otherwise use v1
 			if hasV2 {
 				c.preferredVersion = "v2"
@@ -85,7 +85,7 @@ func (c *V2CompatibleXRDClient) discoverSupportedVersions() error {
 				c.preferredVersion = "v1"
 				log.Infof("Using API version: v1 (v2 not available)")
 			}
-			
+
 			return nil
 		}
 	}
@@ -207,13 +207,13 @@ func (c *V2CompatibleXRDClient) listXRDsV1(ctx context.Context) (*v1.CompositeRe
 			log.Warnf("Failed to convert v1 XRD %s: %v", item.GetName(), err)
 			continue
 		}
-		
+
 		// Add annotation to track that this was retrieved via v1 API
 		if xrd.Annotations == nil {
 			xrd.Annotations = make(map[string]string)
 		}
 		xrd.Annotations["komoplane.io/retrieved-api-version"] = "apiextensions.crossplane.io/v1"
-		
+
 		result.Items = append(result.Items, xrd)
 	}
 
@@ -252,7 +252,7 @@ func (c *V2CompatibleXRDClient) getXRDV1(ctx context.Context, name string) (*v1.
 func (c *V2CompatibleXRDClient) convertV2ToV1XRD(unstructured *unstructured.Unstructured) (*v1.CompositeResourceDefinition, error) {
 	// For now, we'll use a basic conversion since we don't have the actual v2 types
 	// This is a placeholder that handles the key differences we know about from the documentation
-	
+
 	var xrd v1.CompositeResourceDefinition
 	err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.UnstructuredContent(), &xrd)
 	if err != nil {

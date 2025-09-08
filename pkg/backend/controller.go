@@ -23,11 +23,11 @@ import (
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
+	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -217,7 +217,7 @@ func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 	for _, crd := range crdList.Items {
 		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
 		found := false
-		
+
 		// First, try to match by owner references (existing logic)
 	refLoop:
 		for _, ref := range crd.OwnerReferences {
@@ -235,7 +235,7 @@ func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 				}
 			}
 		}
-		
+
 		// If not found by owner reference, try to match by provider naming patterns
 		if !found && IsManagedResourceCRD(&crdCopy) {
 			providerName := ExtractProviderNameFromCRD(&crdCopy)
@@ -251,7 +251,7 @@ func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 						break
 					}
 				}
-				
+
 				// If still no provider match, create a synthetic provider entry
 				if !found {
 					syntheticProviderName := "provider-" + providerName
@@ -280,12 +280,12 @@ func IsManagedResourceCRD(crd *v1.CustomResourceDefinition) bool {
 			return true
 		}
 	}
-	
+
 	// Check if the CRD group suggests it's a cloud provider resource
 	group := crd.Spec.Group
 	managedResourcePatterns := []string{
 		".aws.upbound.io",
-		".gcp.upbound.io", 
+		".gcp.upbound.io",
 		".azure.upbound.io",
 		".aws.crossplane.io",
 		".gcp.crossplane.io",
@@ -295,39 +295,39 @@ func IsManagedResourceCRD(crd *v1.CustomResourceDefinition) bool {
 		".azure.platformref.upbound.io",
 		".upbound.io", // General upbound pattern
 	}
-	
+
 	for _, pattern := range managedResourcePatterns {
 		if strings.Contains(group, pattern) {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
 // ExtractProviderNameFromCRD extracts a provider name from the CRD group
 func ExtractProviderNameFromCRD(crd *v1.CustomResourceDefinition) string {
 	group := crd.Spec.Group
-	
+
 	// Pattern matching for common provider group formats
 	patterns := map[string]string{
-		".aws.upbound.io":                 "upbound-provider-aws",
-		".gcp.upbound.io":                 "upbound-provider-gcp", 
-		".azure.upbound.io":               "upbound-provider-azure",
-		".aws.crossplane.io":              "provider-aws",
-		".gcp.crossplane.io":              "provider-gcp",
-		".azure.crossplane.io":            "provider-azure",
-		".aws.platformref.upbound.io":     "upbound-provider-aws",
-		".gcp.platformref.upbound.io":     "upbound-provider-gcp",
-		".azure.platformref.upbound.io":   "upbound-provider-azure",
+		".aws.upbound.io":               "upbound-provider-aws",
+		".gcp.upbound.io":               "upbound-provider-gcp",
+		".azure.upbound.io":             "upbound-provider-azure",
+		".aws.crossplane.io":            "provider-aws",
+		".gcp.crossplane.io":            "provider-gcp",
+		".azure.crossplane.io":          "provider-azure",
+		".aws.platformref.upbound.io":   "upbound-provider-aws",
+		".gcp.platformref.upbound.io":   "upbound-provider-gcp",
+		".azure.platformref.upbound.io": "upbound-provider-azure",
 	}
-	
+
 	for pattern, providerName := range patterns {
 		if strings.Contains(group, pattern) {
 			return providerName
 		}
 	}
-	
+
 	// For generic upbound pattern, extract service name
 	if strings.Contains(group, ".upbound.io") {
 		parts := strings.Split(group, ".")
@@ -336,7 +336,7 @@ func ExtractProviderNameFromCRD(crd *v1.CustomResourceDefinition) string {
 			return "upbound-provider-" + service
 		}
 	}
-	
+
 	return ""
 }
 
@@ -345,18 +345,18 @@ func MatchesProviderPattern(providerName, extractedName string) bool {
 	// Normalize names for comparison
 	normalizedProvider := strings.ToLower(strings.ReplaceAll(providerName, "-", ""))
 	normalizedExtracted := strings.ToLower(strings.ReplaceAll(extractedName, "-", ""))
-	
+
 	// Check for exact match first
 	if normalizedProvider == normalizedExtracted {
 		return true
 	}
-	
+
 	// Check if they contain common cloud provider keywords
 	cloudProviders := []string{"aws", "gcp", "azure", "alibaba", "digitalocean"}
-	
+
 	providerCloud := ""
 	extractedCloud := ""
-	
+
 	// Find cloud provider in each name
 	for _, cloud := range cloudProviders {
 		if strings.Contains(normalizedProvider, cloud) {
@@ -366,7 +366,7 @@ func MatchesProviderPattern(providerName, extractedName string) bool {
 			extractedCloud = cloud
 		}
 	}
-	
+
 	// If both have the same cloud provider, consider it a match
 	return providerCloud != "" && providerCloud == extractedCloud
 }
@@ -414,7 +414,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 			objRef := &v12.ObjectReference{
 				Name: xrRef.Name,
 			}
-			
+
 			// Try to extract GVK from the resource reference in the unstructured object
 			if resourceRefRaw, found := claim.Object["spec"].(map[string]interface{})["resourceRef"].(map[string]interface{}); found {
 				if apiVersion, ok := resourceRefRaw["apiVersion"].(string); ok {
@@ -424,7 +424,7 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 					objRef.Kind = kind
 				}
 			}
-			
+
 			_ = c.getDynamicResource(objRef, xr)
 			claim.Object["compositeResource"] = xr
 		}
@@ -441,11 +441,11 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
 	compRef := obj.GetCompositionReference()
-	
+
 	// If the standard method doesn't work, try to extract manually
 	if compRef == nil {
 		log.Debugf("GetCompositionReference returned nil, trying manual extraction")
-		
+
 		// Try to extract composition reference manually from the unstructured object
 		compositionRefName, found, err := unstructured.NestedString(obj.UnstructuredContent(), "spec", "crossplane", "compositionRef", "name")
 		if err != nil {
@@ -456,7 +456,7 @@ func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
 			log.Debugf("No composition reference found in spec.crossplane.compositionRef.name")
 			return
 		}
-		
+
 		log.Debugf("Found composition reference: %s", compositionRefName)
 		compRef = &v12.ObjectReference{
 			Name:       compositionRefName,
@@ -464,7 +464,7 @@ func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
 			Kind:       cpext.CompositionGroupVersionKind.Kind,
 		}
 	}
-	
+
 	if compRef != nil {
 		compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
 		comp := uxres.New()
@@ -602,17 +602,17 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 
 	xr := NewManagedUnstructured()
 	err := c.getDynamicResource(&ref, xr)
-	
+
 	// If cluster-scoped lookup fails, try to find it in any namespace
 	if err != nil {
 		log.Debugf("Cluster-scoped lookup failed: %v, trying namespaced lookup", err)
-		
+
 		// Try to find the resource in all namespaces
 		namespaces := []string{"vela-app-dev", "default", "crossplane-system", "upbound-system"}
 		for _, ns := range namespaces {
 			ref.Namespace = ns
 			log.Debugf("Trying namespace: %s", ns)
-			
+
 			err = c.getDynamicResource(&ref, xr)
 			if err == nil {
 				log.Debugf("Found managed resource in namespace: %s", ns)
@@ -620,7 +620,7 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 			}
 		}
 	}
-	
+
 	if err != nil {
 		log.Errorf("Failed to get managed resource %s/%s/%s/%s: %v", gvk.Group, gvk.Version, gvk.Kind, ref.Name, err)
 		return err
@@ -628,7 +628,7 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 
 	if ec.QueryParam("full") != "" {
 		log.Debugf("Fetching full details for managed resource %s", ref.Name)
-		
+
 		// provider config
 		provConfigRef := xr.GetProviderConfigReference()
 		log.Debugf("Provider config reference: %v", provConfigRef)
@@ -663,7 +663,7 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 		// composite resource
 		oRefs := xr.GetOwnerReferences()
 		log.Debugf("Owner references: %v", oRefs)
-		
+
 		for _, oRef := range oRefs {
 			comp := uxres.New()
 			ref := v12.ObjectReference{
@@ -672,7 +672,7 @@ func (c *Controller) GetManaged(ec echo.Context) error {
 				APIVersion: oRef.APIVersion,
 			}
 			log.Debugf("Fetching composite resource: %s/%s/%s", oRef.APIVersion, oRef.Kind, oRef.Name)
-			
+
 			err = c.getDynamicResource(&ref, comp)
 			if err != nil {
 				log.Warnf("Failed to get composite resource %s/%s/%s: %v", oRef.APIVersion, oRef.Kind, oRef.Name, err)
@@ -710,7 +710,7 @@ func (c *Controller) GetManagedNamespaced(ec echo.Context) error {
 
 	if ec.QueryParam("full") != "" {
 		log.Debugf("Fetching full details for namespaced managed resource %s/%s", ref.Namespace, ref.Name)
-		
+
 		// provider config
 		provConfigRef := xr.GetProviderConfigReference()
 		log.Debugf("Provider config reference: %v", provConfigRef)
@@ -744,7 +744,7 @@ func (c *Controller) GetManagedNamespaced(ec echo.Context) error {
 		// composite resource
 		oRefs := xr.GetOwnerReferences()
 		log.Debugf("Owner references: %v", oRefs)
-		
+
 		for _, oRef := range oRefs {
 			comp := uxres.New()
 			ref := v12.ObjectReference{
@@ -753,7 +753,7 @@ func (c *Controller) GetManagedNamespaced(ec echo.Context) error {
 				APIVersion: oRef.APIVersion,
 			}
 			log.Debugf("Fetching composite resource: %s/%s/%s", oRef.APIVersion, oRef.Kind, oRef.Name)
-			
+
 			err = c.getDynamicResource(&ref, comp)
 			if err != nil {
 				log.Warnf("Failed to get composite resource %s/%s/%s: %v", oRef.APIVersion, oRef.Kind, oRef.Name, err)
@@ -856,7 +856,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 	xr := uxres.New()
 	err := c.getDynamicResource(&ref, xr)
-	
+
 	// If the resource is not found and we might be dealing with a namespaced resource,
 	// try to find it by checking all namespaces or using a default namespace
 	if err != nil {
@@ -893,7 +893,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 				}
 			}
 		}
-		
+
 		// If still error, return it
 		if err != nil {
 			return err
@@ -908,7 +908,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 			objRef := &v12.ObjectReference{
 				Name: claimRef.Name,
 			}
-			
+
 			// Try to extract namespace and GVK from the claim reference in the unstructured object
 			if claimRefRaw, found := xr.Object["spec"].(map[string]interface{})["claimRef"].(map[string]interface{}); found {
 				if ns, ok := claimRefRaw["namespace"].(string); ok {
@@ -921,7 +921,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 					objRef.Kind = kind
 				}
 			}
-			
+
 			claim := uxres.New()
 			_ = c.getDynamicResource(objRef, claim)
 			xr.Object["claim"] = claim
@@ -958,7 +958,6 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
-
 
 func (c *Controller) fillManagedResources(ec echo.Context, xr *uxres.Unstructured) error {
 	xrds, err := c.cachedListXRDs(ec)

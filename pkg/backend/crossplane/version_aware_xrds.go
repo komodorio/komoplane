@@ -17,9 +17,9 @@ import (
 
 // VersionAwareXRDClient can discover and work with multiple API versions of XRDs
 type VersionAwareXRDClient struct {
-	config          *rest.Config
-	dynamicClient   dynamic.Interface
-	discoveryClient discovery.DiscoveryInterface
+	config            *rest.Config
+	dynamicClient     dynamic.Interface
+	discoveryClient   discovery.DiscoveryInterface
 	supportedVersions []string
 }
 
@@ -88,9 +88,9 @@ func (c *VersionAwareXRDClient) ListXRDsAllVersions(ctx context.Context) (*v1.Co
 	// Try each supported version
 	for _, version := range c.supportedVersions {
 		log.Debugf("Attempting to list XRDs using version: %s", version)
-		
+
 		gvr := schema.GroupVersionResource{
-			Group:    "apiextensions.crossplane.io", 
+			Group:    "apiextensions.crossplane.io",
 			Version:  version,
 			Resource: "compositeresourcedefinitions",
 		}
@@ -123,7 +123,7 @@ func (c *VersionAwareXRDClient) GetXRD(ctx context.Context, name string) (*v1.Co
 	for _, version := range c.supportedVersions {
 		gvr := schema.GroupVersionResource{
 			Group:    "apiextensions.crossplane.io",
-			Version:  version, 
+			Version:  version,
 			Resource: "compositeresourcedefinitions",
 		}
 
@@ -154,7 +154,7 @@ func (c *VersionAwareXRDClient) convertToV1XRD(unstructured *unstructured.Unstru
 		xrd.Annotations = make(map[string]string)
 	}
 	xrd.Annotations["komoplane.io/original-api-version"] = fmt.Sprintf("apiextensions.crossplane.io/%s", originalVersion)
-	
+
 	// Set the APIVersion to reflect what version was actually used
 	if originalVersion != "v1" {
 		// If it was retrieved from a different version, note it in the display

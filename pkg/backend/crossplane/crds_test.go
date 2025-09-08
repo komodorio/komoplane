@@ -20,7 +20,7 @@ func TestCRDClient_List_AllNamespaces(t *testing.T) {
 		// Verify that the request is made to list resources across all namespaces
 		assert.Equal(t, "GET", r.Method)
 		assert.Contains(t, r.URL.Path, "/apis/test.example.com/v1/testresources")
-		
+
 		// Check that namespace parameter is empty (meaning all namespaces)
 		namespace := r.URL.Query().Get("namespace")
 		assert.Empty(t, namespace, "Expected empty namespace parameter for all-namespaces query")
@@ -41,7 +41,7 @@ func TestCRDClient_List_AllNamespaces(t *testing.T) {
 				{
 					Object: map[string]interface{}{
 						"apiVersion": "test.example.com/v1",
-						"kind":       "TestResource", 
+						"kind":       "TestResource",
 						"metadata": map[string]interface{}{
 							"name":      "resource-ns2",
 							"namespace": "namespace2",
@@ -82,7 +82,7 @@ func TestCRDClient_List_AllNamespaces(t *testing.T) {
 	}
 
 	result, err := client.List(context.Background(), gvk)
-	
+
 	// Assertions
 	require.NoError(t, err)
 	assert.NotNil(t, result)
@@ -95,7 +95,7 @@ func TestCRDClient_List_AllNamespaces(t *testing.T) {
 			namespaces[ns.(string)] = true
 		}
 	}
-	
+
 	assert.True(t, namespaces["namespace1"], "Should include resources from namespace1")
 	assert.True(t, namespaces["namespace2"], "Should include resources from namespace2")
 }
@@ -106,10 +106,10 @@ func TestCRDClient_List_EmptyNamespaceQueryParameter(t *testing.T) {
 		// The key assertion: verify that when we want all namespaces,
 		// the request URL contains an empty namespace parameter or no namespace parameter
 		url := r.URL.String()
-		
+
 		// The request should NOT contain "namespaces/specific-namespace" in the path
 		assert.NotContains(t, url, "namespaces/", "Request should not target a specific namespace")
-		
+
 		// Return minimal valid response
 		response := unstructured.UnstructuredList{Items: []unstructured.Unstructured{}}
 		w.Header().Set("Content-Type", "application/json")
@@ -148,7 +148,7 @@ func TestCRDClient_List_ErrorHandling(t *testing.T) {
 	}
 
 	result, err := client.List(context.Background(), gvk)
-	
+
 	// Should handle errors gracefully
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -172,7 +172,7 @@ func TestCRDClient_List_InvalidJSON(t *testing.T) {
 	}
 
 	result, err := client.List(context.Background(), gvk)
-	
+
 	// Should handle JSON parsing errors
 	assert.Error(t, err)
 	assert.Nil(t, result)
