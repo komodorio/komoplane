@@ -119,6 +119,9 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	compositions := api.Group("/compositions")
 	compositions.GET("", data.GetCompositions)
 
+	composition := api.Group("/composition")
+	composition.GET("/:name", data.GetComposition)
+
 	xrds := api.Group("/xrds")
 	xrds.GET("", data.GetXRDs)
 }

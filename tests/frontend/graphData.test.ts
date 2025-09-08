@@ -347,7 +347,7 @@ describe('GraphData', () => {
       
       onClick();
       
-      expect(mockNavigate).toHaveBeenCalledWith('/managed/test.io/v1/TestResource/test-resource');
+      expect(mockNavigate).toHaveBeenCalledWith('/managed/test.io/v1/TestResource/default/test-resource');
     });
 
     it('should return NOOP for unhandled node types', () => {

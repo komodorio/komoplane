@@ -27,6 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -407,10 +408,26 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
-
 		xr := uxres.New()
-		_ = c.getDynamicResource(xrRef, xr)
-		claim.Object["compositeResource"] = xr
+		if xrRef != nil {
+			// Extract information from the raw object since reference types don't have all fields
+			objRef := &v12.ObjectReference{
+				Name: xrRef.Name,
+			}
+			
+			// Try to extract GVK from the resource reference in the unstructured object
+			if resourceRefRaw, found := claim.Object["spec"].(map[string]interface{})["resourceRef"].(map[string]interface{}); found {
+				if apiVersion, ok := resourceRefRaw["apiVersion"].(string); ok {
+					objRef.APIVersion = apiVersion
+				}
+				if kind, ok := resourceRefRaw["kind"].(string); ok {
+					objRef.Kind = kind
+				}
+			}
+			
+			_ = c.getDynamicResource(objRef, xr)
+			claim.Object["compositeResource"] = xr
+		}
 
 		err := c.fillManagedResources(ec, xr)
 		if err != nil {
@@ -424,11 +441,40 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
 	compRef := obj.GetCompositionReference()
+	
+	// If the standard method doesn't work, try to extract manually
+	if compRef == nil {
+		log.Debugf("GetCompositionReference returned nil, trying manual extraction")
+		
+		// Try to extract composition reference manually from the unstructured object
+		compositionRefName, found, err := unstructured.NestedString(obj.UnstructuredContent(), "spec", "crossplane", "compositionRef", "name")
+		if err != nil {
+			log.Debugf("Error extracting composition reference: %v", err)
+			return
+		}
+		if !found || compositionRefName == "" {
+			log.Debugf("No composition reference found in spec.crossplane.compositionRef.name")
+			return
+		}
+		
+		log.Debugf("Found composition reference: %s", compositionRefName)
+		compRef = &v12.ObjectReference{
+			Name:       compositionRefName,
+			APIVersion: cpext.CompositionGroupVersionKind.GroupVersion().String(),
+			Kind:       cpext.CompositionGroupVersionKind.Kind,
+		}
+	}
+	
 	if compRef != nil {
 		compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
 		comp := uxres.New()
-		_ = c.getDynamicResource(compRef, comp)
-		obj.UnstructuredContent()["composition"] = comp
+		err := c.getDynamicResource(compRef, comp)
+		if err != nil {
+			log.Debugf("Failed to get composition %s: %v", compRef.Name, err)
+		} else {
+			log.Debugf("Successfully fetched composition: %s", compRef.Name)
+			obj.UnstructuredContent()["composition"] = comp
+		}
 	}
 }
 
@@ -746,6 +792,23 @@ func (c *Controller) GetCompositions(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, items, "  ")
 }
 
+func (c *Controller) GetComposition(ec echo.Context) error {
+	name := ec.Param("name")
+	if name == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "composition name is required")
+	}
+
+	composition, err := c.ExtV1.Compositions().Get(c.ctx, name)
+	if err != nil {
+		if k8sErrors.IsNotFound(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "composition not found")
+		}
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, composition, "  ")
+}
+
 func (c *Controller) GetXRDs(ec echo.Context) error {
 	items, err := c.cachedListXRDs(ec)
 	if err != nil {
@@ -785,16 +848,74 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 	xr := uxres.New()
 	err := c.getDynamicResource(&ref, xr)
+	
+	// If the resource is not found and we might be dealing with a namespaced resource,
+	// try to find it by checking all namespaces or using a default namespace
 	if err != nil {
-		return err
+		// Check if this might be a namespaced resource by looking at the XRD
+		xrds, xrdErr := c.cachedListXRDs(ec)
+		if xrdErr == nil {
+			for _, xrd := range xrds.Items {
+				// Check if this XRD matches our resource type
+				if xrd.Spec.Group == gvk.Group {
+					for _, version := range xrd.Spec.Versions {
+						if version.Name == gvk.Version && xrd.Spec.Names.Kind == gvk.Kind {
+							// Check if the resource is namespaced
+							if scope, found := xrd.Annotations["komoplane.io/v2-scope"]; found && scope == "Namespaced" {
+								// Try common namespaces including the one we discovered
+								namespacesToTry := []string{"vela-app-dev", "default", "crossplane-system", "upbound-system", "kube-system", "vela-system", "flux-system", "argocd", "argo-cd"}
+								resourceFound := false
+								for _, ns := range namespacesToTry {
+									ref.Namespace = ns
+									log.Debugf("Retrying composite resource lookup with namespace: %s", ref.Namespace)
+									err = c.getDynamicResource(&ref, xr)
+									if err == nil {
+										log.Debugf("Found composite resource in namespace: %s", ref.Namespace)
+										resourceFound = true
+										break
+									}
+								}
+								// If still not found, try without namespace (original behavior)
+								if !resourceFound {
+									ref.Namespace = ""
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// If still error, return it
+		if err != nil {
+			return err
+		}
 	}
 
 	if ec.QueryParam("full") != "" {
 		// claim for it, if any
 		claimRef := xr.GetClaimReference()
 		if claimRef != nil {
+			// Extract information from the raw object since reference types don't have all fields
+			objRef := &v12.ObjectReference{
+				Name: claimRef.Name,
+			}
+			
+			// Try to extract namespace and GVK from the claim reference in the unstructured object
+			if claimRefRaw, found := xr.Object["spec"].(map[string]interface{})["claimRef"].(map[string]interface{}); found {
+				if ns, ok := claimRefRaw["namespace"].(string); ok {
+					objRef.Namespace = ns
+				}
+				if apiVersion, ok := claimRefRaw["apiVersion"].(string); ok {
+					objRef.APIVersion = apiVersion
+				}
+				if kind, ok := claimRefRaw["kind"].(string); ok {
+					objRef.Kind = kind
+				}
+			}
+			
 			claim := uxres.New()
-			_ = c.getDynamicResource(claimRef, claim)
+			_ = c.getDynamicResource(objRef, claim)
 			xr.Object["claim"] = claim
 		}
 
@@ -829,6 +950,7 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 
 	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
+
 
 func (c *Controller) fillManagedResources(ec echo.Context, xr *uxres.Unstructured) error {
 	xrds, err := c.cachedListXRDs(ec)
