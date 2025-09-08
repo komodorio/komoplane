@@ -780,6 +780,14 @@ func (c *Controller) GetComposites(ec echo.Context) error {
 		return err
 	}
 
+	// Add composition references to each composite resource in the list
+	for i := range list.Items {
+		xr := uxres.New()
+		xr.Object = list.Items[i].Object
+		c.fillCompositionByRef(xr)
+		list.Items[i] = xr.Unstructured
+	}
+
 	return ec.JSONPretty(http.StatusOK, list, "  ")
 }
 
