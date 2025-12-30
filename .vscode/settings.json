@@ -1,0 +1,29 @@
+{
+  "context7.mcp.enabled": true,
+  "context7.mcp.autoStart": true,
+  "context7.mcp.serverPath": "npx",
+  "context7.mcp.serverArgs": ["@context7/server"],
+  "context7.indexing.enabled": true,
+  "context7.indexing.includePatterns": [
+    "**/*.go",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.yaml",
+    "**/*.yml",
+    "**/*.json",
+    "**/*.md",
+    "**/*.sh"
+  ],
+  "context7.indexing.excludePatterns": [
+    "**/node_modules/**",
+    "**/bin/**",
+    "**/coverage/**",
+    "**/.git/**",
+    "**/package-lock.json",
+    "**/go.sum"
+  ],
+  "context7.retrieval.maxResults": 20,
+  "context7.retrieval.searchDepth": 5
+}

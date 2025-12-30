@@ -1,13 +1,14 @@
 package backend
 
 import (
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/komodorio/komoplane/pkg/frontend"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"os"
-	"time"
 )
 
 func NewRouter(data *Controller, debug bool) *echo.Echo {
@@ -109,13 +110,18 @@ func configureRoutes(data *Controller, eng *echo.Echo) {
 	managed := api.Group("/managed")
 	managed.GET("", data.GetManageds)
 	managed.GET("/:group/:version/:kind/:name", data.GetManaged)
+	managed.GET("/:group/:version/:kind/:namespace/:name", data.GetManagedNamespaced)
 
 	composite := api.Group("/composite")
 	composite.GET("", data.GetComposites)
 	composite.GET("/:group/:version/:kind/:name", data.GetComposite)
+	composite.GET("/:group/:version/:kind/:namespace/:name", data.GetCompositeNamespaced)
 
 	compositions := api.Group("/compositions")
 	compositions.GET("", data.GetCompositions)
+
+	composition := api.Group("/composition")
+	composition.GET("/:name", data.GetComposition)
 
 	xrds := api.Group("/xrds")
 	xrds.GET("", data.GetXRDs)

@@ -3,3 +3,4 @@ node_modules
 /pkg/frontend/.vite/
 /pkg/frontend/dist
 /bin/komoplane
+komoplane

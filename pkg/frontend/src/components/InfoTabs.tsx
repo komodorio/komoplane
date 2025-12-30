@@ -35,10 +35,10 @@ export class ItemContext {
 
     getEventsURL() {
         let path = "";
-        if (this.curItem.metadata.namespace) {
-            path += this.curItem.metadata.namespace + "/" + this.curItem.metadata.name
+        if (this.curItem?.metadata?.namespace) {
+            path += this.curItem.metadata.namespace + "/" + (this.curItem.metadata.name || "")
         } else {
-            path += this.curItem.metadata.name
+            path += this.curItem?.metadata?.name || ""
         }
         return path;
     }

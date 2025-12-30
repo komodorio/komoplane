@@ -84,7 +84,10 @@ function enableSegmentBackend(version) {
 function sendToSegmentThroughAPI(eventName, properties, segmentCallType) {
     const userId = getUserId();
     try {
-        sendData(properties, segmentCallType, userId, eventName);
+        sendData(properties, segmentCallType, userId, eventName)
+            .catch(error => {
+                console.log("failed sending data to segment", error);
+            });
     } catch (e) {
         console.log("failed sending data to segment", e);
     }
@@ -95,6 +98,11 @@ function sendData(data, eventType, userId, eventName) {
     return fetch(`https://api.komodor.com/analytics/segment/${eventType}`, {
         ...BASE_ANALYTIC_MSG,
         body: JSON.stringify(body),
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`Analytics API error: ${response.status} ${response.statusText}`);
+        }
+        return response;
     });
 }
 
