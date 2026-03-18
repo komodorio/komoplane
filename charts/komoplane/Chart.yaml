@@ -6,6 +6,7 @@ description: Komodor tool to visualize Crossplane
 icon: https://raw.githubusercontent.com/komodorio/komoplane/main/pkg/frontend/src/assets/logo.svg
 maintainers:
   - name: Komodor Team
+    url: https://github.com/komodorio
 
 version: 0.1.6
 appVersion: "0.1.6"
