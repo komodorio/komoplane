@@ -28,7 +28,9 @@ const CompositionsPage = () => {
 
     return (
         <>
-            <HeaderBar title="Compositions"/>
+            <HeaderBar title="Compositions"
+                       helpText="Compositions define how composite resources map to managed resources."
+                       helpUrl="https://docs.crossplane.io/v2.2/composition/compositions/"/>
             <PageBody>
                 <CompositionsList items={items}></CompositionsList>
             </PageBody>

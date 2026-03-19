@@ -27,7 +27,9 @@ const ClaimsPage = () => {
 
     return (
         <>
-            <HeaderBar title="Claims"/>
+            <HeaderBar title="Claims"
+                       helpText="Claims are namespace-scoped resources that request a composite resource."
+                       helpUrl="https://docs.crossplane.io/v2.2/composition/composite-resources/"/>
             <PageBody>
                 <ClaimsList items={items}></ClaimsList>
             </PageBody>

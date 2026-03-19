@@ -26,7 +26,9 @@ const CompositeResourcesPage = () => {
 
     return (
         <>
-            <HeaderBar title="Composite Resources"/>
+            <HeaderBar title="Composite Resources"
+                       helpText="Composite resources group multiple managed resources into a single higher-level resource."
+                       helpUrl="https://docs.crossplane.io/v2.2/composition/composite-resources/"/>
             <PageBody>
                 <CompositeResourcesList items={items}></CompositeResourcesList>
             </PageBody>

@@ -26,7 +26,9 @@ const ManagedResourcesPage = () => {
 
     return (
         <>
-            <HeaderBar title="Managed Resources"/>
+            <HeaderBar title="Managed Resources"
+                       helpText="Managed resources are the individual external resources created and reconciled by providers."
+                       helpUrl="https://docs.crossplane.io/v2.2/managed-resources/"/>
             <PageBody>
                 <ManagedResourcesList items={items}></ManagedResourcesList>
             </PageBody>

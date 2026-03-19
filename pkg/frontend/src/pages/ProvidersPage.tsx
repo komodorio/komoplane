@@ -24,7 +24,9 @@ const ProvidersPage = () => {
 
     return (
         <>
-            <HeaderBar title="Providers"/>
+            <HeaderBar title="Providers"
+                       helpText="Providers extend Crossplane to manage external resources like cloud infrastructure."
+                       helpUrl="https://docs.crossplane.io/v2.2/packages/providers/"/>
             <PageBody>
                 <ProviderList providers={providers}></ProviderList>
             </PageBody>
