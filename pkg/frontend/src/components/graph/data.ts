@@ -76,7 +76,7 @@ export class GraphData {
                 break;
         }
 
-        edge.markerStart = marker
+        edge.markerEnd = marker
 
         this.edges.push(edge)
     }

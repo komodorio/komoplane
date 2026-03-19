@@ -143,7 +143,7 @@ function resToGraph(res: ManagedResourceExtended, navigate: NavigateFunction): G
     const main = data.addNode(NodeTypes.ManagedResource, res, true, navigate)
     if (res.composite?.metadata?.name) {
         const composite = data.addNode(NodeTypes.CompositeResource, res.composite, false, navigate)
-        data.addEdge(main, composite)
+        data.addEdge(composite, main)
     }
 
     if (res.provConfig?.metadata?.name) {

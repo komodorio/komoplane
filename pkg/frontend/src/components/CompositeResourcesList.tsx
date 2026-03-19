@@ -195,16 +195,16 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
 
     if (res.claim) {
         const claim = data.addNode(NodeTypes.Claim, res.claim, false, navigate);
-        data.addEdge(xr, claim)
+        data.addEdge(claim, xr)
     }
 
     if (res.parentXR) {
         const parentXR = data.addNode(NodeTypes.CompositeResource, res.parentXR, false, navigate);
-        data.addEdge(xr, parentXR)
+        data.addEdge(parentXR, xr)
     }
 
     const composition = data.addNode(NodeTypes.Composition, res.composition, false, navigate);
-    data.addEdge(composition, xr)
+    data.addEdge(xr, composition)
 
     res.managedResources?.map(resource => {
         let resId;
@@ -212,12 +212,11 @@ function xrToGraph(res: CompositeResourceExtended, navigate: NavigateFunction): 
         if (res.managedResourcesXRs.some(ref => xrMatch(ref, resource))) {
             resId = data.addNode(NodeTypes.CompositeResource, resource, false, navigate);
         } else if (res.managedResourcesClaims.some(ref => claimMatch(ref, resource))) {
-            // TODO: possibly never happens?
             resId = data.addNode(NodeTypes.Claim, resource, false, navigate);
         } else {
             resId = data.addNode(NodeTypes.ManagedResource, resource, false, navigate);
         }
-        data.addEdge(resId, xr)
+        data.addEdge(xr, resId)
     })
 
     return data
