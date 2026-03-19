@@ -54,8 +54,9 @@ function CustomNode({data, sourcePosition, targetPosition}: NodeProps) {
             <Box className="px-3 py-1 border-b border-gray-400 bg-gray-500 bg-opacity-20"
                  sx={{display: 'flex', justifyContent: 'space-between', flexDirection: 'row'}}>
                 <Typography fontSize="x-small" className="uppercase text-xs">{data.type}</Typography>
-                <Typography fontSize="x-small" className="text-xs" sx={{marginLeft: "0.5rem"}}
-                            title={data.apiVersion}>{data.kind}</Typography>
+                <Typography fontSize="x-small" className="text-xs" sx={{marginLeft: "0.5rem"}}>
+                    {data.kind} <span style={{opacity: 0.6}}>{data.apiVersion}</span>
+                </Typography>
             </Box>
             <Box className="px-3 py-1">
                 <Typography variant="h6" sx={data.main ? {fontWeight: 'bold'} : {}}
