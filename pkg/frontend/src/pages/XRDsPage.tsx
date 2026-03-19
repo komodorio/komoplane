@@ -27,7 +27,9 @@ const XRDsPage = () => {
 
     return (
         <>
-            <HeaderBar title="Composite Resource Definitions (XRDs)"/>
+            <HeaderBar title="Composite Resource Definitions (XRDs)"
+                       helpText="XRDs define the schema and API for composite resources and their claims."
+                       helpUrl="https://docs.crossplane.io/v2.2/composition/composite-resource-definitions/"/>
             <PageBody>
                 <XRDsList items={items}></XRDsList>
             </PageBody>
