@@ -129,8 +129,10 @@ export default function App() {
                             <Route path="/claims/:group/:version/:kind/:namespace/:name" element={<ClaimPage/>}/>
                             <Route path="/managed" element={managed}/>
                             <Route path="/managed/:group/:version/:kind/:name" element={managed}/>
+                            <Route path="/managed/:group/:version/:kind/:namespace/:name" element={managed}/>
                             <Route path="/composite" element={composite}/>
                             <Route path="/composite/:group/:version/:kind/:name" element={composite}/>
+                            <Route path="/composite/:group/:version/:kind/:namespace/:name" element={composite}/>
                             <Route path="/compositions" element={compositions}/>
                             <Route path="/compositions/:name" element={compositions}/>
                             <Route path="/xrds" element={XRDs}/>
