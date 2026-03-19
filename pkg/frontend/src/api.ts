@@ -75,8 +75,14 @@ class APIClient {
         return data;
     };
 
-    getManagedResource = async (group?: string, version?: string, kind?: string, name?: string) => {
-        const response = await this.innterFetch(`/api/managed/` + group + "/" + version + "/" + kind + "/" + name + "?full=1");
+    getManagedResource = async (group?: string, version?: string, kind?: string, name?: string, namespace?: string) => {
+        let url: string;
+        if (namespace) {
+            url = `/api/managed/${group}/${version}/${kind}/${namespace}/${name}?full=1`;
+        } else {
+            url = `/api/managed/${group}/${version}/${kind}/${name}?full=1`;
+        }
+        const response = await this.innterFetch(url);
         const data: ManagedResourceExtended = await response.json();
         return data;
     };

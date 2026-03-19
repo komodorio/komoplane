@@ -17,6 +17,10 @@ type ItemProps = {
 };
 
 function ListItem({item, onItemClick}: ItemProps) {
+    if (!item?.metadata?.name) {
+        return null;
+    }
+
     return (
         <Grid item xs={12} md={12} key={item.metadata.name} onClick={() => {
             onItemClick(item)
@@ -27,7 +31,10 @@ function ListItem({item, onItemClick}: ItemProps) {
                         <Typography variant="h6">{item.metadata.name}</Typography>
                         <Typography variant="body1">Kind: {item.kind}</Typography>
                         <Typography variant="body1">Group: {item.apiVersion}</Typography>
-                        <Typography variant="body1">Provider Config: {item.spec.providerConfigRef?.name}</Typography>
+                        {item.metadata.namespace && (
+                            <Typography variant="body1">Namespace: {item.metadata.namespace}</Typography>
+                        )}
+                        <Typography variant="body1">Provider Config: {item.spec?.providerConfigRef?.name || "None"}</Typography>
                         <ReadySynced status={item.status?item.status:{}}></ReadySynced>
                     </CardContent>
                 </CardActionArea>
@@ -41,7 +48,7 @@ type ItemListProps = {
 };
 
 export default function ManagedResourcesList({items}: ItemListProps) {
-    const {group: fGroup, version: fVersion, kind: fKind, name: fName} = useParams();
+    const {group: fGroup, version: fVersion, kind: fKind, namespace: fNamespace, name: fName} = useParams();
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(fName != undefined);
     const [focused, setFocused] = useState<K8sResource>({metadata: {name: ""}, kind: "", apiVersion: ""});
     const navigate = useNavigate();
@@ -54,17 +61,26 @@ export default function ManagedResourcesList({items}: ItemListProps) {
     const onItemClick = (item: K8sResource) => {
         setFocused(item)
         setDrawerOpen(true)
-        navigate(
-            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name,
-            {state: item}
-        );
+        const [group, version] = item.apiVersion.split("/")
+        let path: string;
+        if (item.metadata?.namespace) {
+            path = `./${group}/${version}/${item.kind}/${item.metadata.namespace}/${item.metadata.name}`;
+        } else {
+            path = `./${group}/${version}/${item.kind}/${item.metadata.name}`;
+        }
+        navigate(path, {state: item});
     }
 
     const fApiVersion = fGroup + "/" + fVersion;
 
-    if (!focused.metadata.name && fName) {
-        items?.items?.forEach((item) => {
-            if (item.metadata.name == fName && item.apiVersion == fApiVersion && item.kind == fKind) {
+    if (!focused.metadata?.name && fName && items?.items) {
+        items.items.forEach((item) => {
+            if (!item?.metadata?.name) return;
+            const nameMatches = item.metadata.name == fName;
+            const apiVersionMatches = item.apiVersion == fApiVersion;
+            const kindMatches = item.kind == fKind;
+            const namespaceMatches = fNamespace ? item.metadata?.namespace == fNamespace : !item.metadata?.namespace;
+            if (nameMatches && apiVersionMatches && kindMatches && namespaceMatches) {
                 setFocused(item)
             }
         })
@@ -80,15 +96,20 @@ export default function ManagedResourcesList({items}: ItemListProps) {
             setter(data)
         }
 
+        if (!focused?.metadata?.name || !focused.apiVersion || !focused.kind) {
+            setError(new Error("Managed resource information is incomplete"))
+            return
+        }
+
         const [group, version] = focused.apiVersion.split("/")
-        apiClient.getManagedResource(group, version, focused.kind, focused.metadata.name)
+        apiClient.getManagedResource(group, version, focused.kind, focused.metadata.name, focused.metadata?.namespace)
             .then((data) => setData(data))
             .catch((err) => setError(err))
     }
 
     const title = (<>
-        {focused.metadata.name}
-        <ConditionChips status={focused.status ? focused.status : {}}></ConditionChips>
+        {focused?.metadata?.name || "Unknown Resource"}
+        <ConditionChips status={focused?.status ? focused.status : {}}></ConditionChips>
     </>)
 
     if (!items || !items.items.length) {
@@ -100,7 +121,7 @@ export default function ManagedResourcesList({items}: ItemListProps) {
     return (
         <>
             <Grid container spacing={2}>
-                {items?.items?.map((item: ManagedResource) => (
+                {items?.items?.filter((item) => item?.metadata?.name).map((item: ManagedResource) => (
                     <ListItem item={item} key={item.metadata.name} onItemClick={onItemClick}/>
                 ))}
             </Grid>
@@ -115,13 +136,17 @@ export default function ManagedResourcesList({items}: ItemListProps) {
 
 function resToGraph(res: ManagedResourceExtended, navigate: NavigateFunction): GraphData {
     const data = new GraphData()
-    const main = data.addNode(NodeTypes.ManagedResource, res, true, navigate)
-    if (res.composite) {
-        const provConfig = data.addNode(NodeTypes.CompositeResource, res.composite, false, navigate)
-        data.addEdge(main, provConfig)
+    if (!res?.metadata?.name) {
+        return data
     }
 
-    if (res.provConfig) {
+    const main = data.addNode(NodeTypes.ManagedResource, res, true, navigate)
+    if (res.composite?.metadata?.name) {
+        const composite = data.addNode(NodeTypes.CompositeResource, res.composite, false, navigate)
+        data.addEdge(main, composite)
+    }
+
+    if (res.provConfig?.metadata?.name) {
         const provConfig = data.addNode(NodeTypes.ProviderConfig, res.provConfig, false, navigate)
         data.addEdge(provConfig, main)
     }
