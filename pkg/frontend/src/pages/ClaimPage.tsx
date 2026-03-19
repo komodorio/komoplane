@@ -116,16 +116,14 @@ function graphDataFromClaim(claim: ClaimExtended, navigate: NavigateFunction): G
     const claimId = graphData.addNode(NodeTypes.Claim, claim, true, navigate)
 
     const compId = graphData.addNode(NodeTypes.Composition, claim.composition, false, navigate);
-    graphData.addEdge(compId, claimId)
+    graphData.addEdge(claimId, compId)
 
     const xrId = graphData.addNode(NodeTypes.CompositeResource, claim.compositeResource, false, navigate);
-    graphData.addEdge(xrId, claimId)
-
-    // TODO: check that composite resource points to the same composition and draw line between them
+    graphData.addEdge(claimId, xrId)
 
     claim.managedResources?.map(res => {
         const resId = graphData.addNode(NodeTypes.ManagedResource, res, false, navigate);
-        graphData.addEdge(resId, xrId)
+        graphData.addEdge(xrId, resId)
     })
 
     return graphData;
