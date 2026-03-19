@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
@@ -17,11 +18,11 @@ import (
 	"github.com/komodorio/komoplane/pkg/backend/crossplane"
 	"github.com/komodorio/komoplane/pkg/backend/utils"
 	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
+	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -44,6 +45,7 @@ type Controller struct {
 	ExtV1      crossplane.ExtensionsV1
 	Events     crossplane.EventsInterface
 	CRDs       crossplane.CRDInterface
+	XRDs       crossplane.XRDInterface
 	ctx        context.Context
 	apiExt     *apiextensionsv1.ApiextensionsV1Client
 	mrdCache   *ttlcache.Cache[bool, []*v1.CustomResourceDefinition] // TODO: extract this into separate entity
@@ -213,19 +215,26 @@ func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 	provCRDs := CRDMap{}
 
 	for _, crd := range crdList.Items {
-		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
+		crdCopy := crd
 	refLoop:
 		for _, ref := range crd.OwnerReferences {
-			if ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version {
-				for _, prov := range providers.Items {
-					if prov.Name == ref.Name {
-						if _, ok := provCRDs[prov.Name]; !ok {
-							provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
-						}
+			isProvider := ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version
+			isRevision := ref.Kind == cpv1.ProviderRevisionKind
 
-						provCRDs[prov.Name] = append(provCRDs[prov.Name], &crdCopy)
-						break refLoop
+			if !isProvider && !isRevision {
+				continue
+			}
+
+			for _, prov := range providers.Items {
+				// Provider owner: exact name match
+				// ProviderRevision owner: revision name starts with provider name
+				if (isProvider && prov.Name == ref.Name) ||
+					(isRevision && strings.HasPrefix(ref.Name, prov.Name+"-")) {
+					if _, ok := provCRDs[prov.Name]; !ok {
+						provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
 					}
+					provCRDs[prov.Name] = append(provCRDs[prov.Name], &crdCopy)
+					break refLoop
 				}
 			}
 		}
@@ -270,10 +279,21 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 	if ec.QueryParam("full") != "" {
 		xrRef := claim.GetResourceReference()
-
 		xr := uxres.New()
-		_ = c.getDynamicResource(xrRef, xr)
-		claim.Object["compositeResource"] = xr
+		if xrRef != nil {
+			objRef := &v12.ObjectReference{Name: xrRef.Name}
+			// Extract GVK from unstructured resourceRef since typed reference may lack fields
+			if resourceRefRaw, found := claim.Object["spec"].(map[string]interface{})["resourceRef"].(map[string]interface{}); found {
+				if apiVersion, ok := resourceRefRaw["apiVersion"].(string); ok {
+					objRef.APIVersion = apiVersion
+				}
+				if kind, ok := resourceRefRaw["kind"].(string); ok {
+					objRef.Kind = kind
+				}
+			}
+			_ = c.getDynamicResource(objRef, xr)
+			claim.Object["compositeResource"] = xr
+		}
 
 		err := c.fillManagedResources(ec, xr)
 		if err != nil {
@@ -287,12 +307,28 @@ func (c *Controller) GetClaim(ec echo.Context) error {
 
 func (c *Controller) fillCompositionByRef(obj UnstructuredWithCompositionRef) {
 	compRef := obj.GetCompositionReference()
-	if compRef != nil {
-		compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
-		comp := uxres.New()
-		_ = c.getDynamicResource(compRef, comp)
-		obj.UnstructuredContent()["composition"] = comp
+
+	// Fallback: extract composition ref manually for v2 Crossplane
+	if compRef == nil {
+		name, found, err := unstructured.NestedString(obj.UnstructuredContent(), "spec", "crossplane", "compositionRef", "name")
+		if err != nil || !found || name == "" {
+			return
+		}
+		compRef = &v12.ObjectReference{
+			Name:       name,
+			APIVersion: cpext.CompositionGroupVersionKind.GroupVersion().String(),
+			Kind:       cpext.CompositionGroupVersionKind.Kind,
+		}
 	}
+
+	compRef.SetGroupVersionKind(cpext.CompositionGroupVersionKind)
+	comp := uxres.New()
+	err := c.getDynamicResource(compRef, comp)
+	if err != nil {
+		log.Debugf("Failed to get composition %s: %v", compRef.Name, err)
+		return
+	}
+	obj.UnstructuredContent()["composition"] = comp
 }
 
 func (c *Controller) getDynamicResource(ref *v12.ObjectReference, res ConditionedObject) (err error) {
@@ -478,6 +514,23 @@ func (c *Controller) GetCompositions(ec echo.Context) error {
 	return ec.JSONPretty(http.StatusOK, items, "  ")
 }
 
+func (c *Controller) GetComposition(ec echo.Context) error {
+	name := ec.Param("name")
+	if name == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "composition name is required")
+	}
+
+	composition, err := c.ExtV1.Compositions().Get(c.ctx, name)
+	if err != nil {
+		if k8sErrors.IsNotFound(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "composition not found")
+		}
+		return err
+	}
+
+	return ec.JSONPretty(http.StatusOK, composition, "  ")
+}
+
 func (c *Controller) GetXRDs(ec echo.Context) error {
 	items, err := c.cachedListXRDs(ec)
 	if err != nil {
@@ -525,8 +578,21 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 		// claim for it, if any
 		claimRef := xr.GetClaimReference()
 		if claimRef != nil {
+			objRef := &v12.ObjectReference{Name: claimRef.Name}
+			// Extract namespace and GVK from unstructured claimRef
+			if claimRefRaw, found := xr.Object["spec"].(map[string]interface{})["claimRef"].(map[string]interface{}); found {
+				if ns, ok := claimRefRaw["namespace"].(string); ok {
+					objRef.Namespace = ns
+				}
+				if apiVersion, ok := claimRefRaw["apiVersion"].(string); ok {
+					objRef.APIVersion = apiVersion
+				}
+				if kind, ok := claimRefRaw["kind"].(string); ok {
+					objRef.Kind = kind
+				}
+			}
 			claim := uxres.New()
-			_ = c.getDynamicResource(claimRef, claim)
+			_ = c.getDynamicResource(objRef, claim)
 			xr.Object["claim"] = claim
 		}
 
@@ -559,6 +625,80 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 		}
 	}
 
+	return ec.JSONPretty(http.StatusOK, xr, "  ")
+}
+
+func (c *Controller) GetManagedNamespaced(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{
+		Name:      ec.Param("name"),
+		Namespace: ec.Param("namespace"),
+	}
+	ref.SetGroupVersionKind(gvk)
+
+	xr := NewManagedUnstructured()
+	err := c.getDynamicResource(&ref, xr)
+	if err != nil {
+		return err
+	}
+
+	if ec.QueryParam("full") != "" {
+		provConfigRef := xr.GetProviderConfigReference()
+		if provConfigRef != nil {
+			pcs, err := c.GetProviderConfigsInner(ec, "")
+			if err != nil {
+				return err
+			}
+			pcRef := v12.ObjectReference{Name: provConfigRef.Name}
+			for _, item := range pcs.Items {
+				if item.GetName() == provConfigRef.Name {
+					pcRef.SetGroupVersionKind(item.GroupVersionKind())
+					break
+				}
+			}
+			pc := uxres.New()
+			_ = c.getDynamicResource(&pcRef, pc)
+			xr.Object["provConfig"] = pc
+		}
+
+		for _, oRef := range xr.GetOwnerReferences() {
+			comp := uxres.New()
+			compRef := v12.ObjectReference{
+				Kind:       oRef.Kind,
+				Name:       oRef.Name,
+				APIVersion: oRef.APIVersion,
+			}
+			_ = c.getDynamicResource(&compRef, comp)
+			xr.Object["composite"] = comp
+		}
+	}
+
+	return ec.JSONPretty(http.StatusOK, xr.Object, "  ")
+}
+
+func (c *Controller) GetCompositeNamespaced(ec echo.Context) error {
+	gvk := schema.GroupVersionKind{
+		Group:   ec.Param("group"),
+		Version: ec.Param("version"),
+		Kind:    ec.Param("kind"),
+	}
+	ref := v12.ObjectReference{
+		Name:      ec.Param("name"),
+		Namespace: ec.Param("namespace"),
+	}
+	ref.SetGroupVersionKind(gvk)
+
+	xr := uxres.New()
+	err := c.getDynamicResource(&ref, xr)
+	if err != nil {
+		return err
+	}
+
+	c.fillCompositionByRef(xr)
 	return ec.JSONPretty(http.StatusOK, xr, "  ")
 }
 
@@ -609,25 +749,21 @@ func (c *Controller) fillXRDList(ec echo.Context, list *unstructured.Unstructure
 			continue
 		}
 
-		versionName := ""
-		for _, v := range xrd.Spec.Versions {
-			if v.Served {
-				versionName = v.Name
-			}
-		}
-
+		versionName := selectBestVersion(xrd.Spec.Versions)
 		if versionName == "" {
-			return errors.Errorf("No active versions for %s", xrd.Spec.Names.Plural)
+			log.Warnf("No served version for XRD %s, skipping", xrd.Name)
+			continue
 		}
 
-		gvk := schema.GroupVersionKind{ // TODO: xrd.Status.Controllers.CompositeResourceClaimTypeRef is more logical here
+		gvk := schema.GroupVersionKind{
 			Group:   xrd.Spec.Group,
 			Version: versionName,
 			Kind:    *kind,
 		}
 		res, err := c.CRDs.List(c.ctx, gvk)
 		if err != nil {
-			return err
+			log.Warnf("Failed to list resources for XRD %s: %v", xrd.Name, err)
+			continue
 		}
 
 		list.Items = append(list.Items, res.Items...)
@@ -662,7 +798,7 @@ func (c *Controller) cachedListXRDs(ec echo.Context) (items *cpext.CompositeReso
 	cacheKey := "XRDs"
 	cached := ec.Get(cacheKey) // this would save couple of calls
 	if cached == nil {
-		items, err = c.ExtV1.XRDs().List(c.ctx)
+		items, err = c.XRDs.List(c.ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -672,6 +808,17 @@ func (c *Controller) cachedListXRDs(ec echo.Context) (items *cpext.CompositeReso
 	}
 
 	return items, nil
+}
+
+// selectBestVersion picks the best served version, preferring higher version names.
+func selectBestVersion(versions []cpext.CompositeResourceDefinitionVersion) string {
+	best := ""
+	for _, v := range versions {
+		if v.Served && v.Name > best {
+			best = v.Name
+		}
+	}
+	return best
 }
 
 func NewController(ctx context.Context, cfg *rest.Config, ns string, version string) (*Controller, error) {
@@ -697,6 +844,11 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		return nil, err
 	}
 
+	versionAwareXRDs, err := crossplane.NewVersionAwareXRDWrapper(cfg, ext.XRDs())
+	if err != nil {
+		return nil, err
+	}
+
 	mrdCacheTTL := durationFromEnv("KP_MRD_CACHE_TTL", 5*time.Minute)
 	mrCacheTTL := durationFromEnv("KP_MR_CACHE_TTL", 1*time.Minute)
 
@@ -706,7 +858,8 @@ func NewController(ctx context.Context, cfg *rest.Config, ns string, version str
 		ExtV1:  ext,
 		Events: evt,
 		apiExt: apiExt,
-		CRDs:   crossplane.NewCRDsClient(cfg, ext),
+		CRDs:   crossplane.NewVersionAwareCRDsClient(cfg, ext, versionAwareXRDs),
+		XRDs:   versionAwareXRDs,
 		StatusInfo: StatusInfo{
 			CurVer: version,
 		},
