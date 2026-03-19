@@ -29,17 +29,18 @@ func TestCtl(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	res := httptest.NewRecorder()
 	ec := echo.New().NewContext(req, res)
-	c.LoadCRDs(ec)
-	c.GetManaged(ec)
+	_, _ = c.LoadCRDs(ec)
+	_ = c.GetManaged(ec)
 
 	ref := v1.ObjectReference{
 		Name: "xhelmdashboards.xrd.komodor.com",
 	}
-	c.Events.List(ctx, &ref)
+	_, _ = c.Events.List(ctx, &ref)
 }
 
 func TestSome(t *testing.T) {
-	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
 	var config *rest.Config
 	var err error

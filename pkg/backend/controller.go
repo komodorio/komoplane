@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	cpk8s "github.com/crossplane-contrib/provider-kubernetes/apis/v1alpha1"
@@ -214,19 +215,26 @@ func (c *Controller) LoadCRDs(ec echo.Context) (CRDMap, error) {
 	provCRDs := CRDMap{}
 
 	for _, crd := range crdList.Items {
-		crdCopy := crd // otherwise, variable gets reused (https://garbagecollected.org/2017/02/22/go-range-loop-internals/)
+		crdCopy := crd
 	refLoop:
 		for _, ref := range crd.OwnerReferences {
-			if ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version {
-				for _, prov := range providers.Items {
-					if prov.Name == ref.Name {
-						if _, ok := provCRDs[prov.Name]; !ok {
-							provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
-						}
+			isProvider := ref.Kind == cpv1.ProviderKind && ref.APIVersion == cpv1.Group+"/"+cpv1.Version
+			isRevision := ref.Kind == cpv1.ProviderRevisionKind
 
-						provCRDs[prov.Name] = append(provCRDs[prov.Name], &crdCopy)
-						break refLoop
+			if !isProvider && !isRevision {
+				continue
+			}
+
+			for _, prov := range providers.Items {
+				// Provider owner: exact name match
+				// ProviderRevision owner: revision name starts with provider name
+				if (isProvider && prov.Name == ref.Name) ||
+					(isRevision && strings.HasPrefix(ref.Name, prov.Name+"-")) {
+					if _, ok := provCRDs[prov.Name]; !ok {
+						provCRDs[prov.Name] = []*v1.CustomResourceDefinition{}
 					}
+					provCRDs[prov.Name] = append(provCRDs[prov.Name], &crdCopy)
+					break refLoop
 				}
 			}
 		}
