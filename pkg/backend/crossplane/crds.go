@@ -20,6 +20,7 @@ type CRDInterface interface {
 type crdClient struct {
 	cfg   *rest.Config
 	ExtV1 *ExtensionsV1Client
+	XRDs  XRDInterface
 }
 
 func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.ObjectReference) error {
@@ -65,6 +66,7 @@ func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*uns
 	result := unstructured.UnstructuredList{}
 	err = client.
 		Get().
+		Namespace("").
 		Resource(gvk.Kind).
 		Do(ctx).
 		Into(&result)
@@ -73,7 +75,14 @@ func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*uns
 }
 
 func (c *crdClient) getPluralKind(ctx context.Context, ref *v1.ObjectReference) (string, error) {
-	xrds, err := c.ExtV1.XRDs().List(ctx)
+	var xrdClient XRDInterface
+	if c.XRDs != nil {
+		xrdClient = c.XRDs
+	} else {
+		xrdClient = c.ExtV1.XRDs()
+	}
+
+	xrds, err := xrdClient.List(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -96,5 +105,13 @@ func NewCRDsClient(cfg *rest.Config, ext *ExtensionsV1Client) CRDInterface {
 	return &crdClient{
 		cfg:   cfg,
 		ExtV1: ext,
+	}
+}
+
+func NewVersionAwareCRDsClient(cfg *rest.Config, ext *ExtensionsV1Client, xrds XRDInterface) CRDInterface {
+	return &crdClient{
+		cfg:   cfg,
+		ExtV1: ext,
+		XRDs:  xrds,
 	}
 }
