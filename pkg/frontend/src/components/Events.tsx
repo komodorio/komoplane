@@ -15,16 +15,16 @@ function EventListItem({event}: EventListItemProps) {
     return (
         <Grid item xs={12} md={12} key={event.metadata.name}>
             <Card variant="outlined" className="p-2">
-                <Grid container justifyContent="space-between">
-                    <Grid item>
+                <Grid container>
+                    <Grid item xs>
                         <Typography variant="body1" sx={{fontWeight: 'bold'}}>{event.reason}</Typography>
                         <Typography variant="body1">{event.message}</Typography>
                     </Grid>
-                    <Grid item>
+                    <Grid item sx={{textAlign: 'center', minWidth: '5em', ml: 2}}>
                         <Typography variant="body1"
                                     className={event.type != "Normal" ? "text-amber-700" : ""}>{event.type}</Typography>
                     </Grid>
-                    <Grid item>
+                    <Grid item sx={{textAlign: 'right', minWidth: '8em', ml: 2}}>
                         <Typography variant="body1" className="mb-1">{age} ago</Typography>
                         <Typography variant="body1"
                                     className="text-gray-400">x{event.count} over {interval}</Typography>
