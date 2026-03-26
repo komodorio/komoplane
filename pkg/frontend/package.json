@@ -22,7 +22,7 @@
     "react-router-dom": "^6.30.3",
     "react-syntax-highlighter": "^16.1.0",
     "reactflow": "^11.7.2",
-    "yaml": "^2.3.1"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.48",
