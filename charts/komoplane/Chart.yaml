@@ -9,5 +9,5 @@ maintainers:
     email: support@komodor.com
     url: https://github.com/komodorio
 
-version: 0.1.6
-appVersion: "0.1.6"
+version: 0.1.7
+appVersion: "0.2.0"
