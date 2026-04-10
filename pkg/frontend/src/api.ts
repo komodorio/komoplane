@@ -94,8 +94,14 @@ class APIClient {
         return data;
     };
 
-    getCompositeResource = async (group?: string, version?: string, kind?: string, name?: string) => {
-        const response = await this.innterFetch(`/api/composite/` + group + "/" + version + "/" + kind + "/" + name + "?full=1");
+    getCompositeResource = async (group?: string, version?: string, kind?: string, name?: string, namespace?: string) => {
+        let url: string;
+        if (namespace) {
+            url = `/api/composite/${group}/${version}/${kind}/${namespace}/${name}?full=1`;
+        } else {
+            url = `/api/composite/${group}/${version}/${kind}/${name}?full=1`;
+        }
+        const response = await this.innterFetch(url);
         const data: CompositeResourceExtended = await response.json();
         return data;
     };

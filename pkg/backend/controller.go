@@ -568,8 +568,12 @@ func (c *Controller) GetComposite(ec echo.Context) error {
 	ref := v12.ObjectReference{Name: ec.Param("name")}
 	ref.SetGroupVersionKind(gvk)
 
+	return c.getCompositeInner(ec, &ref)
+}
+
+func (c *Controller) getCompositeInner(ec echo.Context, ref *v12.ObjectReference) error {
 	xr := uxres.New()
-	err := c.getDynamicResource(&ref, xr)
+	err := c.getDynamicResource(ref, xr)
 	if err != nil {
 		return err
 	}
@@ -692,14 +696,7 @@ func (c *Controller) GetCompositeNamespaced(ec echo.Context) error {
 	}
 	ref.SetGroupVersionKind(gvk)
 
-	xr := uxres.New()
-	err := c.getDynamicResource(&ref, xr)
-	if err != nil {
-		return err
-	}
-
-	c.fillCompositionByRef(xr)
-	return ec.JSONPretty(http.StatusOK, xr, "  ")
+	return c.getCompositeInner(ec, &ref)
 }
 
 func (c *Controller) fillManagedResources(ec echo.Context, xr *uxres.Unstructured) error {

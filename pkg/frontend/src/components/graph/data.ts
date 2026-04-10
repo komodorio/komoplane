@@ -127,7 +127,11 @@ export class GraphData {
                 url = "/compositions/" + res.metadata.name
                 break;
             case NodeTypes.CompositeResource:
-                url = "/composite/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                if (res.metadata.namespace) {
+                    url = "/composite/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.namespace + "/" + res.metadata.name
+                } else {
+                    url = "/composite/" + res.apiVersion + "/" + res.kind + "/" + res.metadata.name
+                }
                 break;
             case NodeTypes.ManagedResource:
                 if (res.metadata.namespace) {

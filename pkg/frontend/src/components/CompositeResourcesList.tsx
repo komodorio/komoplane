@@ -27,6 +27,9 @@ function ListItem({item, onItemClick}: ItemProps) {
                     <Typography variant="h6">{item.metadata.name}</Typography>
                     <Typography variant="body1">Kind: {item.kind}</Typography>
                     <Typography variant="body1">Group: {item.apiVersion}</Typography>
+                    {item.metadata.namespace && (
+                        <Typography variant="body1">Namespace: {item.metadata.namespace}</Typography>
+                    )}
                     <Typography variant="body1">Composition: {item.spec.compositionRef?.name}</Typography>
                     <Typography variant="body1">Composed resources: {item.spec.resourceRefs?.length}</Typography>
                     <ReadySynced status={item.status ? item.status : {}}></ReadySynced>
@@ -41,7 +44,7 @@ type ItemListProps = {
 };
 
 export default function CompositeResourcesList({items}: ItemListProps) {
-    const {group: fGroup, version: fVersion, kind: fKind, name: fName} = useParams();
+    const {group: fGroup, version: fVersion, kind: fKind, namespace: fNamespace, name: fName} = useParams();
     const [isDrawerOpen, setDrawerOpen] = useState<boolean>(fName != undefined);
     const nullFocused = {metadata: {name: ""}, kind: "", apiVersion: ""};
     const [focused, setFocused] = useState<K8sResource>(nullFocused);
@@ -57,16 +60,23 @@ export default function CompositeResourcesList({items}: ItemListProps) {
     const onItemClick = (item: K8sResource) => {
         setFocused(item)
         setDrawerOpen(true)
-        navigate(
-            "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name
-        );
+        if (item.metadata?.namespace) {
+            navigate(
+                "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.namespace + "/" + item.metadata.name
+            );
+        } else {
+            navigate(
+                "./" + item.apiVersion + "/" + item.kind + "/" + item.metadata.name
+            );
+        }
     }
 
     const fApiVersion = fGroup + "/" + fVersion;
 
     if (fName && focused.metadata.name != fName) {
         items?.items?.forEach((item) => {
-            if (item.metadata.name == fName && item.apiVersion == fApiVersion && item.kind == fKind) {
+            const namespaceMatches = fNamespace ? item.metadata?.namespace == fNamespace : !item.metadata?.namespace;
+            if (item.metadata.name == fName && item.apiVersion == fApiVersion && item.kind == fKind && namespaceMatches) {
                 logger.log("== SET FOCUSED", item)
                 setFocused(item)
             }
@@ -85,7 +95,7 @@ export default function CompositeResourcesList({items}: ItemListProps) {
             }
 
             const [group, version] = focused.apiVersion.split("/")
-            apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name)
+            apiClient.getCompositeResource(group, version, focused.kind, focused.metadata.name, focused.metadata?.namespace)
                 .then((data) => setData(data))
                 .catch((err) => setError(err))
         }
