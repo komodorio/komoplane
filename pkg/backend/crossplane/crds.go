@@ -26,7 +26,7 @@ type crdClient struct {
 func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.ObjectReference) error {
 	version := ref.GroupVersionKind().GroupVersion()
 	config := *c.cfg
-	config.ContentConfig.GroupVersion = &version
+	config.GroupVersion = &version
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
@@ -53,7 +53,7 @@ func (c *crdClient) Get(ctx context.Context, result resource.Object, ref *v1.Obj
 
 func (c *crdClient) List(ctx context.Context, gvk schema.GroupVersionKind) (*unstructured.UnstructuredList, error) {
 	config := *c.cfg
-	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: gvk.Group, Version: gvk.Version}
+	config.GroupVersion = &schema.GroupVersion{Group: gvk.Group, Version: gvk.Version}
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 	config.UserAgent = rest.DefaultKubernetesUserAgent()

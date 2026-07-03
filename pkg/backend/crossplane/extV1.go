@@ -20,7 +20,7 @@ type ExtensionsV1Client struct {
 
 func NewEXTv1Client(c *rest.Config) (*ExtensionsV1Client, error) {
 	config := *c
-	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: v1.Group, Version: v1.Version}
+	config.GroupVersion = &schema.GroupVersion{Group: v1.Group, Version: v1.Version}
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
